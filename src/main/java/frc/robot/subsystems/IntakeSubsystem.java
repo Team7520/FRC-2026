@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -11,6 +12,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private final TalonFX intakeMotor;
     private final TalonFX extendMotor;
     private final DutyCycleOut duty = new DutyCycleOut(0);
+    private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
+    double extendedPosition;
+    double retractedPosition;
 
     public IntakeSubsystem() {
         intakeMotor = new TalonFX(1);
@@ -30,8 +34,12 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotor.setControl(duty.withOutput(speed));
     }
 
-    public void extend(double speed) {
-        extendMotor.setControl(duty.withOutput(speed));
+    public void extend() {
+        extendMotor.setControl(pivotPosReq.withPosition(extendedPosition));
+    }
+
+    public void retract() {
+        extendMotor.setControl(pivotPosReq.withPosition(retractedPosition));
     }
 
     public void stopAll() {
