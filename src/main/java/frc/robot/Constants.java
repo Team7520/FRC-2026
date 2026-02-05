@@ -28,4 +28,17 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static class TurretConstants {
+    public static double launchHeight = 0.8; // m
+    public static double exitVelocity = 8.0; // m/s
+  }
+
+  public static class FieldConstants {
+    public static double hubHeight = 1.82; // m
+  }
+
+  public static class UniverseConstants {
+    public static double g = 9.81;
+  }
 }
