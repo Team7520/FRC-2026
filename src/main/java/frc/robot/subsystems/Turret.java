@@ -26,7 +26,7 @@ public class Turret {
         
         double disc = b*b - 4*a*c;
         if (disc < 0) {
-            return new Pair<>(-1.0, -1.0); // No solution
+            return new Pair<>(-1.0, -1.0); // No solution (Should never happen?)
         }
 
         double t1 = (-b + Math.sqrt(disc)) / (2*a);
@@ -34,11 +34,12 @@ public class Turret {
 
         double solution = Math.max(t1, t2);
         if (solution > 0) { 
-            return new Pair<>((horX+vx) * solution, (horY + vy) * solution); // X and Y coords of where the ball lands in the hub
+            return new Pair<>((horX+vx) * solution, (horY + vy) * solution); // X and Y coords of where the ball lands
         } return new Pair<>(-1.0, -1.0);
     }
 
     double getAngle(double x, double y) {
+        // Gets angle of point with respect to (0, 0) and a horizontal line
         double d = Math.sqrt(x*x+y*y);
         double st = y/d;
         double ct = x/d;
@@ -49,6 +50,7 @@ public class Turret {
     }
 
     double dist(Pair<Double, Double> p1, Pair<Double, Double> p2) {
+        // Gets distance between 2 points
         return Math.sqrt(
             Math.pow(p1.getFirst()-p2.getFirst(), 2) +
             Math.pow(p1.getSecond()-p2.getSecond(), 2)
@@ -56,17 +58,22 @@ public class Turret {
     }
 
     Pair<Double, Double> shootingDirections(Pair<Double, Double> botLoc, Pair<Double, Double> botVel) {
+        // Starting constraints to guarantee finding a good shot.
         double elevation = Math.toRadians(51);
         double azimuth = Math.toRadians(45);
 
         for (int i = 0; i < 150; i++) {
+            // Determine where the ball should land with given elevation and azimuth
             Pair<Double, Double> ballLoc = locationAtHeight(
                 elevation, azimuth, botVel.getFirst(), botVel.getSecond()
             );
             ballLoc = new Pair<>(ballLoc.getFirst() + botLoc.getFirst(), ballLoc.getSecond() + botLoc.getSecond());
+
+            // See how far that is from the goal
             double ballAngle = getAngle(ballLoc.getFirst()-botLoc.getFirst(), ballLoc.getSecond()-botLoc.getSecond());
             double hubAngle = getAngle(FieldConstants.hubX-botLoc.getFirst(), FieldConstants.hubY-botLoc.getSecond());
 
+            // Adjust numbers to get closer to goal number
             azimuth += Math.toRadians((hubAngle-ballAngle) * 0.1);
 
             double dHub = dist(FieldConstants.hubLoc, botLoc);
@@ -77,7 +84,18 @@ public class Turret {
             } else {
                 elevation = Math.min(elevation-0.01, Math.toRadians(51));
             }
+
+            // Repeat 150 times
         }
-        return new Pair<Double,Double>(elevation, azimuth);
+
+        // Check the final distance from goal and determine if within tolerance (50 cm).
+        // If not, no solution at this location with this speed
+        Pair<Double, Double> ballLoc = locationAtHeight(
+            elevation, azimuth, botVel.getFirst(), botVel.getSecond()
+        );
+        ballLoc = new Pair<>(ballLoc.getFirst() + botLoc.getFirst(), ballLoc.getSecond() + botLoc.getSecond());
+        if (dist(FieldConstants.hubLoc, ballLoc) < TurretConstants.aimTolerance) {
+            return new Pair<Double,Double>(elevation, azimuth);
+        } return new Pair<Double,Double>(-1.0, -1.0);
     }
 }
