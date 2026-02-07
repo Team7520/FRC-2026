@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.math.Pair;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -35,6 +36,9 @@ public final class Constants {
   }
 
   public static class FieldConstants {
+    public static double hubX = 4.62;
+    public static double hubY = 4.03;
+    public static Pair<Double, Double> hubLoc = new Pair<>(hubX, hubY);
     public static double hubHeight = 1.82; // m
   }
 
