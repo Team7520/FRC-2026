@@ -8,8 +8,6 @@ import frc.robot.Constants.UniverseConstants;
 import frc.robot.Constants.FieldConstants;
 
 public class Turret {
-    TalonFX hood = new TalonFX(0);
-    TalonFX rotation = new TalonFX(1);
 
     Pair<Double, Double> locationAtHeight(double elevation, double azimuth, double vx, double vy) {
 
@@ -58,6 +56,9 @@ public class Turret {
     }
 
     Pair<Double, Double> shootingDirections(Pair<Double, Double> botLoc, Pair<Double, Double> botVel) {
+        // Takes in the bot location and velocity vectors, and returns optimal elevation and azimuth angles
+        // If both are -1, no good solution exists
+
         // Starting constraints to guarantee finding a good shot.
         double elevation = Math.toRadians(51);
         double azimuth = Math.toRadians(45);

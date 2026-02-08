@@ -43,6 +43,7 @@ public final class Constants {
     public static double hubHeight = 1.82; // m
   }
 
+  // You should probably find a better place to put this?
   public static class UniverseConstants {
     public static double g = 9.81;
   }
