@@ -40,6 +40,7 @@
 - Competition robot runs SDS MK5n (R3 ratio) swerve: Kraken X60 drive motors, Kraken X44 steer motors, and CTRE CANcoders on every module; all CAN IDs and module geometry live in `frc/robot/generated/TunerConstants.java` and must remain generated-only.
 - CAN bus infrastructure relies on a single CANivore named `CANivore`; never rename the bus or reuse those IDs when adding devices.
 - IMU is a CTRE Pigeon 2.0 on the same CAN-FD bus; the team holds a 2026 Phoenix Pro license, so prefer Phoenix Pro control modes/features when extending IO implementations.
+- Phoenix 5.0 should not be used; it is obsolete for this robot and will be deprecated, so lean exclusively on Phoenix 6/Pro APIs.
 - RIO is a roboRIO 2.0; it is acceptable to lean on RIO 2-specific optimizations and expect deployment solely to that controller.
 - The RIO CAN 2.0 bus currently only hosts the REV PDH, but leave room for future non-CTRE devices on CAN 2.0 and additional vendor motor controllers.
 - Use YASS YAMS libraries; Limelight 4 and PhotonVision vision pipelines are planned, so leave extension points for camera IO.
