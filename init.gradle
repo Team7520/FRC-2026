@@ -1,0 +1,7 @@
+allprojects {
+    tasks.register("printRuntimeClasspath") {
+        doLast {
+            println configurations.findByName("runtimeClasspath")?.files?.join("\n")
+        }
+    }
+}
