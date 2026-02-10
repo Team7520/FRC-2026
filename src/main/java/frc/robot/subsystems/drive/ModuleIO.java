@@ -1,7 +1,7 @@
-// Copyright (c) 2021-2026 Littleton Robotics
+// Copyright (c) 2021-2026 Littleton Robotics and Team 7520
 // http://github.com/Mechanical-Advantage
 //
-// Use of this source code is governed by a BSD
+// Use of this source code is governed by a BSD and Apache 2.0
 // license that can be found in the LICENSE file
 // at the root directory of this project.
 
