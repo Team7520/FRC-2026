@@ -28,4 +28,8 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static class ClimberConstants {
+    public static final int MAX_AMP_POWER = 60;
+  }
 }
