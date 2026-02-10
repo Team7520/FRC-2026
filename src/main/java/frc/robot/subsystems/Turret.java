@@ -28,7 +28,7 @@ public class Turret {
         }
 
         double t1 = (-b + Math.sqrt(disc)) / (2*a);
-        double t2 = (-b + Math.sqrt(disc)) / (2*a);
+        double t2 = (-b - Math.sqrt(disc)) / (2*a);
 
         double solution = Math.max(t1, t2);
         if (solution > 0) { 
