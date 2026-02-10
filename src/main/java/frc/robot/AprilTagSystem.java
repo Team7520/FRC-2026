@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -278,19 +280,29 @@ public class AprilTagSystem extends SubsystemBase {
    *
    * @return capture time in milliseconds
    */
-  public double getCaptureTime(int cameraIndex) {
-    if (cameraIndex < 0 || cameraIndex >= cameraList.size()) {
-      return -1; // Handle invalid camera index
+  public double getCaptureTime() {
+    CameraInfo cameraInfo;
+    PhotonPipelineResult result;
+    switch (whichClosest()) {
+      case 0:
+        cameraInfo = cameraList.get(0);
+        result = cameraInfo.camera.getLatestResult();
+        return result.getTimestampSeconds();
+      case 1:
+        cameraInfo = cameraList.get(1);
+        result = cameraInfo.camera.getLatestResult();
+        return result.getTimestampSeconds();
+      case 2:
+        return Timer.getFPGATimestamp()
+                - (LimelightHelpers.getLatency_Capture(limelight1) / 1000.0)
+                - (LimelightHelpers.getLatency_Pipeline(limelight1) / 1000.0);
+      case 3:
+        return Timer.getFPGATimestamp()
+                - (LimelightHelpers.getLatency_Capture(limelight2) / 1000.0)
+                - (LimelightHelpers.getLatency_Pipeline(limelight2) / 1000.0);
+      default:
+        return -1;
     }
-
-    CameraInfo cameraInfo = cameraList.get(cameraIndex);
-    PhotonPipelineResult result = cameraInfo.camera.getLatestResult();
-
-    if (result == null || !result.hasTargets()) {
-      return -1; // Handle the case where no targets are found
-    }
-
-    return result.getTimestampSeconds() * 1000; // Convert seconds to milliseconds
   }
 
   /**
@@ -299,7 +311,30 @@ public class AprilTagSystem extends SubsystemBase {
    *
    * @return a Pose2d
    */
-  public Pose2d getCurrentRobotFieldPose(/*int camera*/ ) {
+  public Pose2d getCurrentRobotFieldPose() {
+    PhotonPipelineResult result = null;
+    int cam2Use = whichClosest();
+    if(cam2Use == 0 || cam2Use == 1) {
+      result = cameraList.get(cam2Use).camera.getLatestResult();
+        Transform3d robotToCamera = cameraList.get(cam2Use).robotToCamera;
+        PhotonTrackedTarget target = result.getBestTarget();
+        if (target.getBestCameraToTarget().getX() > MAX_RANGE) {
+          return null;
+        }
+        Pose3d robotPose =
+        PhotonUtils.estimateFieldToRobotAprilTag(
+            target.getBestCameraToTarget(),
+            aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
+            robotToCamera.inverse());
+        return robotPose.toPose2d();
+    } else if(cam2Use == 2) {
+      return LimelightHelpers.getBotPose2d_wpiBlue(limelight1);
+    } else if(cam2Use == 3) {
+      return LimelightHelpers.getBotPose2d_wpiBlue(limelight2);
+    } else {
+      return null;
+    }
+    
     // PhotonPipelineResult result = null;
     // if (camera >= 0 && camera < cameraList.size()) {
     //   result = cameraList.get(camera).camera.getLatestResult();
@@ -321,10 +356,6 @@ public class AprilTagSystem extends SubsystemBase {
     //         aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
     //         robotToCamera.inverse());
     // return robotPose.toPose2d(); temp comment to just use the limelight for testing
-    if (LimelightHelpers.getTV(limelight2)) {
-      return LimelightHelpers.getBotPose2d_wpiBlue(limelight2);
-    }
-    return new Pose2d();
   }
 
   /**

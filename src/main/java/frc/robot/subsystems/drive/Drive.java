@@ -234,13 +234,15 @@ public class Drive extends SubsystemBase {
 
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
-      if (LimelightHelpers.getTV("limelight-two")) {
+      Pose2d fieldPose = aprilTagSystem.getCurrentRobotFieldPose();
+      double timestamp = aprilTagSystem.getCaptureTime();
+      if(fieldPose != null && timestamp != -1) {
         poseEstimator.addVisionMeasurement(
             aprilTagSystem.getCurrentRobotFieldPose(),
-            Timer.getFPGATimestamp()
-                - (LimelightHelpers.getLatency_Capture("limelight-two") / 1000.0)
-                - (LimelightHelpers.getLatency_Pipeline("limelight-two") / 1000.0));
+            timestamp);
+      
       }
+        
       currentPosePublisher.set(getPose());
     }
 
