@@ -3,8 +3,6 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
@@ -21,7 +19,6 @@ import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class TurretSubsystem extends SubsystemBase {
-  private static final boolean FORCE_PHOENIX_PRO = true;
   private static final Time OPEN_LOOP_RAMP = Seconds.of(0.15);
 
   private static final Angle TURRET_MIN_ANGLE = Degrees.of(-180);
@@ -35,8 +32,6 @@ public class TurretSubsystem extends SubsystemBase {
   private final Pivot hood;
   private final TalonFXWrapper topMotor;
   private final TalonFXWrapper bottomMotor;
-  private final TorqueCurrentFOC openLoopRequest = new TorqueCurrentFOC(0.0);
-  private final PositionTorqueCurrentFOC positionRequest = new PositionTorqueCurrentFOC(0.0);
 
   public TurretSubsystem(int turnMotorId, int hoodMotorId, int topMotorId, int bottomMotorId) {
     TalonFXConfiguration phoenixProConfig = createPhoenixProConfig();
@@ -104,18 +99,10 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setTurretAngle(Angle angle) {
-    if (FORCE_PHOENIX_PRO) {
-      getMotorController(turretMotor).setControl(positionRequest.withPosition(angle.in(Rotations)));
-      return;
-    }
     turretMotor.setPosition(angle);
   }
 
   public void setHoodAngle(Angle angle) {
-    if (FORCE_PHOENIX_PRO) {
-      getMotorController(hoodMotor).setControl(positionRequest.withPosition(angle.in(Rotations)));
-      return;
-    }
     hoodMotor.setPosition(angle);
   }
 
@@ -128,53 +115,26 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void turn(double speed) {
-    if (FORCE_PHOENIX_PRO) {
-      getMotorController(turretMotor).setControl(openLoopRequest.withOutput(speed));
-      return;
-    }
     turretMotor.setDutyCycle(speed);
   }
 
   public void hood(double speed) {
-    if (FORCE_PHOENIX_PRO) {
-      getMotorController(hoodMotor).setControl(openLoopRequest.withOutput(speed));
-      return;
-    }
     hoodMotor.setDutyCycle(speed);
   }
 
   public void top(double speed) {
-    if (FORCE_PHOENIX_PRO) {
-      getMotorController(topMotor).setControl(openLoopRequest.withOutput(speed));
-      return;
-    }
     topMotor.setDutyCycle(speed);
   }
 
   public void bottom(double speed) {
-    if (FORCE_PHOENIX_PRO) {
-      getMotorController(bottomMotor).setControl(openLoopRequest.withOutput(speed));
-      return;
-    }
     bottomMotor.setDutyCycle(speed);
   }
 
   public void stopAll() {
-    if (FORCE_PHOENIX_PRO) {
-      getMotorController(turretMotor).setControl(openLoopRequest.withOutput(0.0));
-      getMotorController(hoodMotor).setControl(openLoopRequest.withOutput(0.0));
-      getMotorController(topMotor).setControl(openLoopRequest.withOutput(0.0));
-      getMotorController(bottomMotor).setControl(openLoopRequest.withOutput(0.0));
-      return;
-    }
     turretMotor.setDutyCycle(0.0);
     hoodMotor.setDutyCycle(0.0);
     topMotor.setDutyCycle(0.0);
     bottomMotor.setDutyCycle(0.0);
-  }
-
-  private TalonFX getMotorController(TalonFXWrapper wrapper) {
-    return (TalonFX) wrapper.getMotorController();
   }
 
   private TalonFXConfiguration createPhoenixProConfig() {
