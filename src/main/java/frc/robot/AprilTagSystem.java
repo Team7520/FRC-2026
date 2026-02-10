@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -131,12 +130,22 @@ public class AprilTagSystem extends SubsystemBase {
     SmartDashboard.putNumber("Lime1 Distance", getClosest(2));
     SmartDashboard.putNumber("Lime2 Distance", getClosest(3));
     SmartDashboard.putNumber("Pi 1 Distance", getClosest(0));
-    SmartDashboard.putNumber("Lime1 X", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[0]);
-    SmartDashboard.putNumber("Lime1 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[1]);
-    SmartDashboard.putNumber("Lime1 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[2]);
-    SmartDashboard.putNumber("Lime2 X", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[0]);
-    SmartDashboard.putNumber("Lime2 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[1]);
-    SmartDashboard.putNumber("Lime2 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[2]);
+    if (LimelightHelpers.getTV(limelight1)) {
+      SmartDashboard.putNumber(
+          "Lime1 X", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[0]);
+      SmartDashboard.putNumber(
+          "Lime1 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[1]);
+      SmartDashboard.putNumber(
+          "Lime1 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[2]);
+    }
+    if (LimelightHelpers.getTV(limelight2)) {
+      SmartDashboard.putNumber(
+          "Lime2 X", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[0]);
+      SmartDashboard.putNumber(
+          "Lime2 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[1]);
+      SmartDashboard.putNumber(
+          "Lime2 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[2]);
+    }
   }
 
   public List<PhotonCamera> getCameras() {
@@ -225,9 +234,9 @@ public class AprilTagSystem extends SubsystemBase {
         return -1; // Handle the case where no targets are found
       }
     }
-    
-    if ((cameraIndex == 2 && !LimelightHelpers.getTV(limelight1)) || 
-        (cameraIndex == 3 && !LimelightHelpers.getTV(limelight2))) {
+
+    if ((cameraIndex == 2 && !LimelightHelpers.getTV(limelight1))
+        || (cameraIndex == 3 && !LimelightHelpers.getTV(limelight2))) {
       return -1;
     }
 
@@ -290,44 +299,32 @@ public class AprilTagSystem extends SubsystemBase {
    *
    * @return a Pose2d
    */
-  public Pose2d getCurrentRobotFieldPose(int camera) {
-    PhotonPipelineResult result = null;
-    if (camera >= 0 && camera < cameraList.size()) {
-      result = cameraList.get(camera).camera.getLatestResult();
-    }
+  public Pose2d getCurrentRobotFieldPose(/*int camera*/ ) {
+    // PhotonPipelineResult result = null;
+    // if (camera >= 0 && camera < cameraList.size()) {
+    //   result = cameraList.get(camera).camera.getLatestResult();
+    // }
 
-    if (result == null || !result.hasTargets()) {
-      return null;
-    }
-    /*
-     * To avoid confusion regarding whether rotation is applied first or translation, and whether the rotation/translational
-     * axes are transformed along with the object, we'll assume translation is considered first before rotation, where each
-     * component of the transformation is considered in the order as it is labeled as a parameter.
-     *
-     * According to WPILIB Documentation, the related object/class, Transform2d, consists of a translation and a rotation.
-     * In Transform2d, the rotation is applied TO THE TRANSLATION, then the rotation is applied to the object.
-     * This is mathematically equivalent to applying an unrotated translation, then applying the rotation to the object.
-     * Both seqences transform the object to the same destination in space.
-     *
-     * For simplicity reasons, we should base the camera's transformation relative to the robot center, and then simply inverse
-     * the transformtation - instead of having robot relative to camera.
-     *
-     * -Robin
-     */
-    Transform3d robotToCamera = cameraList.get(camera).robotToCamera;
+    // if (result == null || !result.hasTargets()) {
+    //   return null;
+    // }
 
-    PhotonTrackedTarget target = result.getBestTarget();
-    if (target.getBestCameraToTarget().getX() > MAX_RANGE) {
-      return null;
+    // Transform3d robotToCamera = cameraList.get(camera).robotToCamera;
+
+    // PhotonTrackedTarget target = result.getBestTarget();
+    // if (target.getBestCameraToTarget().getX() > MAX_RANGE) {
+    //   return null;
+    // }
+    // Pose3d robotPose =
+    //     PhotonUtils.estimateFieldToRobotAprilTag(
+    //         target.getBestCameraToTarget(),
+    //         aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
+    //         robotToCamera.inverse());
+    // return robotPose.toPose2d(); temp comment to just use the limelight for testing
+    if (LimelightHelpers.getTV(limelight2)) {
+      return LimelightHelpers.getBotPose2d_wpiBlue(limelight2);
     }
-    Pose3d robotPose =
-        PhotonUtils.estimateFieldToRobotAprilTag(
-            target.getBestCameraToTarget(),
-            aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
-            robotToCamera.inverse());
-    // SmartDashboard.putNumber("Tag X", target.getBestCameraToTarget().getX());
-    // SmartDashboard.putNumber("Tag Y", target.getBestCameraToTarget().getY());
-    return robotPose.toPose2d();
+    return new Pose2d();
   }
 
   /**
