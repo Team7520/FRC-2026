@@ -225,9 +225,9 @@ public class AprilTagSystem extends SubsystemBase {
         return -1; // Handle the case where no targets are found
       }
     }
-    
-    if ((cameraIndex == 2 && !LimelightHelpers.getTV(limelight1)) || 
-        (cameraIndex == 3 && !LimelightHelpers.getTV(limelight2))) {
+
+    if ((cameraIndex == 2 && !LimelightHelpers.getTV(limelight1))
+        || (cameraIndex == 3 && !LimelightHelpers.getTV(limelight2))) {
       return -1;
     }
 
