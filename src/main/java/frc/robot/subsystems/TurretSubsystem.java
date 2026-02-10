@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -10,6 +11,7 @@ public class TurretSubsystem extends SubsystemBase {
   private final TalonFX topMotor;
   private final TalonFX bottomMotor;
   private final DutyCycleOut duty = new DutyCycleOut(0);
+  private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
 
   public TurretSubsystem(int turnMotorId, int hoodMotorId, int topMotorId, int bottomMotorId) {
     turnMotor = new TalonFX(turnMotorId);
@@ -26,6 +28,12 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void turn(double speed) {
     turnMotor.setControl(duty.withOutput(speed));
+  }
+
+  public void turnToPosition(
+      double turretPosition, double speed) {
+    turnMotor.setControl(duty.withOutput(speed));
+    turnMotor.setControl(pivotPosReq.withPosition(turretPosition));
   }
 
   public void hood(double speed) {
