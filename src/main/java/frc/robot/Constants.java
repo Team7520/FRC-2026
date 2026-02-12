@@ -37,9 +37,14 @@ public final class Constants {
   }
 
   public static class FieldConstants {
-    public static double hubX = 4.62;
-    public static double hubY = 4.03;
-    public static Pair<Double, Double> hubLoc = new Pair<>(hubX, hubY);
+    public static double blueHubX = 4.62;
+    public static double blueHubY = 4.03;
+    public static Pair<Double, Double> blueHubLoc = new Pair<>(blueHubX, blueHubY);
+
+    public static double redHubX = 0.00;
+    public static double redHubY = 4.03;
+    public static Pair<Double, Double> redHubLoc = new Pair<>(redHubX, redHubY);
+
     public static double hubHeight = 1.82; // m
   }
 

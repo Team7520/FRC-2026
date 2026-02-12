@@ -1,13 +1,11 @@
-package frc.robot.subsystems;
-
-import com.ctre.phoenix6.hardware.TalonFX;
+package frc.robot.util;
 
 import edu.wpi.first.math.Pair;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.UniverseConstants;
 import frc.robot.Constants.FieldConstants;
 
-public class Turret {
+public class GetTurretDirections {
 
     Pair<Double, Double> locationAtHeight(double elevation, double azimuth, double vx, double vy) {
 
@@ -28,7 +26,7 @@ public class Turret {
         }
 
         double t1 = (-b + Math.sqrt(disc)) / (2*a);
-        double t2 = (-b + Math.sqrt(disc)) / (2*a);
+        double t2 = (-b - Math.sqrt(disc)) / (2*a);
 
         double solution = Math.max(t1, t2);
         if (solution > 0) { 
@@ -38,13 +36,7 @@ public class Turret {
 
     double getAngle(double x, double y) {
         // Gets angle of point with respect to (0, 0) and a horizontal line
-        double d = Math.sqrt(x*x+y*y);
-        double st = y/d;
-        double ct = x/d;
-
-        if (ct >= 0) {
-            return (Math.asin(st) + 2*Math.PI) % (2*Math.PI) * 180 / Math.PI;
-        } return (3*Math.PI - Math.asin(st)) % (2*Math.PI) * 180 / Math.PI;
+        return Math.toDegrees((Math.atan2(y, x) + 2*Math.PI) % (2*Math.PI));
     }
 
     double dist(Pair<Double, Double> p1, Pair<Double, Double> p2) {
@@ -55,7 +47,7 @@ public class Turret {
         );
     }
 
-    Pair<Double, Double> shootingDirections(Pair<Double, Double> botLoc, Pair<Double, Double> botVel) {
+    Pair<Double, Double> shootingDirections(Pair<Double, Double> botLoc, Pair<Double, Double> botVel, Pair<Double, Double> goal) {
         // Takes in the bot location and velocity vectors, and returns optimal elevation and azimuth angles
         // If both are -1, no good solution exists
 
@@ -72,18 +64,20 @@ public class Turret {
 
             // See how far that is from the goal
             double ballAngle = getAngle(ballLoc.getFirst()-botLoc.getFirst(), ballLoc.getSecond()-botLoc.getSecond());
-            double hubAngle = getAngle(FieldConstants.hubX-botLoc.getFirst(), FieldConstants.hubY-botLoc.getSecond());
+            double hubAngle = getAngle(goal.getFirst()-botLoc.getFirst(), goal.getSecond()-botLoc.getSecond());
 
             // Adjust numbers to get closer to goal number
-            azimuth += Math.toRadians((hubAngle-ballAngle) * 0.1);
+            double error = hubAngle - ballAngle;
+            error = (error + 540) % 360 - 180; // wrap to [-180, 180] 
+            azimuth += Math.toRadians(error * 0.1);
 
-            double dHub = dist(FieldConstants.hubLoc, botLoc);
+            double dHub = dist(goal, botLoc);
             double dBall = dist(ballLoc, botLoc);
 
             if (dHub < dBall) {
-                elevation = Math.min(elevation+0.01, Math.toRadians(85));
-            } else {
                 elevation = Math.min(elevation-0.01, Math.toRadians(51));
+            } else {
+                elevation = Math.min(elevation+0.01, Math.toRadians(85));
             }
 
             // Repeat 150 times
@@ -95,7 +89,7 @@ public class Turret {
             elevation, azimuth, botVel.getFirst(), botVel.getSecond()
         );
         ballLoc = new Pair<>(ballLoc.getFirst() + botLoc.getFirst(), ballLoc.getSecond() + botLoc.getSecond());
-        if (dist(FieldConstants.hubLoc, ballLoc) < TurretConstants.aimTolerance) {
+        if (dist(goal, ballLoc) < TurretConstants.aimTolerance) {
             return new Pair<Double,Double>(elevation, azimuth);
         } return new Pair<Double,Double>(-1.0, -1.0);
     }
