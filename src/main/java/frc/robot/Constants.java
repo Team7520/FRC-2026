@@ -31,5 +31,8 @@ public final class Constants {
 
   public static class ClimberConstants {
     public static final int MAX_AMP_POWER = 60;
+    public static final double MAX_VOLTAGE = 12;
+    public static final double KP = 0.5;
+    public static final double MAX_MOTOR_OUTPUT = 1;
   }
 }

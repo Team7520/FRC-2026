@@ -19,11 +19,11 @@ public class Climb extends SubsystemBase {
     climberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
     climberConfig.CurrentLimits.SupplyCurrentLimit = ClimberConstants.MAX_AMP_POWER;
     climberConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-    climberConfig.Voltage.PeakForwardVoltage = 12.0;
-    climberConfig.Voltage.PeakReverseVoltage = -12.0;
-    climberConfig.Slot0.kP = 0.5;
-    climberConfig.MotorOutput.PeakForwardDutyCycle = 1.0;
-    climberConfig.MotorOutput.PeakReverseDutyCycle = -1.0;
+    climberConfig.Voltage.PeakForwardVoltage = ClimberConstants.MAX_VOLTAGE;
+    climberConfig.Voltage.PeakReverseVoltage = -ClimberConstants.MAX_VOLTAGE;
+    climberConfig.Slot0.kP = ClimberConstants.KP;
+    climberConfig.MotorOutput.PeakForwardDutyCycle = ClimberConstants.MAX_MOTOR_OUTPUT;
+    climberConfig.MotorOutput.PeakReverseDutyCycle = -ClimberConstants.MAX_MOTOR_OUTPUT;
 
     climberConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
@@ -39,6 +39,11 @@ public class Climb extends SubsystemBase {
 
   public void holdPosition() {
     climberMotor.setPosition(targetPosition);
+  }
+
+  public void goToPosition(double position){
+    targetPosition = position;
+    climberMotor.setPosition(position);
   }
 
   public void stop() {
