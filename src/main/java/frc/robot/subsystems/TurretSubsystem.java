@@ -32,9 +32,12 @@ public class TurretSubsystem extends SubsystemBase {
   private final Pivot hood;
   private final TalonFXWrapper topMotor;
   private final TalonFXWrapper bottomMotor;
+  private final TalonFXWrapper feedMotor;
 
-  public TurretSubsystem(int turnMotorId, int hoodMotorId, int topMotorId, int bottomMotorId) {
+  public TurretSubsystem(
+      int turnMotorId, int hoodMotorId, int topMotorId, int bottomMotorId, int feederMotorId) {
     TalonFXConfiguration phoenixProConfig = createPhoenixProConfig();
+
     SmartMotorControllerConfig turretConfig =
         new SmartMotorControllerConfig(this)
             .withClosedLoopController(
@@ -67,6 +70,14 @@ public class TurretSubsystem extends SubsystemBase {
             .withVendorConfig(phoenixProConfig)
             .withControlMode(ControlMode.OPEN_LOOP);
 
+    SmartMotorControllerConfig feederConfig =
+        new SmartMotorControllerConfig(this)
+            .withStatorCurrentLimit(Amps.of(40))
+            .withOpenLoopRampRate(OPEN_LOOP_RAMP)
+            .withIdleMode(MotorMode.BRAKE)
+            .withVendorConfig(phoenixProConfig)
+            .withControlMode(ControlMode.OPEN_LOOP);
+
     turretMotor =
         new TalonFXWrapper(
             new TalonFX(turnMotorId, TunerConstants.kCANBus),
@@ -85,6 +96,11 @@ public class TurretSubsystem extends SubsystemBase {
             new TalonFX(bottomMotorId, TunerConstants.kCANBus),
             DCMotor.getKrakenX60(1),
             shooterConfig);
+    feedMotor =
+        new TalonFXWrapper(
+            new TalonFX(feederMotorId, TunerConstants.kCANBus),
+            DCMotor.getKrakenX60(1),
+            feederConfig);
 
     turret =
         new Pivot(
@@ -118,6 +134,16 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.setDutyCycle(speed);
   }
 
+  public void turnToPosition(double turretPosition, double speed) {
+    // Keep existing API, align with YAMS control path.
+    turretMotor.setPosition(Rotations.of(turretPosition));
+  }
+
+  public void turnToAngle(double hoodPosition, double speed) {
+    // Keep existing API, align with YAMS control path.
+    hoodMotor.setPosition(Rotations.of(hoodPosition));
+  }
+
   public void hood(double speed) {
     hoodMotor.setDutyCycle(speed);
   }
@@ -130,11 +156,16 @@ public class TurretSubsystem extends SubsystemBase {
     bottomMotor.setDutyCycle(speed);
   }
 
+  public void feeder(double speed) {
+    feedMotor.setDutyCycle(speed);
+  }
+
   public void stopAll() {
     turretMotor.setDutyCycle(0.0);
     hoodMotor.setDutyCycle(0.0);
     topMotor.setDutyCycle(0.0);
     bottomMotor.setDutyCycle(0.0);
+    feedMotor.setDutyCycle(0.0);
   }
 
   private TalonFXConfiguration createPhoenixProConfig() {
