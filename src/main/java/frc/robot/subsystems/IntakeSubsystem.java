@@ -98,7 +98,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void stopAll() {
     intakeMotor.setDutyCycle(0.0);
-    retract(); // Hold extend motor in retracted position
+    extendMotor.setPosition(retractedPosition); // Hold in retracted position
     indexerMotor.setDutyCycle(0.0);
   }
 }

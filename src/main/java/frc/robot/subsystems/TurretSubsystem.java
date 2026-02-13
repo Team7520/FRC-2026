@@ -131,6 +131,12 @@ public class TurretSubsystem extends SubsystemBase {
     return hood.getAngle();
   }
 
+  /**
+   * Controls turret angle using a normalized speed value.
+   * Maps speed [-1, 1] to the full turret angle range.
+   *
+   * @param speed Normalized position, where -1 maps to TURRET_MIN_ANGLE and 1 to TURRET_MAX_ANGLE
+   */
   public void turn(double speed) {
     // Interpret speed in [-1, 1] as a normalized position across the turret's angle range
     double clampedSpeed = Math.max(-1.0, Math.min(1.0, speed));
@@ -145,10 +151,16 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.setPosition(Rotations.of(turretPosition));
   }
 
-  public void setHoodPosition(double hoodPosition) {
+  public void hoodToPosition(double hoodPosition) {
     hoodMotor.setPosition(Rotations.of(hoodPosition));
   }
 
+  /**
+   * Controls hood angle using a normalized speed value.
+   * Maps speed [-1, 1] to the full hood angle range.
+   *
+   * @param speed Normalized position, where -1 maps to HOOD_MIN_ANGLE and 1 to HOOD_MAX_ANGLE
+   */
   public void hood(double speed) {
     // Interpret speed in [-1, 1] as a normalized position across the hood's angle range
     double clampedSpeed = Math.max(-1.0, Math.min(1.0, speed));
