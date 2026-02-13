@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -47,26 +46,14 @@ public class AprilTagSystem extends SubsystemBase {
 
   private final List<CameraInfo> cameraList = new ArrayList<>();
 
-  private final PipeLineType TYPE = PipeLineType.APRIL_TAG;
-  private boolean allOpen = false;
-  private boolean facingTarget = false;
   private AprilTagFieldLayout aprilTagFieldLayout;
-  private List<AprilTag> apriltags;
   public boolean aprilTagLayoutLoaded = false;
   private final double MAX_RANGE = 20; // In meters, anything beyond 2 meters should not be used
 
-  private Pose2d robotPose;
-  private AprilTag closestTag;
   private List<PhotonPoseEstimator> estimators = null;
 
   private final String limelight1 = "limelight-one";
   private final String limelight2 = "limelight-two";
-
-  public enum PipeLineType {
-    APRIL_TAG,
-    COLORED_SHAPE,
-    REFLECTIVE
-  }
 
   public AprilTagSystem() {
     // Initialize the cameras
@@ -99,7 +86,6 @@ public class AprilTagSystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    allOpen = true;
     boolean lime1 = true;
     boolean lime2 = true;
     for (int i = 0; i < cameraList.size(); i++) {
@@ -107,20 +93,17 @@ public class AprilTagSystem extends SubsystemBase {
         cameraList.get(i).isOpen = true;
       } else {
         cameraList.get(i).isOpen = false;
-        allOpen = false;
         System.out.printf("Failed to open camera %d: %s \n", i + 1, cameraList.get(i).name);
       }
       SmartDashboard.putBoolean(cameraList.get(i).name + " OPEN?", cameraList.get(i).isOpen);
     }
     if (LimelightHelpers.getHeartbeat(limelight1) == 0) {
-      allOpen = false;
       lime1 = false;
       System.out.println("Failed to open limelight 1, " + limelight1);
     }
     SmartDashboard.putBoolean("Limelight One Open?", lime1);
     if (LimelightHelpers.getHeartbeat(limelight2) == 0) {
       lime2 = false;
-      allOpen = false;
       System.out.println("Failed to open limelight 2, " + limelight2);
     }
     SmartDashboard.putBoolean("Limelight Two Open?", lime2);
@@ -156,7 +139,7 @@ public class AprilTagSystem extends SubsystemBase {
                   info ->
                       new PhotonPoseEstimator(
                           aprilTagFieldLayout,
-                          PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                          PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                           info.robotToCamera))
               .collect(Collectors.toList());
     }
@@ -191,7 +174,6 @@ public class AprilTagSystem extends SubsystemBase {
         aprilTagFieldLayout =
             AprilTagFieldLayout.loadFromResource(
                 AprilTagFields.k2025ReefscapeAndyMark.m_resourceFile);
-        apriltags = aprilTagFieldLayout.getTags();
         aprilTagLayoutLoaded = true;
       } catch (IOException e) {
         e.printStackTrace();
@@ -219,7 +201,7 @@ public class AprilTagSystem extends SubsystemBase {
     PhotonPipelineResult result = null;
     if (cameraIndex >= 0 && cameraIndex <= 1) {
       CameraInfo cameraInfo = cameraList.get(cameraIndex);
-      result = cameraInfo.camera.getLatestResult();
+      result = getLatestCameraResult(cameraInfo.camera);
 
       if (result == null || !result.hasTargets()) {
         return -1; // Handle the case where no targets are found
@@ -275,7 +257,7 @@ public class AprilTagSystem extends SubsystemBase {
     }
 
     CameraInfo cameraInfo = cameraList.get(cameraIndex);
-    PhotonPipelineResult result = cameraInfo.camera.getLatestResult();
+    PhotonPipelineResult result = getLatestCameraResult(cameraInfo.camera);
 
     if (result == null || !result.hasTargets()) {
       return -1; // Handle the case where no targets are found
@@ -293,7 +275,7 @@ public class AprilTagSystem extends SubsystemBase {
   public Pose2d getCurrentRobotFieldPose(int camera) {
     PhotonPipelineResult result = null;
     if (camera >= 0 && camera < cameraList.size()) {
-      result = cameraList.get(camera).camera.getLatestResult();
+      result = getLatestCameraResult(cameraList.get(camera).camera);
     }
 
     if (result == null || !result.hasTargets()) {
@@ -349,7 +331,7 @@ public class AprilTagSystem extends SubsystemBase {
     double closestDistance = Double.MAX_VALUE;
 
     for (CameraInfo cam : cameraList) {
-      PhotonPipelineResult result = cam.camera.getLatestResult();
+      PhotonPipelineResult result = getLatestCameraResult(cam.camera);
       if (result == null || !result.hasTargets()) {
         continue;
       }
@@ -368,7 +350,6 @@ public class AprilTagSystem extends SubsystemBase {
       if (distance < closestDistance) {
         closestDistance = distance;
         closestTagPose = tagPose.toPose2d();
-        this.closestTag = new AprilTag(target.getFiducialId(), tagPose);
       }
     }
 
@@ -442,5 +423,13 @@ public class AprilTagSystem extends SubsystemBase {
         robotPose.getTranslation().getDistance(poseB.getTranslation())
             + Math.abs(robotPose.getRotation().minus(poseB.getRotation()).getRadians());
     return (costA <= costB) ? poseA : poseB;
+  }
+
+  private PhotonPipelineResult getLatestCameraResult(PhotonCamera camera) {
+    List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+    if (results.isEmpty()) {
+      return new PhotonPipelineResult();
+    }
+    return results.get(results.size() - 1);
   }
 }

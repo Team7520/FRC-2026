@@ -1,77 +1,177 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionDutyCycle;
-import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static edu.wpi.first.units.Units.*;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.generated.TunerConstants;
+import yams.gearing.GearBox;
+import yams.gearing.MechanismGearing;
+import yams.mechanisms.config.PivotConfig;
+import yams.mechanisms.positional.Pivot;
+import yams.motorcontrollers.SmartMotorControllerConfig;
+import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
+import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
+import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class TurretSubsystem extends SubsystemBase {
-  private final TalonFX turnMotor;
-  private final TalonFX hoodMotor;
-  private final TalonFX leftMotor;
-  private final TalonFX rightMotor;
-  private final TalonFX feedMotor;
-  private final DutyCycleOut duty = new DutyCycleOut(0);
-  private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
-  private final PositionDutyCycle anglePosReq = new PositionDutyCycle(0);
+  private static final Time OPEN_LOOP_RAMP = Seconds.of(0.15);
 
-  public TurretSubsystem(int turnMotorId, int hoodMotorId, int topMotorId, int bottomMotorId, int feederMotorId) {
-    turnMotor = new TalonFX(turnMotorId);
-    hoodMotor = new TalonFX(hoodMotorId);
-    leftMotor = new TalonFX(topMotorId);
-    rightMotor = new TalonFX(bottomMotorId);
-    feedMotor = new TalonFX(feederMotorId);
+  private static final Angle TURRET_MIN_ANGLE = Degrees.of(-180);
+  private static final Angle TURRET_MAX_ANGLE = Degrees.of(180);
+  private static final Angle HOOD_MIN_ANGLE = Degrees.of(-10);
+  private static final Angle HOOD_MAX_ANGLE = Degrees.of(45);
 
-    TalonFXConfiguration config = new TalonFXConfiguration();
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
-    
-    turnMotor.getConfigurator().apply(config);
-    turnMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
-    hoodMotor.getConfigurator().apply(config);
-    hoodMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
-    leftMotor.getConfigurator().apply(config);
-    leftMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
-    rightMotor.getConfigurator().apply(config);
-    rightMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
-    feedMotor.getConfigurator().apply(config);
-    feedMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+  private final TalonFXWrapper turretMotor;
+  private final Pivot turret;
+  private final TalonFXWrapper hoodMotor;
+  private final Pivot hood;
+  private final TalonFXWrapper topMotor;
+  private final TalonFXWrapper bottomMotor;
+  private final TalonFXWrapper feedMotor;
+
+  public TurretSubsystem(
+      int turnMotorId, int hoodMotorId, int topMotorId, int bottomMotorId, int feederMotorId) {
+    TalonFXConfiguration phoenixProConfig = createPhoenixProConfig();
+
+    SmartMotorControllerConfig turretConfig =
+        new SmartMotorControllerConfig(this)
+            .withClosedLoopController(
+                4.0, 0.0, 0.0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
+            .withSoftLimit(TURRET_MIN_ANGLE, TURRET_MAX_ANGLE)
+            .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+            .withIdleMode(MotorMode.BRAKE)
+            .withStatorCurrentLimit(Amps.of(40))
+            .withVendorConfig(phoenixProConfig)
+            .withControlMode(ControlMode.CLOSED_LOOP)
+            .withStartingPosition(Degrees.of(0));
+
+    SmartMotorControllerConfig hoodConfig =
+        new SmartMotorControllerConfig(this)
+            .withClosedLoopController(
+                4.0, 0.0, 0.0, DegreesPerSecond.of(120), DegreesPerSecondPerSecond.of(60))
+            .withSoftLimit(HOOD_MIN_ANGLE, HOOD_MAX_ANGLE)
+            .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+            .withIdleMode(MotorMode.BRAKE)
+            .withStatorCurrentLimit(Amps.of(30))
+            .withVendorConfig(phoenixProConfig)
+            .withControlMode(ControlMode.CLOSED_LOOP)
+            .withStartingPosition(Degrees.of(0));
+
+    SmartMotorControllerConfig shooterConfig =
+        new SmartMotorControllerConfig(this)
+            .withStatorCurrentLimit(Amps.of(40))
+            .withOpenLoopRampRate(OPEN_LOOP_RAMP)
+            .withIdleMode(MotorMode.COAST)
+            .withVendorConfig(phoenixProConfig)
+            .withControlMode(ControlMode.OPEN_LOOP);
+
+    SmartMotorControllerConfig feederConfig =
+        new SmartMotorControllerConfig(this)
+            .withStatorCurrentLimit(Amps.of(40))
+            .withOpenLoopRampRate(OPEN_LOOP_RAMP)
+            .withIdleMode(MotorMode.BRAKE)
+            .withVendorConfig(phoenixProConfig)
+            .withControlMode(ControlMode.OPEN_LOOP);
+
+    turretMotor =
+        new TalonFXWrapper(
+            new TalonFX(turnMotorId, TunerConstants.kCANBus),
+            DCMotor.getKrakenX60(1),
+            turretConfig);
+    hoodMotor =
+        new TalonFXWrapper(
+            new TalonFX(hoodMotorId, TunerConstants.kCANBus), DCMotor.getKrakenX60(1), hoodConfig);
+    topMotor =
+        new TalonFXWrapper(
+            new TalonFX(topMotorId, TunerConstants.kCANBus),
+            DCMotor.getKrakenX60(1),
+            shooterConfig);
+    bottomMotor =
+        new TalonFXWrapper(
+            new TalonFX(bottomMotorId, TunerConstants.kCANBus),
+            DCMotor.getKrakenX60(1),
+            shooterConfig);
+    feedMotor =
+        new TalonFXWrapper(
+            new TalonFX(feederMotorId, TunerConstants.kCANBus),
+            DCMotor.getKrakenX60(1),
+            feederConfig);
+
+    turret =
+        new Pivot(
+            new PivotConfig(turretMotor)
+                .withHardLimit(TURRET_MIN_ANGLE, TURRET_MAX_ANGLE)
+                .withStartingPosition(Degrees.of(0)));
+    hood =
+        new Pivot(
+            new PivotConfig(hoodMotor)
+                .withHardLimit(HOOD_MIN_ANGLE, HOOD_MAX_ANGLE)
+                .withStartingPosition(Degrees.of(0)));
+  }
+
+  public void setTurretAngle(Angle angle) {
+    turretMotor.setPosition(angle);
+  }
+
+  public void setHoodAngle(Angle angle) {
+    hoodMotor.setPosition(angle);
+  }
+
+  public Angle getTurretAngle() {
+    return turret.getAngle();
+  }
+
+  public Angle getHoodAngle() {
+    return hood.getAngle();
   }
 
   public void turn(double speed) {
-    turnMotor.setControl(duty.withOutput(speed));
+    turretMotor.setDutyCycle(speed);
   }
 
   public void turnToPosition(double turretPosition, double speed) {
-    turnMotor.setControl(pivotPosReq.withPosition(turretPosition).withVelocity(speed));
+    // Keep existing API, align with YAMS control path.
+    turretMotor.setPosition(Rotations.of(turretPosition));
   }
 
   public void turnToAngle(double hoodPosition, double speed) {
-    hoodMotor.setControl(anglePosReq.withPosition(hoodPosition).withVelocity(speed));
+    // Keep existing API, align with YAMS control path.
+    hoodMotor.setPosition(Rotations.of(hoodPosition));
   }
 
   public void hood(double speed) {
-    hoodMotor.setControl(duty.withOutput(speed));
+    hoodMotor.setDutyCycle(speed);
   }
 
   public void top(double speed) {
-    leftMotor.setControl(duty.withOutput(speed));
+    topMotor.setDutyCycle(speed);
   }
 
   public void bottom(double speed) {
-    rightMotor.setControl(duty.withOutput(speed));
+    bottomMotor.setDutyCycle(speed);
   }
 
   public void feeder(double speed) {
-    feedMotor.setControl(duty.withOutput(speed));
+    feedMotor.setDutyCycle(speed);
   }
 
   public void stopAll() {
-    turnMotor.setControl(duty.withOutput(0));
-    hoodMotor.setControl(duty.withOutput(0));
-    leftMotor.setControl(duty.withOutput(0));
-    rightMotor.setControl(duty.withOutput(0));
-    feedMotor.setControl(duty.withOutput(0));
+    turretMotor.setDutyCycle(0.0);
+    hoodMotor.setDutyCycle(0.0);
+    topMotor.setDutyCycle(0.0);
+    bottomMotor.setDutyCycle(0.0);
+    feedMotor.setDutyCycle(0.0);
+  }
+
+  private TalonFXConfiguration createPhoenixProConfig() {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+    config.MotionMagic.MotionMagicExpo_kV = 0.12;
+    config.MotionMagic.MotionMagicExpo_kA = 0.1;
+    return config;
   }
 }

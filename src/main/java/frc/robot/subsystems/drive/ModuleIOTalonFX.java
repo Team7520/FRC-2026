@@ -1,7 +1,7 @@
-// Copyright (c) 2021-2026 Littleton Robotics
+// Copyright (c) 2021-2026 Littleton Robotics and Team 7520
 // http://github.com/Mechanical-Advantage
 //
-// Use of this source code is governed by a BSD
+// Use of this source code is governed by a BSD and Apache 2.0
 // license that can be found in the LICENSE file
 // at the root directory of this project.
 
@@ -44,6 +44,7 @@ import java.util.Queue;
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 public class ModuleIOTalonFX implements ModuleIO {
+  private static final boolean FORCE_PHOENIX_PRO = true;
   private final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
@@ -104,6 +105,11 @@ public class ModuleIOTalonFX implements ModuleIO {
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Slot0 = constants.DriveMotorGains;
     driveConfig.Feedback.SensorToMechanismRatio = constants.DriveMotorGearRatio;
+    driveConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.DriveMotorGearRatio;
+    driveConfig.MotionMagic.MotionMagicAcceleration =
+        driveConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
+    driveConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * constants.DriveMotorGearRatio;
+    driveConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
     driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = constants.SlipCurrent;
     driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -constants.SlipCurrent;
     driveConfig.CurrentLimits.StatorCurrentLimit = constants.SlipCurrent;
@@ -120,14 +126,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     turnConfig.Slot0 = constants.SteerMotorGains;
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.EncoderId;
-    turnConfig.Feedback.FeedbackSensorSource =
-        switch (constants.FeedbackSource) {
-          case RemoteCANcoder -> FeedbackSensorSourceValue.RemoteCANcoder;
-          case FusedCANcoder -> FeedbackSensorSourceValue.FusedCANcoder;
-          case SyncCANcoder -> FeedbackSensorSourceValue.SyncCANcoder;
-          default -> throw new RuntimeException(
-              "You have selected a turn feedback source that is not supported by the default implementation of ModuleIOTalonFX. Please check the AdvantageKit documentation for more information on alternative configurations: https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations");
-        };
+    // Force FusedCANcoder for Phoenix Pro azimuth feedback.
+    turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicAcceleration =
@@ -170,13 +170,12 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     // Configure periodic frames
     BaseStatusSignal.setUpdateFrequencyForAll(
-        Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
+        Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition, turnAbsolutePosition);
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         driveVelocity,
         driveAppliedVolts,
         driveCurrent,
-        turnAbsolutePosition,
         turnVelocity,
         turnAppliedVolts,
         turnCurrent);
@@ -226,6 +225,10 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void setDriveOpenLoop(double output) {
+    if (FORCE_PHOENIX_PRO) {
+      driveTalon.setControl(torqueCurrentRequest.withOutput(output));
+      return;
+    }
     driveTalon.setControl(
         switch (constants.DriveMotorClosedLoopOutput) {
           case Voltage -> voltageRequest.withOutput(output);
@@ -235,6 +238,10 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void setTurnOpenLoop(double output) {
+    if (FORCE_PHOENIX_PRO) {
+      turnTalon.setControl(torqueCurrentRequest.withOutput(output));
+      return;
+    }
     turnTalon.setControl(
         switch (constants.SteerMotorClosedLoopOutput) {
           case Voltage -> voltageRequest.withOutput(output);
@@ -245,6 +252,10 @@ public class ModuleIOTalonFX implements ModuleIO {
   @Override
   public void setDriveVelocity(double velocityRadPerSec) {
     double velocityRotPerSec = Units.radiansToRotations(velocityRadPerSec);
+    if (FORCE_PHOENIX_PRO) {
+      driveTalon.setControl(velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec));
+      return;
+    }
     driveTalon.setControl(
         switch (constants.DriveMotorClosedLoopOutput) {
           case Voltage -> velocityVoltageRequest.withVelocity(velocityRotPerSec);
@@ -254,6 +265,10 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void setTurnPosition(Rotation2d rotation) {
+    if (FORCE_PHOENIX_PRO) {
+      turnTalon.setControl(positionTorqueCurrentRequest.withPosition(rotation.getRotations()));
+      return;
+    }
     turnTalon.setControl(
         switch (constants.SteerMotorClosedLoopOutput) {
           case Voltage -> positionVoltageRequest.withPosition(rotation.getRotations());

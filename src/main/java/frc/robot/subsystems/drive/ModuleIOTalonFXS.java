@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2026 Littleton Robotics
+// Copyright (c) 2021-2026 Littleton Robotics and Team 7520
 // http://github.com/Mechanical-Advantage
 //
 // Use of this source code is governed by a BSD
@@ -13,7 +13,10 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANdi;
@@ -42,6 +45,7 @@ import java.util.Queue;
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 public class ModuleIOTalonFXS implements ModuleIO {
+  private static final boolean FORCE_PHOENIX_PRO = true;
   // Hardware objects
   private final TalonFXS driveTalon;
   private final TalonFXS turnTalon;
@@ -51,6 +55,13 @@ public class ModuleIOTalonFXS implements ModuleIO {
   private final VoltageOut voltageRequest = new VoltageOut(0);
   private final PositionVoltage positionVoltageRequest = new PositionVoltage(0.0);
   private final VelocityVoltage velocityVoltageRequest = new VelocityVoltage(0.0);
+
+  // Torque-current control requests
+  private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0.0);
+  private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
+      new PositionTorqueCurrentFOC(0.0);
+  private final VelocityTorqueCurrentFOC velocityTorqueCurrentRequest =
+      new VelocityTorqueCurrentFOC(0.0);
 
   // Timestamp inputs from Phoenix thread
   private final Queue<Double> timestampQueue;
@@ -96,6 +107,11 @@ public class ModuleIOTalonFXS implements ModuleIO {
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Slot0 = constants.DriveMotorGains;
     driveConfig.ExternalFeedback.SensorToMechanismRatio = constants.DriveMotorGearRatio;
+    driveConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.DriveMotorGearRatio;
+    driveConfig.MotionMagic.MotionMagicAcceleration =
+        driveConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
+    driveConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * constants.DriveMotorGearRatio;
+    driveConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
     driveConfig.CurrentLimits.StatorCurrentLimit = constants.SlipCurrent;
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     driveConfig.MotorOutput.Inverted =
@@ -230,22 +246,38 @@ public class ModuleIOTalonFXS implements ModuleIO {
 
   @Override
   public void setDriveOpenLoop(double output) {
+    if (FORCE_PHOENIX_PRO) {
+      driveTalon.setControl(torqueCurrentRequest.withOutput(output));
+      return;
+    }
     driveTalon.setControl(voltageRequest.withOutput(output));
   }
 
   @Override
   public void setTurnOpenLoop(double output) {
+    if (FORCE_PHOENIX_PRO) {
+      turnTalon.setControl(torqueCurrentRequest.withOutput(output));
+      return;
+    }
     turnTalon.setControl(voltageRequest.withOutput(output));
   }
 
   @Override
   public void setDriveVelocity(double velocityRadPerSec) {
     double velocityRotPerSec = Units.radiansToRotations(velocityRadPerSec);
+    if (FORCE_PHOENIX_PRO) {
+      driveTalon.setControl(velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec));
+      return;
+    }
     driveTalon.setControl(velocityVoltageRequest.withVelocity(velocityRotPerSec));
   }
 
   @Override
   public void setTurnPosition(Rotation2d rotation) {
+    if (FORCE_PHOENIX_PRO) {
+      turnTalon.setControl(positionTorqueCurrentRequest.withPosition(rotation.getRotations()));
+      return;
+    }
     turnTalon.setControl(positionVoltageRequest.withPosition(rotation.getRotations()));
   }
 }
