@@ -135,7 +135,12 @@ public class AprilTagSystem extends SubsystemBase {
     if (estimators == null && aprilTagLayoutLoaded) {
       estimators =
           cameraList.stream()
-              .map(info -> new PhotonPoseEstimator(aprilTagFieldLayout, info.robotToCamera))
+              .map(
+                  info ->
+                      new PhotonPoseEstimator(
+                          aprilTagFieldLayout,
+                          PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                          info.robotToCamera))
               .collect(Collectors.toList());
     }
     return estimators == null ? List.of() : estimators;
