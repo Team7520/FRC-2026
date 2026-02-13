@@ -22,6 +22,9 @@ import frc.robot.generated.TunerConstants;
 import java.util.Optional;
 
 public class LightingSubsystem extends SubsystemBase {
+  // Note: CANdle ID 17 is used on the CANivore bus. Verify this ID doesn't conflict
+  // with existing swerve drive devices (motors, CANcoders, Pigeon 2). Consider moving
+  // to RIO CAN 2.0 bus if conflicts occur.
   private static final int CANDLE_ID = 17;
   private static final int CANDLE_LED_COUNT = 32;
   private static final int SIDE_LED_COUNT = 40;
@@ -62,6 +65,7 @@ public class LightingSubsystem extends SubsystemBase {
             .withDirection(AnimationDirectionValue.Forward)
             .withFrameRate(0.5);
     candle.setControl(animation);
+    setSideLEDs(red, green, blue);
   }
 
   public void rainbow() {

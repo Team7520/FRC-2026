@@ -41,7 +41,7 @@ public class Climb extends SubsystemBase {
     climberMotor.setPosition(targetPosition);
   }
 
-  public void goToPosition(double position){
+  public void goToPosition(double position) {
     targetPosition = position;
     climberMotor.setPosition(position);
   }

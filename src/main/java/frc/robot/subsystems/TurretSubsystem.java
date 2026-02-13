@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -131,21 +132,30 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void turn(double speed) {
-    turretMotor.setDutyCycle(speed);
+    // Interpret speed in [-1, 1] as a normalized position across the turret's angle range
+    double clampedSpeed = Math.max(-1.0, Math.min(1.0, speed));
+    // Map -1 -> TURRET_MIN_ANGLE, 0 -> midpoint, 1 -> TURRET_MAX_ANGLE
+    double fraction = (clampedSpeed + 1.0) / 2.0;
+    Angle targetAngle =
+        TURRET_MIN_ANGLE.plus(TURRET_MAX_ANGLE.minus(TURRET_MIN_ANGLE).times(fraction));
+    turretMotor.setPosition(targetAngle);
   }
 
-  public void turnToPosition(double turretPosition, double speed) {
-    // Keep existing API, align with YAMS control path.
+  public void turnToPosition(double turretPosition) {
     turretMotor.setPosition(Rotations.of(turretPosition));
   }
 
-  public void turnToAngle(double hoodPosition, double speed) {
-    // Keep existing API, align with YAMS control path.
+  public void setHoodPosition(double hoodPosition) {
     hoodMotor.setPosition(Rotations.of(hoodPosition));
   }
 
   public void hood(double speed) {
-    hoodMotor.setDutyCycle(speed);
+    // Interpret speed in [-1, 1] as a normalized position across the hood's angle range
+    double clampedSpeed = Math.max(-1.0, Math.min(1.0, speed));
+    // Map -1 -> HOOD_MIN_ANGLE, 0 -> midpoint, 1 -> HOOD_MAX_ANGLE
+    double fraction = (clampedSpeed + 1.0) / 2.0;
+    Angle targetAngle = HOOD_MIN_ANGLE.plus(HOOD_MAX_ANGLE.minus(HOOD_MIN_ANGLE).times(fraction));
+    hoodMotor.setPosition(targetAngle);
   }
 
   public void top(double speed) {
@@ -161,17 +171,10 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void stopAll() {
-    turretMotor.setDutyCycle(0.0);
-    hoodMotor.setDutyCycle(0.0);
+    // Turret and hood hold their current closed-loop positions.
+    // Only stop the shooter wheels and feeder, which are driven open-loop.
     topMotor.setDutyCycle(0.0);
     bottomMotor.setDutyCycle(0.0);
     feedMotor.setDutyCycle(0.0);
-  }
-
-  private TalonFXConfiguration createPhoenixProConfig() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-    config.MotionMagic.MotionMagicExpo_kV = 0.12;
-    config.MotionMagic.MotionMagicExpo_kA = 0.1;
-    return config;
   }
 }

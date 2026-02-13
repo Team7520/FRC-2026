@@ -1,7 +1,7 @@
 // Copyright (c) 2021-2026 Littleton Robotics and Team 7520
 // http://github.com/Mechanical-Advantage
 //
-// Use of this source code is governed by a BSD
+// Use of this source code is governed by a BSD and Apache 2.0
 // license that can be found in the LICENSE file
 // at the root directory of this project.
 
@@ -45,7 +45,11 @@ import java.util.Queue;
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 public class ModuleIOTalonFXS implements ModuleIO {
-  private static final boolean FORCE_PHOENIX_PRO = true;
+  // Team holds 2026 Phoenix Pro license. When true, forces torque-current FOC control for all
+  // closed-loop modes regardless of TunerConstants configuration. Set to false to respect
+  // TunerConstants control mode settings.
+  private static final boolean FORCE_PHOENIX_PRO =
+      Boolean.parseBoolean(System.getProperty("frc.forcePhoenixPro", "true"));
   // Hardware objects
   private final TalonFXS driveTalon;
   private final TalonFXS turnTalon;

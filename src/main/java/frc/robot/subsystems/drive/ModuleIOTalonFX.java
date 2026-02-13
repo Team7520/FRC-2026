@@ -44,7 +44,11 @@ import java.util.Queue;
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 public class ModuleIOTalonFX implements ModuleIO {
-  private static final boolean FORCE_PHOENIX_PRO = true;
+  // Team holds 2026 Phoenix Pro license. When true, forces torque-current FOC control for all
+  // closed-loop modes regardless of TunerConstants configuration. Set to false to respect
+  // TunerConstants control mode settings.
+  private static final boolean FORCE_PHOENIX_PRO =
+      Boolean.parseBoolean(System.getProperty("frc.forcePhoenixPro", "true"));
   private final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
@@ -126,8 +130,23 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     turnConfig.Slot0 = constants.SteerMotorGains;
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.EncoderId;
-    // Force FusedCANcoder for Phoenix Pro azimuth feedback.
-    turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    // Select steer feedback source based on TunerConstants, defaulting to FusedCANcoder for Phoenix
+    // Pro.
+    switch (constants.FeedbackSource) {
+      case FusedCANcoder:
+        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        break;
+      case RemoteCANcoder:
+        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        break;
+      case SyncCANcoder:
+        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.SyncCANcoder;
+        break;
+      default:
+        // Fallback to FusedCANcoder if configuration is unexpected or unspecified.
+        turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        break;
+    }
     turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicAcceleration =
@@ -170,12 +189,13 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     // Configure periodic frames
     BaseStatusSignal.setUpdateFrequencyForAll(
-        Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition, turnAbsolutePosition);
+        Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0,
         driveVelocity,
         driveAppliedVolts,
         driveCurrent,
+        turnAbsolutePosition,
         turnVelocity,
         turnAppliedVolts,
         turnCurrent);

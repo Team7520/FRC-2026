@@ -8,6 +8,7 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import java.util.function.Supplier;
 
 public class PhoenixUtil {
@@ -17,5 +18,29 @@ public class PhoenixUtil {
       var error = command.get();
       if (error.isOK()) break;
     }
+  }
+
+  /**
+   * Creates a TalonFX configuration with Phoenix Pro MotionMagic parameters.
+   *
+   * @param motionMagicKV MotionMagic velocity feedforward (default: 0.12)
+   * @param motionMagicKA MotionMagic acceleration feedforward (default: 0.1)
+   * @return Configured TalonFXConfiguration
+   */
+  public static TalonFXConfiguration createPhoenixProConfig(
+      double motionMagicKV, double motionMagicKA) {
+    TalonFXConfiguration config = new TalonFXConfiguration();
+    config.MotionMagic.MotionMagicExpo_kV = motionMagicKV;
+    config.MotionMagic.MotionMagicExpo_kA = motionMagicKA;
+    return config;
+  }
+
+  /**
+   * Creates a TalonFX configuration with default Phoenix Pro MotionMagic parameters.
+   *
+   * @return Configured TalonFXConfiguration with kV=0.12 and kA=0.1
+   */
+  public static TalonFXConfiguration createPhoenixProConfig() {
+    return createPhoenixProConfig(0.12, 0.1);
   }
 }

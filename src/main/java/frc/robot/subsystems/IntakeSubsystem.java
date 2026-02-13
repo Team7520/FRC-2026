@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -97,14 +98,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void stopAll() {
     intakeMotor.setDutyCycle(0.0);
-    extendMotor.setDutyCycle(0.0);
+    retract(); // Hold extend motor in retracted position
     indexerMotor.setDutyCycle(0.0);
-  }
-
-  private TalonFXConfiguration createPhoenixProConfig() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
-    config.MotionMagic.MotionMagicExpo_kV = 0.12;
-    config.MotionMagic.MotionMagicExpo_kA = 0.1;
-    return config;
   }
 }

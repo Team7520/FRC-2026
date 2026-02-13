@@ -1,7 +1,12 @@
 allprojects {
     tasks.register("printRuntimeClasspath") {
         doLast {
-            println configurations.findByName("runtimeClasspath")?.files?.join("\n")
+            def runtimeClasspath = configurations.findByName("runtimeClasspath")
+            if (runtimeClasspath != null) {
+                println runtimeClasspath.files.join("\n")
+            } else {
+                println "Project '${project.path}' does not have a 'runtimeClasspath' configuration."
+            }
         }
     }
 }
