@@ -114,12 +114,14 @@ public class AprilTagSystem extends SubsystemBase {
     SmartDashboard.putNumber("Lime1 Distance", getClosest(2));
     SmartDashboard.putNumber("Lime2 Distance", getClosest(3));
     SmartDashboard.putNumber("Pi 1 Distance", getClosest(0));
-    SmartDashboard.putNumber("Lime1 X", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[0]);
-    SmartDashboard.putNumber("Lime1 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[1]);
-    SmartDashboard.putNumber("Lime1 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[2]);
-    SmartDashboard.putNumber("Lime2 X", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[0]);
-    SmartDashboard.putNumber("Lime2 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[1]);
-    SmartDashboard.putNumber("Lime2 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[2]);
+    double[] lime1Pose = getSafeLimelightCameraSpace(limelight1);
+    SmartDashboard.putNumber("Lime1 X", lime1Pose[0]);
+    SmartDashboard.putNumber("Lime1 Y", lime1Pose[1]);
+    SmartDashboard.putNumber("Lime1 Z", lime1Pose[2]);
+    double[] lime2Pose = getSafeLimelightCameraSpace(limelight2);
+    SmartDashboard.putNumber("Lime2 X", lime2Pose[0]);
+    SmartDashboard.putNumber("Lime2 Y", lime2Pose[1]);
+    SmartDashboard.putNumber("Lime2 Z", lime2Pose[2]);
   }
 
   public List<PhotonCamera> getCameras() {
@@ -226,14 +228,14 @@ public class AprilTagSystem extends SubsystemBase {
         distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
         return distance;
       case 2:
-        offsets = LimelightHelpers.getTargetPose_CameraSpace(limelight1);
+        offsets = getSafeLimelightCameraSpace(limelight1);
         x = offsets[0];
         y = offsets[1];
         z = offsets[2];
         distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
         return distance;
       case 3:
-        offsets = LimelightHelpers.getTargetPose_CameraSpace(limelight2);
+        offsets = getSafeLimelightCameraSpace(limelight2);
         x = offsets[0];
         y = offsets[1];
         z = offsets[2];
@@ -431,5 +433,13 @@ public class AprilTagSystem extends SubsystemBase {
       return new PhotonPipelineResult();
     }
     return results.get(results.size() - 1);
+  }
+
+  private double[] getSafeLimelightCameraSpace(String limelightName) {
+    double[] pose = LimelightHelpers.getTargetPose_CameraSpace(limelightName);
+    if (pose == null || pose.length < 3) {
+      return new double[] {0.0, 0.0, 0.0};
+    }
+    return pose;
   }
 }
