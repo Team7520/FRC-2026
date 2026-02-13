@@ -131,6 +131,11 @@ public class TurretSubsystem extends SubsystemBase {
     return hood.getAngle();
   }
 
+  /** Clamps a speed value to the range [-1.0, 1.0]. */
+  private static double clampSpeed(double speed) {
+    return Math.max(-1.0, Math.min(1.0, speed));
+  }
+
   /**
    * Controls turret angle using a normalized speed value.
    * Maps speed [-1, 1] to the full turret angle range.
@@ -139,7 +144,7 @@ public class TurretSubsystem extends SubsystemBase {
    */
   public void turn(double speed) {
     // Interpret speed in [-1, 1] as a normalized position across the turret's angle range
-    double clampedSpeed = Math.max(-1.0, Math.min(1.0, speed));
+    double clampedSpeed = clampSpeed(speed);
     // Map -1 -> TURRET_MIN_ANGLE, 0 -> midpoint, 1 -> TURRET_MAX_ANGLE
     double fraction = (clampedSpeed + 1.0) / 2.0;
     Angle targetAngle =
@@ -163,7 +168,7 @@ public class TurretSubsystem extends SubsystemBase {
    */
   public void hood(double speed) {
     // Interpret speed in [-1, 1] as a normalized position across the hood's angle range
-    double clampedSpeed = Math.max(-1.0, Math.min(1.0, speed));
+    double clampedSpeed = clampSpeed(speed);
     // Map -1 -> HOOD_MIN_ANGLE, 0 -> midpoint, 1 -> HOOD_MAX_ANGLE
     double fraction = (clampedSpeed + 1.0) / 2.0;
     Angle targetAngle = HOOD_MIN_ANGLE.plus(HOOD_MAX_ANGLE.minus(HOOD_MIN_ANGLE).times(fraction));
