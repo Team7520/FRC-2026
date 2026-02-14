@@ -1,10 +1,11 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import frc.robot.Constants.TurretConstants;
 
 public class TurretSubsystem extends SubsystemBase {
   private final TalonFX turnMotor;
@@ -12,31 +13,33 @@ public class TurretSubsystem extends SubsystemBase {
   private final TalonFX leftMotor;
   private final TalonFX rightMotor;
   private final TalonFX feedMotor;
+  private final TalonFX indexMotor;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
   private final PositionDutyCycle anglePosReq = new PositionDutyCycle(0);
 
-  public TurretSubsystem(int turnMotorId, int hoodMotorId, int topMotorId, int bottomMotorId, int feederMotorId) {
-    turnMotor = new TalonFX(turnMotorId);
-    hoodMotor = new TalonFX(hoodMotorId);
-    leftMotor = new TalonFX(topMotorId);
-    rightMotor = new TalonFX(bottomMotorId);
-    feedMotor = new TalonFX(feederMotorId);
+  public TurretSubsystem() {
+    turnMotor = new TalonFX(TurretConstants.TURN_MOTOR, "CANivore");
+    hoodMotor = new TalonFX(TurretConstants.HOOD_MOTOR, "CANivore");
+    leftMotor = new TalonFX(TurretConstants.LEFT_MOTOR, "CANivore");
+    rightMotor = new TalonFX(TurretConstants.RIGHT_MOTOR, "CANivore");
+    feedMotor = new TalonFX(TurretConstants.FEEDER_MOTOR, "CANivore");
+    indexMotor = new TalonFX(TurretConstants.INDEX_MOTOR, "CANivore");
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = 80.0;
-    
-    turnMotor.getConfigurator().apply(config);
-    turnMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
-    hoodMotor.getConfigurator().apply(config);
-    hoodMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
-    leftMotor.getConfigurator().apply(config);
-    leftMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
-    rightMotor.getConfigurator().apply(config);
-    rightMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
-    feedMotor.getConfigurator().apply(config);
-    feedMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+
+    // turnMotor.getConfigurator().apply(config);
+    // turnMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+    // hoodMotor.getConfigurator().apply(config);
+    // hoodMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+    // leftMotor.getConfigurator().apply(config);
+    // leftMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+    // rightMotor.getConfigurator().apply(config);
+    // rightMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+    // feedMotor.getConfigurator().apply(config);
+    // feedMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
   }
 
   public void turn(double speed) {
@@ -55,16 +58,25 @@ public class TurretSubsystem extends SubsystemBase {
     hoodMotor.setControl(duty.withOutput(speed));
   }
 
-  public void top(double speed) {
+  public void left(double speed) {
     leftMotor.setControl(duty.withOutput(speed));
   }
 
-  public void bottom(double speed) {
+  public void right(double speed) {
     rightMotor.setControl(duty.withOutput(speed));
+  }
+
+  public void spinWheels(double speed) {
+    rightMotor.setControl(duty.withOutput(-speed));
+    leftMotor.setControl(duty.withOutput(speed));
   }
 
   public void feeder(double speed) {
     feedMotor.setControl(duty.withOutput(speed));
+  }
+
+  public void index(double speed) {
+    indexMotor.setControl(duty.withOutput(speed));
   }
 
   public void stopAll() {
@@ -74,4 +86,7 @@ public class TurretSubsystem extends SubsystemBase {
     rightMotor.setControl(duty.withOutput(0));
     feedMotor.setControl(duty.withOutput(0));
   }
+
+  @Override
+  public void periodic() {}
 }

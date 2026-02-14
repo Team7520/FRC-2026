@@ -123,20 +123,28 @@ public class AprilTagSystem extends SubsystemBase {
       allOpen = false;
       System.out.println("Failed to open limelight 2, " + limelight2);
     }
-    SmartDashboard.putBoolean("Limelight Two Open?", lime2);
-    SmartDashboard.putNumber("Limelight One Heartbeat", LimelightHelpers.getHeartbeat(limelight1));
-    SmartDashboard.putNumber("Limelight Two Heartbeat", LimelightHelpers.getHeartbeat(limelight2));
+    // SmartDashboard.putBoolean("Limelight Two Open?", lime2);
+    // SmartDashboard.putNumber("Limelight One Heartbeat",
+    // LimelightHelpers.getHeartbeat(limelight1));
+    // SmartDashboard.putNumber("Limelight Two Heartbeat",
+    // LimelightHelpers.getHeartbeat(limelight2));
 
-    SmartDashboard.putNumber("Closest cam", whichClosest());
-    SmartDashboard.putNumber("Lime1 Distance", getClosest(2));
-    SmartDashboard.putNumber("Lime2 Distance", getClosest(3));
-    SmartDashboard.putNumber("Pi 1 Distance", getClosest(0));
-    SmartDashboard.putNumber("Lime1 X", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[0]);
-    SmartDashboard.putNumber("Lime1 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[1]);
-    SmartDashboard.putNumber("Lime1 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[2]);
-    SmartDashboard.putNumber("Lime2 X", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[0]);
-    SmartDashboard.putNumber("Lime2 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[1]);
-    SmartDashboard.putNumber("Lime2 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[2]);
+    // SmartDashboard.putNumber("Closest cam", whichClosest());
+    // SmartDashboard.putNumber("Lime1 Distance", getClosest(2));
+    // SmartDashboard.putNumber("Lime2 Distance", getClosest(3));
+    // SmartDashboard.putNumber("Pi 1 Distance", getClosest(0));
+    // SmartDashboard.putNumber("Lime1 X",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight1)[0]);
+    // SmartDashboard.putNumber("Lime1 Y",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight1)[1]);
+    // SmartDashboard.putNumber("Lime1 Z",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight1)[2]);
+    // SmartDashboard.putNumber("Lime2 X",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight2)[0]);
+    // SmartDashboard.putNumber("Lime2 Y",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight2)[1]);
+    // SmartDashboard.putNumber("Lime2 Z",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight2)[2]);
   }
 
   public List<PhotonCamera> getCameras() {

@@ -15,9 +15,14 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.ManualHood;
+import frc.robot.commands.ManualTurn;
+import frc.robot.commands.TurretWheels;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -38,11 +43,13 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController operator = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
   public final AprilTagSystem aprilTagSystem = new AprilTagSystem();
+  public final TurretSubsystem turret = new TurretSubsystem();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -139,18 +146,14 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    // Lock to 0° when A button is held
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> Rotation2d.kZero));
+    // Manual Turret Controls
+    new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
+        .whileTrue(new ManualTurn(turret, () -> operator.getRightX()));
 
-    // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    new Trigger(() -> Math.abs(operator.getRightY()) > 0.1)
+        .whileTrue(new ManualHood(turret, () -> operator.getRightY()));
+
+    operator.leftBumper().whileTrue(new TurretWheels(turret));
 
     // Reset gyro to 0° when B button is pressed
     controller

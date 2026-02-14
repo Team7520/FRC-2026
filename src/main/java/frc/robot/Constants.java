@@ -7,8 +7,8 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -34,6 +34,12 @@ public final class Constants {
     public static double launchHeight = 0.8; // m
     public static double exitVelocity = 8.0; // m/s
     public static double aimTolerance = 0.50; // m
+    public static final int LEFT_MOTOR = 50;
+    public static final int RIGHT_MOTOR = 51;
+    public static final int HOOD_MOTOR = 33;
+    public static final int TURN_MOTOR = 60;
+    public static final int FEEDER_MOTOR = 40;
+    public static final int INDEX_MOTOR = 52;
   }
 
   public static class FieldConstants {
@@ -52,7 +58,7 @@ public final class Constants {
   public static class UniverseConstants {
     public static double g = 9.81;
   }
-  
+
   public static class ClimberConstants {
     public static final int MAX_AMP_POWER = 60;
     public static final double MAX_VOLTAGE = 12;
