@@ -86,17 +86,6 @@ public class AprilTagSystem extends SubsystemBase {
                     Math.toRadians(15), // pitched up
                     0.0 // facing forward
                     ))));
-
-    cameraList.add(
-        new CameraInfo(
-            "Cam2",
-            new PhotonCamera("Cam2"),
-            false,
-            new Transform3d(
-                0.283940504, // X forward
-                0.188200919, // Y left
-                0.205,
-                new Rotation3d(0.0, Math.toRadians(15), 0.0))));
   }
 
   @Override
@@ -132,11 +121,10 @@ public class AprilTagSystem extends SubsystemBase {
     SmartDashboard.putBoolean("Limelight Two Open?", lime2);
 
     SmartDashboard.putNumber("Closest cam", whichClosest());
-    SmartDashboard.putNumber("Lime1 Distance", getClosest(2));
-    SmartDashboard.putNumber("Lime2 Distance", getClosest(3));
-    SmartDashboard.putNumber("Lime3 Distance", getClosest(4));
+    SmartDashboard.putNumber("Lime1 Distance", getClosest(1));
+    SmartDashboard.putNumber("Lime2 Distance", getClosest(2));
+    SmartDashboard.putNumber("Lime3 Distance", getClosest(3));
     SmartDashboard.putNumber("Pi 1 Distance", getClosest(0));
-    SmartDashboard.putNumber("Pi 2 Distance", getClosest(1));
   }
 
   public List<PhotonCamera> getCameras() {
@@ -207,17 +195,17 @@ public class AprilTagSystem extends SubsystemBase {
 
   /**
    * Returns the distance of the tag to the given camera, used to determine which has the most
-   * accurate data. Index 0-1 represent photonCameras, 2-3 represent Limelights
+   * accurate data. Index 0 represent photonCamera, 1-3 represent Limelights
    *
    * @return a double representing the ambiguity of the camera
    */
   public double getClosest(int cameraIndex) {
-    if (cameraIndex < 0 || cameraIndex > 4) {
+    if (cameraIndex < 0 || cameraIndex > 3) {
       return -1; // Handle invalid camera index
     }
 
     PhotonPipelineResult result = null;
-    if (cameraIndex >= 0 && cameraIndex <= 1) {
+    if (cameraIndex == 0) {
       CameraInfo cameraInfo = cameraList.get(cameraIndex);
       result = cameraInfo.camera.getLatestResult();
 
@@ -226,9 +214,9 @@ public class AprilTagSystem extends SubsystemBase {
       }
     }
 
-    if ((cameraIndex == 2 && !LimelightHelpers.getTV(limelight1))
-        || (cameraIndex == 3 && !LimelightHelpers.getTV(limelight2))
-        || (cameraIndex == 4 && !LimelightHelpers.getTV(limelight3))) {
+    if ((cameraIndex == 1 && !LimelightHelpers.getTV(limelight1))
+        || (cameraIndex == 2 && !LimelightHelpers.getTV(limelight2))
+        || (cameraIndex == 3 && !LimelightHelpers.getTV(limelight3))) {
       return -1;
     }
 
@@ -236,7 +224,6 @@ public class AprilTagSystem extends SubsystemBase {
     double[] offsets;
     switch (cameraIndex) {
       case 0:
-      case 1:
         PhotonTrackedTarget target = result.getBestTarget();
         Transform3d targets = target.getBestCameraToTarget();
         x = targets.getX();
@@ -244,21 +231,21 @@ public class AprilTagSystem extends SubsystemBase {
         z = targets.getZ();
         distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
         return distance;
-      case 2:
+      case 1:
         offsets = LimelightHelpers.getTargetPose_CameraSpace(limelight1);
         x = offsets[0];
         y = offsets[1];
         z = offsets[2];
         distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
         return distance;
-      case 3:
+      case 2:
         offsets = LimelightHelpers.getTargetPose_CameraSpace(limelight2);
         x = offsets[0];
         y = offsets[1];
         z = offsets[2];
         distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
         return distance;
-      case 4:
+      case 3:
         offsets = LimelightHelpers.getTargetPose_CameraSpace(limelight3);
         x = offsets[0];
         y = offsets[1];
@@ -286,18 +273,14 @@ public class AprilTagSystem extends SubsystemBase {
         result = cameraInfo.camera.getLatestResult();
         return result.getTimestampSeconds();
       case 1:
-        cameraInfo = cameraList.get(1);
-        result = cameraInfo.camera.getLatestResult();
-        return result.getTimestampSeconds();
-      case 2:
         return Timer.getFPGATimestamp()
                 - (LimelightHelpers.getLatency_Capture(limelight1) / 1000.0)
                 - (LimelightHelpers.getLatency_Pipeline(limelight1) / 1000.0);
-      case 3:
+      case 2:
         return Timer.getFPGATimestamp()
                 - (LimelightHelpers.getLatency_Capture(limelight2) / 1000.0)
                 - (LimelightHelpers.getLatency_Pipeline(limelight2) / 1000.0);
-      case 4:
+      case 3:
         return Timer.getFPGATimestamp()
                 - (LimelightHelpers.getLatency_Capture(limelight3) / 1000.0)
                 - (LimelightHelpers.getLatency_Pipeline(limelight3) / 1000.0);
@@ -315,7 +298,7 @@ public class AprilTagSystem extends SubsystemBase {
   public Pose2d getCurrentRobotFieldPose() {
     PhotonPipelineResult result = null;
     int cam2Use = whichClosest();
-    if(cam2Use == 0 || cam2Use == 1) {
+    if(cam2Use == 0) {
       result = cameraList.get(cam2Use).camera.getLatestResult();
         Transform3d robotToCamera = cameraList.get(cam2Use).robotToCamera;
         PhotonTrackedTarget target = result.getBestTarget();
@@ -328,11 +311,11 @@ public class AprilTagSystem extends SubsystemBase {
             aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
             robotToCamera.inverse());
         return robotPose.toPose2d();
-    } else if(cam2Use == 2) {
+    } else if(cam2Use == 1) {
       return LimelightHelpers.getBotPose2d_wpiBlue(limelight1);
-    } else if(cam2Use == 3) {
+    } else if(cam2Use == 2) {
       return LimelightHelpers.getBotPose2d_wpiBlue(limelight2);
-    } else if(cam2Use == 4) {
+    } else if(cam2Use == 3) {
       return LimelightHelpers.getBotPose2d_wpiBlue(limelight3);
     } else {
       return null;
