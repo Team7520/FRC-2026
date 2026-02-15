@@ -100,7 +100,6 @@ public class AprilTagSystem extends SubsystemBase {
       } else {
         cameraList.get(i).isOpen = false;
         allOpen = false;
-        System.out.printf("Failed to open camera %d: %s \n", i + 1, cameraList.get(i).name);
       }
       SmartDashboard.putBoolean(cameraList.get(i).name + " OPEN?", cameraList.get(i).isOpen);
     }
@@ -113,7 +112,7 @@ public class AprilTagSystem extends SubsystemBase {
       lime2 = false;
       allOpen = false;
     }
-    if(LimelightHelpers.getHeartbeat(limelight3) == 0) {
+    if (LimelightHelpers.getHeartbeat(limelight3) == 0) {
       lime3 = false;
       allOpen = false;
     }
@@ -274,16 +273,16 @@ public class AprilTagSystem extends SubsystemBase {
         return result.getTimestampSeconds();
       case 1:
         return Timer.getFPGATimestamp()
-                - (LimelightHelpers.getLatency_Capture(limelight1) / 1000.0)
-                - (LimelightHelpers.getLatency_Pipeline(limelight1) / 1000.0);
+            - (LimelightHelpers.getLatency_Capture(limelight1) / 1000.0)
+            - (LimelightHelpers.getLatency_Pipeline(limelight1) / 1000.0);
       case 2:
         return Timer.getFPGATimestamp()
-                - (LimelightHelpers.getLatency_Capture(limelight2) / 1000.0)
-                - (LimelightHelpers.getLatency_Pipeline(limelight2) / 1000.0);
+            - (LimelightHelpers.getLatency_Capture(limelight2) / 1000.0)
+            - (LimelightHelpers.getLatency_Pipeline(limelight2) / 1000.0);
       case 3:
         return Timer.getFPGATimestamp()
-                - (LimelightHelpers.getLatency_Capture(limelight3) / 1000.0)
-                - (LimelightHelpers.getLatency_Pipeline(limelight3) / 1000.0);
+            - (LimelightHelpers.getLatency_Capture(limelight3) / 1000.0)
+            - (LimelightHelpers.getLatency_Pipeline(limelight3) / 1000.0);
       default:
         return -1;
     }
@@ -298,29 +297,29 @@ public class AprilTagSystem extends SubsystemBase {
   public Pose2d getCurrentRobotFieldPose() {
     PhotonPipelineResult result = null;
     int cam2Use = whichClosest();
-    if(cam2Use == 0) {
+    if (cam2Use == 0) {
       result = cameraList.get(cam2Use).camera.getLatestResult();
-        Transform3d robotToCamera = cameraList.get(cam2Use).robotToCamera;
-        PhotonTrackedTarget target = result.getBestTarget();
-        if (target.getBestCameraToTarget().getX() > MAX_RANGE) {
-          return null;
-        }
-        Pose3d robotPose =
-        PhotonUtils.estimateFieldToRobotAprilTag(
-            target.getBestCameraToTarget(),
-            aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
-            robotToCamera.inverse());
-        return robotPose.toPose2d();
-    } else if(cam2Use == 1) {
+      Transform3d robotToCamera = cameraList.get(cam2Use).robotToCamera;
+      PhotonTrackedTarget target = result.getBestTarget();
+      if (target.getBestCameraToTarget().getX() > MAX_RANGE) {
+        return null;
+      }
+      Pose3d robotPose =
+          PhotonUtils.estimateFieldToRobotAprilTag(
+              target.getBestCameraToTarget(),
+              aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
+              robotToCamera.inverse());
+      return robotPose.toPose2d();
+    } else if (cam2Use == 1) {
       return LimelightHelpers.getBotPose2d_wpiBlue(limelight1);
-    } else if(cam2Use == 2) {
+    } else if (cam2Use == 2) {
       return LimelightHelpers.getBotPose2d_wpiBlue(limelight2);
-    } else if(cam2Use == 3) {
+    } else if (cam2Use == 3) {
       return LimelightHelpers.getBotPose2d_wpiBlue(limelight3);
     } else {
       return null;
     }
-    
+
     // PhotonPipelineResult result = null;
     // if (camera >= 0 && camera < cameraList.size()) {
     //   result = cameraList.get(camera).camera.getLatestResult();
