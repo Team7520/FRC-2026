@@ -47,7 +47,7 @@ public class TurretSubsystem extends SubsystemBase {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 20;
 
-    config.Feedback.RotorToSensorRatio = 75; 
+    config.Feedback.RotorToSensorRatio = 75;
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;

@@ -41,14 +41,12 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.AprilTagSystem;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
@@ -236,13 +234,10 @@ public class Drive extends SubsystemBase {
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
       Pose2d fieldPose = aprilTagSystem.getCurrentRobotFieldPose();
       double timestamp = aprilTagSystem.getCaptureTime();
-      if(fieldPose != null && timestamp != -1) {
-        poseEstimator.addVisionMeasurement(
-            aprilTagSystem.getCurrentRobotFieldPose(),
-            timestamp);
-      
+      if (fieldPose != null && timestamp != -1) {
+        poseEstimator.addVisionMeasurement(aprilTagSystem.getCurrentRobotFieldPose(), timestamp);
       }
-        
+
       currentPosePublisher.set(getPose());
     }
 
