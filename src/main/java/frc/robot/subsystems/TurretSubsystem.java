@@ -1,9 +1,11 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TurretConstants;
 
@@ -28,18 +30,27 @@ public class TurretSubsystem extends SubsystemBase {
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
 
+    config.CurrentLimits.StatorCurrentLimit = 20.0;
+    config.Feedback.RotorToSensorRatio = 75;
+    var limits = new SoftwareLimitSwitchConfigs();
+    limits.ForwardSoftLimitEnable = true;
+    limits.ForwardSoftLimitThreshold = 20.0 / 360.0;
+    config.SoftwareLimitSwitch = limits;
     // turnMotor.getConfigurator().apply(config);
     // turnMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
-    // hoodMotor.getConfigurator().apply(config);
-    // hoodMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+    hoodMotor.getConfigurator().apply(config);
+    hoodMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
     // leftMotor.getConfigurator().apply(config);
     // leftMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
     // rightMotor.getConfigurator().apply(config);
     // rightMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
     // feedMotor.getConfigurator().apply(config);
     // feedMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+  }
+
+  public double getHoodPosition() {
+    return hoodMotor.getPosition().getValueAsDouble();
   }
 
   public void turn(double speed) {
@@ -88,5 +99,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    SmartDashboard.putNumber("hoodMotor", hoodMotor.getPosition().getValueAsDouble());
+  }
 }
