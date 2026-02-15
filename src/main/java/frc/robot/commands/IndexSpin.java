@@ -4,25 +4,24 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.TurretSubsystem;
 import java.util.function.DoubleSupplier;
 
-public class ManualHood extends Command {
+public class IndexSpin extends Command {
 
   TurretSubsystem turret;
-  DoubleSupplier input;
+  DoubleSupplier leftBumper;
 
-  public ManualHood(TurretSubsystem turret, DoubleSupplier input) {
+  public IndexSpin(TurretSubsystem turret) {
     this.turret = turret;
-    this.input = input;
   }
 
   @Override
   public void execute() {
-    if (Math.abs(input.getAsDouble()) > 0.2) {
-      turret.hood(input.getAsDouble() * 0.3);
-    }
+    turret.setFeeder(0.95);
+    turret.setIndexer(0.95);
   }
 
   @Override
   public void end(boolean interrupted) {
-    turret.hood(0);
+    turret.setFeeder(0);
+    turret.setIndexer(-0.10);
   }
 }
