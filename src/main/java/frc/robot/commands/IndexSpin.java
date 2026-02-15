@@ -15,13 +15,13 @@ public class IndexSpin extends Command {
 
   @Override
   public void execute() {
-    turret.feeder(0.95);
-    turret.index(0.95);
+    turret.setFeeder(0.95);
+    turret.setIndexer(0.95);
   }
 
   @Override
   public void end(boolean interrupted) {
-    turret.feeder(0);
-    turret.index(-0.10);
+    turret.setFeeder(0);
+    turret.setIndexer(-0.10);
   }
 }
