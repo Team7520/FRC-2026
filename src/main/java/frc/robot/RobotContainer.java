@@ -42,6 +42,8 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
 
+  private final TurretSubsystem turret;
+
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
   private final CommandXboxController operator = new CommandXboxController(1);
@@ -50,7 +52,6 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
 
   public final AprilTagSystem aprilTagSystem = new AprilTagSystem();
-  public final TurretSubsystem turret = new TurretSubsystem();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -108,6 +109,8 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
+
+    turret = new TurretSubsystem(drive);
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());

@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -57,6 +58,8 @@ public final class Constants {
   // You should probably find a better place to put this?
   public static class UniverseConstants {
     public static double g = 9.81;
+    public static double hubX = Units.inchesToMeters(182.11);
+    public static double hubY = Units.inchesToMeters(158.84);
   }
 
   public static class ClimberConstants {

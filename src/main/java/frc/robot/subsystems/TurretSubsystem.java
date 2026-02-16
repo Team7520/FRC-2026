@@ -8,9 +8,13 @@ import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.AprilTagSystem;
 import frc.robot.Constants.TurretConstants;
+import frc.robot.Constants.UniverseConstants;
+import frc.robot.subsystems.drive.Drive;
 
 public class TurretSubsystem extends SubsystemBase {
   private final TalonFX turnMotor;
@@ -20,18 +24,22 @@ public class TurretSubsystem extends SubsystemBase {
   private final TalonFX feedMotor;
   private final TalonFX indexMotor;
 
+  private boolean autoTurn = true;
+
+  AprilTagSystem aprilTagSystem = new AprilTagSystem();
+  Drive drive;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle positionRequest = new PositionDutyCycle(0);
   private final VelocityDutyCycle velocityRequest = new VelocityDutyCycle(0);
 
-  public TurretSubsystem() {
-
-    turnMotor = new TalonFX(TurretConstants.TURN_MOTOR, "CANivore");
-    hoodMotor = new TalonFX(TurretConstants.HOOD_MOTOR, "CANivore");
-    leftMotor = new TalonFX(TurretConstants.LEFT_MOTOR, "CANivore");
-    rightMotor = new TalonFX(TurretConstants.RIGHT_MOTOR, "CANivore");
-    feedMotor = new TalonFX(TurretConstants.FEEDER_MOTOR, "CANivore");
-    indexMotor = new TalonFX(TurretConstants.INDEX_MOTOR, "CANivore");
+  public TurretSubsystem(Drive drive) {
+    this.drive = drive;
+    turnMotor = new TalonFX(TurretConstants.TURN_MOTOR);
+    hoodMotor = new TalonFX(TurretConstants.HOOD_MOTOR);
+    leftMotor = new TalonFX(TurretConstants.LEFT_MOTOR);
+    rightMotor = new TalonFX(TurretConstants.RIGHT_MOTOR);
+    feedMotor = new TalonFX(TurretConstants.FEEDER_MOTOR);
+    indexMotor = new TalonFX(TurretConstants.INDEX_MOTOR);
 
     configHood();
     configTurret();
@@ -59,9 +67,9 @@ public class TurretSubsystem extends SubsystemBase {
 
     SoftwareLimitSwitchConfigs limits = new SoftwareLimitSwitchConfigs();
     limits.ForwardSoftLimitEnable = true;
-    limits.ForwardSoftLimitThreshold = 20.0 / 360.0;
+    limits.ForwardSoftLimitThreshold = 6;
     limits.ReverseSoftLimitEnable = true;
-    limits.ReverseSoftLimitThreshold = 0.0;
+    limits.ReverseSoftLimitThreshold = 0;
 
     config.SoftwareLimitSwitch = limits;
 
@@ -133,12 +141,12 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void hood(double speed) {
-    hoodMotor.setControl(duty.withOutput(speed));
+    hoodMotor.setControl(duty.withOutput(-speed));
   }
 
   public void setFlywheelVelocity(double rps) {
-    leftMotor.setControl(velocityRequest.withVelocity(rps));
-    rightMotor.setControl(velocityRequest.withVelocity(rps));
+    leftMotor.setControl(duty.withOutput(rps));
+    rightMotor.setControl(duty.withOutput(rps));
   }
 
   public void setFeeder(double speed) {
@@ -147,6 +155,10 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setIndexer(double speed) {
     indexMotor.setControl(duty.withOutput(speed));
+  }
+
+  public void changeAutoTurn(boolean turn) {
+    autoTurn = turn;
   }
 
   public void stopAll() {
@@ -163,5 +175,23 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Hood Rotations", hoodMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Turret Rotations", turnMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Flywheel Velocity", leftMotor.getVelocity().getValueAsDouble());
+
+    // Keeping turret pointed at hub, formula would be:
+    // Take x and y difference btween coords of hub/robo, inverse tan for angle and subtract robot
+    // heading to find
+    // angle the turret needs to be at relative to robot
+
+    // Use boolean to decide when to use it, when not to. Don't care about how much it can turn,
+    // just leave that for later
+    if (autoTurn) {
+      Pose2d robotPose = drive.getPose();
+      double angleReq =
+          Math.toDegrees(
+                  Math.atan2(
+                      UniverseConstants.hubY - robotPose.getY(),
+                      UniverseConstants.hubX - robotPose.getX()))
+              - robotPose.getRotation().getDegrees();
+      SmartDashboard.putNumber("Angle to turn to", angleReq);
+    }
   }
 }

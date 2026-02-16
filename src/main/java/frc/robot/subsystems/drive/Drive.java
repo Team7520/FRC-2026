@@ -235,7 +235,7 @@ public class Drive extends SubsystemBase {
       Pose2d fieldPose = aprilTagSystem.getCurrentRobotFieldPose();
       double timestamp = aprilTagSystem.getCaptureTime();
       if (fieldPose != null && timestamp != -1) {
-        poseEstimator.addVisionMeasurement(aprilTagSystem.getCurrentRobotFieldPose(), timestamp);
+        poseEstimator.addVisionMeasurement(fieldPose, timestamp);
       }
 
       currentPosePublisher.set(getPose());
