@@ -1,6 +1,5 @@
 package frc.robot.util;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.Constants;
 
@@ -64,7 +63,7 @@ public class BallisticSolver {
 
     // Main function you call from robot code
     public static ShotSolution solveShot(
-            Pose2d robotPose, Pose3d goalPose,
+            Pose3d robotPose, Pose3d goalPose,
             double robotVx, double robotVy
     ) {
         double dx = goalPose.getX() - robotPose.getX();
