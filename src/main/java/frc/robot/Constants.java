@@ -41,7 +41,7 @@ public final class Constants {
     public static double blueHubY = 4.03;
     public static Pair<Double, Double> blueHubLoc = new Pair<>(blueHubX, blueHubY);
 
-    public static double redHubX = 0.00;
+    public static double redHubX = (651-182) * 0.0254;
     public static double redHubY = 4.03;
     public static Pair<Double, Double> redHubLoc = new Pair<>(redHubX, redHubY);
 

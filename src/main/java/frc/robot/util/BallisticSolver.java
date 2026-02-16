@@ -18,17 +18,16 @@ public class BallisticSolver {
     private static Double solveTimeNewton(
             double dx, double dy, double dz,
             double vrx, double vry, double vrz,
-            double v0, double g,
-            double t0
+            double v0, double t0
     ) {
         double t = t0;
 
         for (int i = 0; i < 40; i++) {
 
-            double Ft = F(t, dx, dy, dz, vrx, vry, vrz, v0, g);
+            double Ft = F(t, dx, dy, dz, vrx, vry, vrz, v0);
             if (Math.abs(Ft) < 1e-6) return t;
 
-            double dFt = dFdt(t, dx, dy, dz, vrx, vry, vrz, v0, g);
+            double dFt = dFdt(t, dx, dy, dz, vrx, vry, vrz, v0);
             if (Math.abs(dFt) < 1e-9) return null;
 
             t = t - Ft / dFt;
@@ -39,11 +38,11 @@ public class BallisticSolver {
 
     private static double F(double t, double dx, double dy, double dz,
                             double vrx, double vry, double vrz,
-                            double v0, double g) {
+                            double v0) {
 
         if (t <= 0) return 1e9;
 
-        double vzTerm = (dz + 0.5 * g * t * t - vrz * t) / (v0 * t);
+        double vzTerm = (dz + 0.5 * Constants.UniverseConstants.g * t * t - vrz * t) / (v0 * t);
 
         double hx = dx - vrx * t;
         double hy = dy - vry * t;
@@ -54,11 +53,11 @@ public class BallisticSolver {
 
     private static double dFdt(double t, double dx, double dy, double dz,
                                double vrx, double vry, double vrz,
-                               double v0, double g) {
+                               double v0) {
 
         double h = 1e-5;
-        return (F(t + h, dx, dy, dz, vrx, vry, vrz, v0, g)
-              - F(t - h, dx, dy, dz, vrx, vry, vrz, v0, g)) / (2 * h);
+        return (F(t + h, dx, dy, dz, vrx, vry, vrz, v0)
+              - F(t - h, dx, dy, dz, vrx, vry, vrz, v0)) / (2 * h);
     }
 
     // Main function you call from robot code
@@ -68,7 +67,6 @@ public class BallisticSolver {
             double goalX, double goalY, double goalZ,
             double launchSpeed
     ) {
-        double g = 9.81;
 
         double dx = goalX - robotX;
         double dy = goalY - robotY;
@@ -76,7 +74,7 @@ public class BallisticSolver {
 
         // Bias toward the high-arc root
         Double t = solveTimeNewton(dx, dy, dz, robotVx, robotVy, robotVz,
-                                   Constants.TurretConstants.launchSpeed, g, 2.0);
+                                   Constants.TurretConstants.launchSpeed, 2.0);
 
         if (t == null) return null;
 
@@ -84,7 +82,7 @@ public class BallisticSolver {
         double phi = Math.atan2(dy - robotVy * t, dx - robotVx * t);
 
         // Compute elevation
-        double sinTheta = (dz + 0.5 * g * t * t - robotVz * t) / (launchSpeed * t);
+        double sinTheta = (dz + 0.5 * Constants.UniverseConstants.g * t * t - robotVz * t) / (launchSpeed * t);
         if (sinTheta > 1 || sinTheta < -1) return null;
 
         double theta = Math.asin(sinTheta);
