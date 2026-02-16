@@ -188,10 +188,16 @@ public class TurretSubsystem extends SubsystemBase {
       double angleReq =
           Math.toDegrees(
                   Math.atan2(
-                      UniverseConstants.hubY - robotPose.getY(),
-                      UniverseConstants.hubX - robotPose.getX()))
+                      UniverseConstants.redhubY - robotPose.getY(),
+                      UniverseConstants.redhubX - robotPose.getX()))
               - robotPose.getRotation().getDegrees();
       SmartDashboard.putNumber("Angle to turn to", angleReq);
+      SmartDashboard.putNumber(
+          "atan",
+          Math.toDegrees(
+              Math.atan2(
+                  UniverseConstants.redhubY - robotPose.getY(),
+                  UniverseConstants.redhubX - robotPose.getX())));
     }
   }
 }

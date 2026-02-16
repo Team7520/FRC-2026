@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.io.IOException;
@@ -114,19 +115,40 @@ public class AprilTagSystem extends SubsystemBase {
         new LimeInfo(
             frontLeft,
             false,
-            new Transform3d(0.300942, -0.275542, 0.076781, new Rotation3d(180, 60, 45))));
+            new Transform3d(
+                0.300942,
+                -0.275542,
+                0.076781,
+                new Rotation3d(
+                    Units.degreesToRadians(180),
+                    Units.degreesToRadians(60),
+                    Units.degreesToRadians(45)))));
 
     limes.add(
         new LimeInfo(
             frontRight,
             false,
-            new Transform3d(0.300942, 0.275542, 0.076781, new Rotation3d(180, 60, -45))));
+            new Transform3d(
+                0.300942,
+                0.275542,
+                0.076781,
+                new Rotation3d(
+                    Units.degreesToRadians(180),
+                    Units.degreesToRadians(60),
+                    Units.degreesToRadians(-45)))));
 
     limes.add(
         new LimeInfo(
             backRight,
             false,
-            new Transform3d(0.279069, 0.216958, 0.167095, new Rotation3d(14.028, 65, -121.321))));
+            new Transform3d(
+                0.279069,
+                0.216958,
+                0.167095,
+                new Rotation3d(
+                    Units.degreesToRadians(14.028),
+                    Units.degreesToRadians(65),
+                    Units.degreesToRadians(-121.321)))));
   }
 
   @Override
@@ -280,7 +302,9 @@ public class AprilTagSystem extends SubsystemBase {
       return result.getTimestampSeconds();
     } else if (cam != -1) {
       lime = limes.get(cam - 1);
-      return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(lime.name).timestampSeconds;
+      return Timer.getFPGATimestamp()
+          - (LimelightHelpers.getLatency_Capture(lime.name) / 1000.0)
+          - (LimelightHelpers.getLatency_Pipeline(lime.name) / 1000.0);
     }
     return -1;
   }
@@ -308,7 +332,7 @@ public class AprilTagSystem extends SubsystemBase {
               robotToCamera.inverse());
       return robotPose.toPose2d();
     } else if (cam2Use != -1) {
-      return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limes.get(cam2Use - 1).name).pose;
+      return LimelightHelpers.getBotPose2d_wpiBlue(limes.get(cam2Use - 1).name);
     } else {
       return null;
     }

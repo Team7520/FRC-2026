@@ -234,7 +234,9 @@ public class Drive extends SubsystemBase {
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
       Pose2d fieldPose = aprilTagSystem.getCurrentRobotFieldPose();
       double timestamp = aprilTagSystem.getCaptureTime();
-      if (fieldPose != null && timestamp != -1) {
+      int index = aprilTagSystem.whichClosest();
+      double distance = aprilTagSystem.getClosest(index);
+      if (fieldPose != null && timestamp != -1 && distance <= 3.5) {
         poseEstimator.addVisionMeasurement(fieldPose, timestamp);
       }
 
