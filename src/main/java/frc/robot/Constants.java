@@ -32,7 +32,7 @@ public final class Constants {
 
   public static class TurretConstants {
     public static double launchHeight = 0.8; // m
-    public static double exitVelocity = 8.0; // m/s
+    public static double launchSpeed = 8.0; // m/s
     public static double aimTolerance = 0.50; // m
   }
 
