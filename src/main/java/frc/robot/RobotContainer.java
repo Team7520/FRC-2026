@@ -19,10 +19,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IndexSpin;
+import frc.robot.commands.IntakeExtend;
 import frc.robot.commands.ManualHood;
+import frc.robot.commands.ManualIntakeExtend;
 import frc.robot.commands.ManualTurn;
 import frc.robot.commands.TurretWheels;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -43,6 +46,7 @@ public class RobotContainer {
   private final Drive drive;
 
   private final TurretSubsystem turret;
+  private final IntakeSubsystem intake;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -111,6 +115,7 @@ public class RobotContainer {
     }
 
     turret = new TurretSubsystem(drive);
+    intake = new IntakeSubsystem();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -152,6 +157,12 @@ public class RobotContainer {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
+    // Manual Intake Controls
+
+    new Trigger(() -> Math.abs(operator.getLeftY()) > 0.1)
+        .whileTrue(new ManualIntakeExtend(intake, () -> operator.getRightY()));
+
+    operator.a().onTrue(new IntakeExtend(intake));
     // Manual Turret Controls
     new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
         .whileTrue(new ManualTurn(turret, () -> operator.getRightX()));
