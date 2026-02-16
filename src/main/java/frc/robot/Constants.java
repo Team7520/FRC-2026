@@ -8,7 +8,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 
@@ -34,7 +33,8 @@ public final class Constants {
 
   public static class TurretConstants {
     public static double launchHeight = 0.8; // m
-    public static double launchSpeed = 10.0; // m/s
+    public static double closeLaunchSpeed = 8.0; // m/s
+    public static double farLaunchSpeed = 10.0; // m/s
     public static double aimTolerance = 0.50; // m
   }
 

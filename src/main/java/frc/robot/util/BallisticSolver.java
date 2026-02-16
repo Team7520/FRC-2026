@@ -65,16 +65,24 @@ public class BallisticSolver {
     // Main function you call from robot code
     public static ShotSolution solveShot(
             Pose2d robotPose, Pose3d goalPose,
-            double robotVx, double robotVy, 
-            double launchSpeed
+            double robotVx, double robotVy
     ) {
         double dx = goalPose.getX() - robotPose.getX();
         double dy = goalPose.getY() - robotPose.getY();
         double dz = goalPose.getZ() - Constants.TurretConstants.launchHeight;
 
+        // Determine whether to use high or low power
+        double dist = Math.pow((dx * dx + dy * dy), 0.5);
+        double launchSpeed;
+        if (dist > 3) {
+            launchSpeed = Constants.TurretConstants.farLaunchSpeed;
+        } else {
+            launchSpeed = Constants.TurretConstants.closeLaunchSpeed;
+        }
+
         // Bias toward the high-arc root
         Double t = solveTimeNewton(dx, dy, dz, robotVx, robotVy,
-                                   Constants.TurretConstants.launchSpeed, 2.0);
+                                   launchSpeed, 2.0);
 
         if (t == null) return null;
 
