@@ -9,6 +9,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -32,20 +34,21 @@ public final class Constants {
 
   public static class TurretConstants {
     public static double launchHeight = 0.8; // m
-    public static double launchSpeed = 8.0; // m/s
+    public static double launchSpeed = 10.0; // m/s
     public static double aimTolerance = 0.50; // m
   }
 
   public static class FieldConstants {
+    public static double hubHeight = 1.82; // m
+
     public static double blueHubX = 4.62;
     public static double blueHubY = 4.03;
-    public static Pair<Double, Double> blueHubLoc = new Pair<>(blueHubX, blueHubY);
+    public static Pose3d blueGoalPose = new Pose3d(blueHubX, blueHubY, hubHeight, new Rotation3d());
 
     public static double redHubX = (651-182) * 0.0254;
     public static double redHubY = 4.03;
-    public static Pair<Double, Double> redHubLoc = new Pair<>(redHubX, redHubY);
+    public static Pose3d redGoalPose = new Pose3d(redHubX, redHubY, hubHeight, new Rotation3d());
 
-    public static double hubHeight = 1.82; // m
   }
 
   // You should probably find a better place to put this?
