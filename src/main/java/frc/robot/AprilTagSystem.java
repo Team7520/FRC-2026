@@ -247,6 +247,9 @@ public class AprilTagSystem extends SubsystemBase {
    * @return a double representing the ambiguity of the camera
    */
   public double getClosest(int cameraIndex) {
+    // if (true) {
+    //   return -1;
+    // }
     if (cameraIndex < 0 || cameraIndex > 3) {
       return -1; // Handle invalid camera index
     }
@@ -278,6 +281,9 @@ public class AprilTagSystem extends SubsystemBase {
       }
 
       offsets = LimelightHelpers.getTargetPose_CameraSpace(lime.name);
+      if (offsets.length == 0) {
+        return -1;
+      }
       x = offsets[0];
       y = offsets[1];
       z = offsets[2];

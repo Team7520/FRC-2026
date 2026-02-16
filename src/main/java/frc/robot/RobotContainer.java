@@ -19,7 +19,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IndexSpin;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.IntakeExtend;
+import frc.robot.commands.IntakeSpin;
 import frc.robot.commands.ManualHood;
 import frc.robot.commands.ManualIntakeExtend;
 import frc.robot.commands.ManualTurn;
@@ -160,9 +162,13 @@ public class RobotContainer {
     // Manual Intake Controls
 
     new Trigger(() -> Math.abs(operator.getLeftY()) > 0.1)
-        .whileTrue(new ManualIntakeExtend(intake, () -> operator.getRightY()));
+        .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftY()));
 
     operator.a().onTrue(new IntakeExtend(intake));
+    operator.b().onTrue(intake.retractIntake());
+    operator.x().onTrue(new IntakeCommand(intake));
+
+    operator.leftTrigger().whileTrue(new IntakeSpin(intake));
     // Manual Turret Controls
     new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
         .whileTrue(new ManualTurn(turret, () -> operator.getRightX()));
