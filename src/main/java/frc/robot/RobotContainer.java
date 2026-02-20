@@ -183,6 +183,31 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+    
+    operator.a().onTrue(intake.extendIntake());
+    operator.b().onTrue(intake.retractIntake());
+
+    operator.rightTrigger()
+    .whileTrue(
+        Commands.run(
+            () -> intake.runIntake(1),
+            intake
+        )
+    )
+    .onFalse(
+        Commands.runOnce(intake::stopAll, intake)
+    );
+
+    operator.leftTrigger()
+    .whileTrue(
+        Commands.run(
+            () -> intake.runIntake(-1),
+            intake
+        )
+    )
+    .onFalse(
+        Commands.runOnce(intake::stopAll, intake)
+    );
   }
 
   /**
