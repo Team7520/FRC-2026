@@ -15,19 +15,19 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFX extendMotor;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
-  double extendedPosition = -16.4794921875;
-  double retractedPosition = 0;
+  double extendedPosition = 0.4;
+  double retractedPosition = 15.7;
 
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(57);
-    extendMotor = new TalonFX(58); // placeholder ids
+    extendMotor = new TalonFX(58);
 
     TalonFXConfiguration config = new TalonFXConfiguration();
-    config.Slot0.kP = 2;
+    config.Slot0.kP = 0.5;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 40.0;
+    config.CurrentLimits.StatorCurrentLimit = 40.0; 
 
     intakeMotor.getConfigurator().apply(config);
     intakeMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
@@ -67,7 +67,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public boolean atTarget(double position) {
-    System.out.print("EJoifSFHEOIFHEOGHEGJEJGEIGJ");
+    // System.out.print("EJoifSFHEOIFHEOGHEGJEJGEIGJ");
 
     double current = extendMotor.getPosition().getValueAsDouble();
     double error = Math.abs(position - current);

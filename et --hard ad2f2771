@@ -1,0 +1,512 @@
+[33mcommit fc5a3990bc45414487a644e313e32646a1302802[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: davidhuang68 <david.huang2@student.tdsb.on.ca>
+Date:   Sat Feb 14 17:01:38 2026 -0500
+
+    Reapply "Merge branch 'main' of https://github.com/Team7520/FRC-2026"
+    
+    This reverts commit 84757f52b93276f200bd86b66ce9d522fb585ea4.
+
+[33mcommit 84757f52b93276f200bd86b66ce9d522fb585ea4[m
+Author: davidhuang68 <david.huang2@student.tdsb.on.ca>
+Date:   Sat Feb 14 17:00:37 2026 -0500
+
+    Revert "Merge branch 'main' of https://github.com/Team7520/FRC-2026"
+    
+    This reverts commit d5eeee80372e60b2f76811ac7849c8d5efec649d, reversing
+    changes made to fcfe3b765ce1d00153fa05a24ee1ad6fae9d3634.
+
+[33mcommit d5eeee80372e60b2f76811ac7849c8d5efec649d[m
+Merge: fcfe3b7 d25ccde
+Author: davidhuang68 <david.huang2@student.tdsb.on.ca>
+Date:   Sat Feb 14 16:58:51 2026 -0500
+
+    Merge branch 'main' of https://github.com/Team7520/FRC-2026
+
+[33mcommit fcfe3b765ce1d00153fa05a24ee1ad6fae9d3634[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Feb 14 16:50:41 2026 -0500
+
+    updated dimensions
+
+[33mcommit 2967a3e0171a78333b49722667d3797e009a3671[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Feb 14 16:50:39 2026 -0500
+
+    fixed simulator
+
+[33mcommit d6d6f50bdb23c42fd6fe7364dd08d0db641136c5[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Feb 14 16:50:02 2026 -0500
+
+    fixed stuff
+
+[33mcommit 2904165a42c0cad6a918d936bdc5f62a2afd2825[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Feb 14 16:49:24 2026 -0500
+
+    resolved turretsubsystem.java
+
+[33mcommit 2c6fe6f7e6eb04bfe6aca08f8d6aa67bbe27c4f8[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Feb 14 16:48:44 2026 -0500
+
+    added fusedcancoder
+
+[33mcommit 975fcc855dd1867cd57aec9d6eb54921794b72a8[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Feb 14 16:48:43 2026 -0500
+
+    tweaks to code
+
+[33mcommit ad2f27716d07033f979b01287424190af05be4c7[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Feb 14 16:48:41 2026 -0500
+
+    fixed advkit logging
+
+[33mcommit fe6b0666a3794828b7f2e06af140af0f0d90bddc[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Feb 14 16:46:48 2026 -0500
+
+    added phoenix pro features and lightingsubsystem.java
+
+[33mcommit d25ccde4f805922c9a8d2a63412837ff3058e4b6[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 13 19:38:34 2026 -0500
+
+    updated dimensions
+
+[33mcommit fd65cefb2a520336562529e2e9e5c18cb1e026c4[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 13 13:06:22 2026 -0500
+
+    fixed simulator
+
+[33mcommit b0383a2caa18b0add778aedd1bd1475a82bf6298[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 13 12:40:03 2026 -0500
+
+    fixed stuff
+
+[33mcommit 40457c9c608133b62c004e4bc6097554678e28fb[m
+Merge: ff8132c a2d6b6d
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 13 12:26:00 2026 -0500
+
+    Merge pull request #8 from Team7520/YAMS
+    
+    Adding YAMS support, LightingSubsystem, Phoenix Pro
+
+[33mcommit a2d6b6df20c1d424116f643693cea687b0d6df7b[m
+Merge: 695b3e6 ff8132c
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 13 12:21:02 2026 -0500
+
+    Merge branch 'main' into YAMS
+
+[33mcommit 695b3e6c4059c7328e68456b251fa97a6d6692cc[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 13 12:06:23 2026 -0500
+
+    Update src/main/java/frc/robot/AprilTagSystem.java
+    
+    Co-authored-by: Copilot <175728472+Copilot@users.noreply.github.com>
+
+[33mcommit 9876f6ad90d7c2eeda3d1bb00642bb466448f2c3[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 13 12:02:49 2026 -0500
+
+    resolved turretsubsystem.java
+
+[33mcommit ff8132c92b971600c85045f3e7a9c5bf683c4654[m
+Merge: a38455d 0f5cda1
+Author: SeanL1234 <158243448+SeanL1234@users.noreply.github.com>
+Date:   Thu Feb 12 21:30:49 2026 -0500
+
+    Merge pull request #4 from Team7520/auto-aim
+
+[33mcommit 0f5cda18a9755bf899e6f0d62df54e9e419d36ad[m[33m ([m[1;31morigin/auto-aim[m[33m)[m
+Merge: 353f1dd a38455d
+Author: ScreamingGoatAnton <thedunbarboys@gmail.com>
+Date:   Thu Feb 12 21:28:17 2026 -0500
+
+    Merge branch 'main' into auto-aim
+
+[33mcommit 353f1dddc241d11f204291bec28daaee82fbcb97[m
+Merge: 78c3054 063ce7d
+Author: Anton Dunbar <thedunbarboys@gmail.com>
+Date:   Thu Feb 12 21:19:52 2026 -0500
+
+    Merge branch 'auto-aim' of https://github.com/Team7520/FRC-2026 into auto-aim
+
+[33mcommit a38455df1d717b74a6461cffc2311d0b16de2a3f[m
+Merge: 4a830ef ee103ca
+Author: davidhuang68 <155268199+davidhuang68@users.noreply.github.com>
+Date:   Thu Feb 12 20:52:58 2026 -0500
+
+    Merge pull request #5 from Team7520/Climb
+    
+    Charles' Climb Subsystem
+
+[33mcommit ee103ca1c8a7b18816bc59e0591a74bc47ccded1[m[33m ([m[1;31morigin/Climb[m[33m)[m
+Merge: b61db97 37c657e
+Author: charlesyu303 <charles.yu@team7520.com>
+Date:   Thu Feb 12 20:47:08 2026 -0500
+
+    Merge commit '37c657eb6a4bbd499a724779db73b9f65499904f' into Climb
+
+[33mcommit 37c657eb6a4bbd499a724779db73b9f65499904f[m
+Merge: f2e48fc 4a830ef
+Author: charlesyu303 <charles.yu@team7520.com>
+Date:   Thu Feb 12 20:30:33 2026 -0500
+
+    Merge branch 'main' of https://github.com/Team7520/FRC-2026
+
+[33mcommit f2e48fcec628aecfb3cf43562ca2b88142e5ff25[m
+Author: charlesyu303 <charles.yu@team7520.com>
+Date:   Thu Feb 12 20:30:00 2026 -0500
+
+    Adding more Constants to my climb, and added a function to go to a certain position
+
+[33mcommit 78c3054d346f7c7bada0fe071eae5edb3d4637fa[m
+Author: Anton Dunbar <thedunbarboys@gmail.com>
+Date:   Wed Feb 11 21:18:49 2026 -0500
+
+    Moved to util, fixed bugs
+
+[33mcommit 4a830ef444cf9a11b67803c81c01737728121b59[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Wed Feb 11 16:14:46 2026 -0500
+
+    Enhance README with main info and license details
+    
+    Added main information and license disclaimer sections to README.
+
+[33mcommit 45a00c366ff4b971e7b9267456398367ad10cef9[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Wed Feb 11 16:14:08 2026 -0500
+
+    Update usage instructions in README
+    
+    Removed caution formatting from usage instructions in README.
+
+[33mcommit 7d577d8b4f856a6e4d1f9e861ba628547faa50b3[m
+Merge: 0f2fadc a6e7e56
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Wed Feb 11 16:13:21 2026 -0500
+
+    Merge pull request #7 from Team7520/Another-Person1-patch-1
+    
+    Enhance README with project details and warnings
+
+[33mcommit a6e7e563171b17f9af63d9c226753225a8761edf[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Wed Feb 11 16:12:54 2026 -0500
+
+    Enhance README with project details and warnings
+    
+    Updated README to provide detailed information about the project, including a caution for users and licensing information.
+
+[33mcommit 0f2fadce97c81f927e02a85344de96470c73ab2b[m
+Merge: 34f90ae 4ab32f6
+Author: davidhuang68 <155268199+davidhuang68@users.noreply.github.com>
+Date:   Tue Feb 10 19:10:18 2026 -0500
+
+    Merge pull request #6 from Team7520/turret-subsystem
+    
+    Turret subsystem update
+
+[33mcommit 4ab32f656de54c048b8d19a6f02a9160e07991ef[m[33m ([m[1;31morigin/turret-subsystem[m[33m)[m
+Author: al-1108 <altyw69420@gmail.com>
+Date:   Tue Feb 10 18:57:21 2026 -0500
+
+    Updated turret subsystem
+    
+    - added feeder motors
+    - added current limits
+    - added method to make the hood motor turn to a position
+
+[33mcommit 578b13b9ca0873cd80ecad0aa001326d3a201543[m
+Merge: 34f90ae b61db97
+Author: charlesyu303 <charles.yu@team7520.com>
+Date:   Tue Feb 10 17:59:58 2026 -0500
+
+    Merge branch 'Climb'
+
+[33mcommit b61db9799920f36e12c8287da07f319102998d60[m
+Author: charlesyu303 <charles.yu@team7520.com>
+Date:   Tue Feb 10 17:54:26 2026 -0500
+
+    This is for the Climb Subsystem
+
+[33mcommit 9ffdea4e7459d4e3dc041b1b314691c7cc415774[m
+Author: haoxuansun2010 <haoxuan.sun@team7520.com>
+Date:   Tue Feb 10 17:29:19 2026 -0500
+
+    Added turn to location with speed
+
+[33mcommit 063ce7d9d2df0964cd7ebce3595d043c48441db0[m
+Author: haoxuansun2010 <haoxuan.sun@team7520.com>
+Date:   Tue Feb 10 17:17:08 2026 -0500
+
+    changed a = to a minus in the quadratic formulas
+
+[33mcommit fbdf216bc7c8878641b59636f67b47a3916229d2[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Tue Feb 10 12:56:47 2026 -0500
+
+    added fusedcancoder
+
+[33mcommit 81653225668336eacae178ae03a24443000389d2[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Tue Feb 10 12:43:52 2026 -0500
+
+    tweaks to code
+
+[33mcommit b3873a88efa44ffdd08443954c678134c2dad1fc[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Tue Feb 10 12:27:40 2026 -0500
+
+    fixed advkit logging
+
+[33mcommit b4fd79ad4ef862d08787b5c1435baf27e47a1cb2[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Tue Feb 10 12:24:05 2026 -0500
+
+    added phoenix pro features and lightingsubsystem.java
+
+[33mcommit ec8f4ecaa2d6311bff3dfc4cf29dad604e0cad55[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Tue Feb 10 11:25:31 2026 -0500
+
+    made a separate branch to test yams out, asked codex to fix code and update things to yams
+
+[33mcommit 34f90ae8411b725794e2c0ae36350082d569c80e[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Tue Feb 10 10:39:57 2026 -0500
+
+    installed YAMS and updated files
+
+[33mcommit de9da0f2acf2a26c53fd599ba6b3a57ae2cbb996[m
+Merge: 63b4d5f 6a42851
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Mon Feb 9 10:31:58 2026 -0500
+
+    Merge branch 'main' of https://github.com/Team7520/FRC-2026
+
+[33mcommit 63b4d5fb1355136fc667873fac9da8e9f9d6f614[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Mon Feb 9 10:31:41 2026 -0500
+
+    fixed more stuff
+
+[33mcommit 6a42851726da1435646b2263d6ef89b9f259caaa[m
+Merge: 6b2e12a c00d4b7
+Author: SeanL1234 <158243448+SeanL1234@users.noreply.github.com>
+Date:   Sat Feb 7 20:49:24 2026 -0500
+
+    Merge pull request #3 from Team7520/turret-subsystem
+    
+    Turret subsystem
+
+[33mcommit c00d4b73b9ed24a711cda5178f91d678c0ee7201[m
+Author: al-1108 <altyw69420@gmail.com>
+Date:   Sat Feb 7 20:46:14 2026 -0500
+
+    Removed Vector Dependences
+
+[33mcommit 089cd9fb312344273c7f324c1335143961aa0c82[m
+Author: al-1108 <altyw69420@gmail.com>
+Date:   Sat Feb 7 20:35:07 2026 -0500
+
+    Fixed errors
+
+[33mcommit c3fdec714bf0c7f1bd73af3baf4751d83598ec2a[m
+Author: Anton Dunbar <thedunbarboys@gmail.com>
+Date:   Sat Feb 7 20:32:59 2026 -0500
+
+    More stuff
+
+[33mcommit 6b2e12ab7ede7a82f7e12969a9e4d6cc654ec76c[m
+Merge: 6a18a2e 0b29b73
+Author: SeanL1234 <158243448+SeanL1234@users.noreply.github.com>
+Date:   Sat Feb 7 20:27:44 2026 -0500
+
+    Merge pull request #2 from Team7520/intake
+    
+    Intake
+
+[33mcommit f2f2776d206ae0eb459439bbf0a5b74d824a6515[m
+Author: al-1108 <altyw69420@gmail.com>
+Date:   Sat Feb 7 20:23:50 2026 -0500
+
+    Create ReduxLib-2026.1.1.json
+
+[33mcommit c60e71d5296293c42e1f04377eb05104a953affa[m
+Author: Anton Dunbar <thedunbarboys@gmail.com>
+Date:   Sat Feb 7 12:04:12 2026 -0500
+
+    Added comments
+
+[33mcommit 065a479416dbc017a43f396b35572ff73148c03b[m
+Author: Anton Dunbar <thedunbarboys@gmail.com>
+Date:   Sat Feb 7 11:47:58 2026 -0500
+
+    Finished auto aim math
+
+[33mcommit 6a18a2e6f9d6d4b6adb68990eb39df104284c2ef[m
+Merge: 02a3d6e b95864a
+Author: SeanL1234 <tenmaticmiles@gmail.com>
+Date:   Fri Feb 6 15:06:26 2026 -0500
+
+    Merge branch 'main' of https://github.com/Team7520/FRC-2026
+
+[33mcommit 02a3d6eeb39983d3a49814ed7f51151ab610f609[m
+Author: SeanL1234 <tenmaticmiles@gmail.com>
+Date:   Fri Feb 6 15:03:10 2026 -0500
+
+    Replaced the two original photonvision cameras
+    with two limelights. Right now, the pi cams are still in the list, but the limelights are
+    being checked separately. I can't be bothered right now to put those into either a separate
+    list or together into the same list, so that's something I or someone else can fix up later
+    to make it a bit cleaner. Also, only 1 working pi cam rn, didn't plug in a 4th one yet.
+    
+    p.s. the 2 pi cameras are index 0 and 1, and the limelights are 2 and 3
+
+[33mcommit b95864a2efb852c09a4eb704c96ace46bc147955[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 6 14:35:52 2026 -0500
+
+    fixed more stuff
+
+[33mcommit da46d7ea7a2c7bcc7ec5fdc971a471ea5394ea9f[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 6 10:03:06 2026 -0500
+
+    added more stuff to the AI instructions
+
+[33mcommit 97a6369ac7d9991169d0eb6c7b8a7ad43351a499[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 6 09:35:51 2026 -0500
+
+    added AI instructions file
+
+[33mcommit 36be5eaeef8ea423862273d911d3ebc08bfdf9b8[m
+Merge: dfec927 f545167
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 6 09:19:13 2026 -0500
+
+    Merge branch 'main' of https://github.com/Team7520/FRC-2026
+
+[33mcommit dfec9273a9892f7e588d054973b17027ef88488b[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 6 09:18:59 2026 -0500
+
+    fixed readme
+
+[33mcommit f5451675cca12163078d3a2472225b648427ff6d[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 6 09:18:11 2026 -0500
+
+    fixed license
+
+[33mcommit aafdaf6dc5fd259ce75ef981d73904b5b9722270[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 6 09:12:48 2026 -0500
+
+    fixed license
+
+[33mcommit a75533b1a1a000699e8df3f997f0247a9a5598a7[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Fri Feb 6 08:42:49 2026 -0500
+
+    added the workflow back
+
+[33mcommit dad2d5907c5b46c1c4ad77bd56c443b35ad9c3a3[m
+Author: Anton Dunbar <thedunbarboys@gmail.com>
+Date:   Wed Feb 4 21:24:03 2026 -0500
+
+    Translated the first function to java
+
+[33mcommit 2ad8a591929c87e1dae3c97d119fea318d5ad803[m
+Author: al-1108 <altyw69420@gmail.com>
+Date:   Wed Feb 4 20:09:33 2026 -0500
+
+    Created turret subsystem with placeholder methods
+    
+    - Created turret subsystem
+    - Created methods to run each motor
+
+[33mcommit 0b29b73b8348af9c2dd0bc76753958d1a4c80849[m[33m ([m[1;31morigin/intake[m[33m)[m
+Author: NathanS32 <nathan.song@team7520.com>
+Date:   Wed Feb 4 19:10:50 2026 -0500
+
+    added a method to run indexer
+
+[33mcommit f734c0d20dd509196376773e510723705cb53e73[m
+Author: NathanS32 <nathan.song@team7520.com>
+Date:   Wed Feb 4 18:59:59 2026 -0500
+
+    changed extension to a position instead of a speed
+
+[33mcommit 77abd42c37ca1b03456a806ded65dbf7b7b6cbfa[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Jan 31 20:44:15 2026 -0500
+
+    Update README with additional project details
+    
+    Added details about AdvantageKit and CTRE Swerve Generator.
+
+[33mcommit 9b44e16e07792bf5a337fe6601311ba7f00aa10a[m
+Author: Another-Person1 <woodyl_2009@hotmail.com>
+Date:   Sat Jan 31 20:41:27 2026 -0500
+
+    Delete .github/workflows directory
+
+[33mcommit a03eaf7794bb3ed6c3784711f0aeaecea69110b6[m
+Author: NathanS32 <nathan.song@team7520.com>
+Date:   Sat Jan 31 15:24:49 2026 -0500
+
+    created intake subsystem with placeholder methods
+
+[33mcommit 67987a24674fd937a1ab5b47cc23f132c528c1f4[m
+Author: Matthew Liang <woodyl_2009@hotmail.com>
+Date:   Fri Jan 30 12:54:34 2026 -0500
+
+    fixed things
+
+[33mcommit ffa736476f69ad04532549b0a1af0be650f0ea98[m
+Author: Matthew Liang <woodyl_2009@hotmail.com>
+Date:   Thu Jan 29 20:52:41 2026 -0500
+
+    Update TunerConstants.java
+    
+    Updated tunerconstants.java for the r3 gear ratio on our mk5n swerve base
+
+[33mcommit d6fb38ad680cf22c4c1b17a0936902a9dfc9fea1[m
+Author: Matthew Liang <woodyl_2009@hotmail.com>
+Date:   Thu Jan 29 18:07:01 2026 -0500
+
+    updated libraries and added revlib
+
+[33mcommit 82f294eb7c1ff489427b832fa22ffd3ae894955d[m
+Author: Matthew Liang <woodyl_2009@hotmail.com>
+Date:   Thu Jan 29 17:35:41 2026 -0500
+
+    restored license and readme.md
+
+[33mcommit 51f3078c184ccdab4884c3cbedbf5f056186d96c[m
+Author: Matthew Liang <woodyl_2009@hotmail.com>
+Date:   Thu Jan 29 17:34:27 2026 -0500
+
+    fixed stuff and added performance increase tweaks
+    
+    added performance tweaks and fixed some stuff
+
+[33mcommit 34ba12b22825dfc0c5884aace2afe0376ffb0f1e[m
+Author: Matthew Liang <woodyl_2009@hotmail.com>
+Date:   Thu Jan 29 17:29:01 2026 -0500
+
+    fixed stuff
+    
+    changed team number and fixed code according to advantagekit docs

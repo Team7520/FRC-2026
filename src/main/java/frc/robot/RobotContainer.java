@@ -163,9 +163,6 @@ public class RobotContainer {
     new Trigger(() -> Math.abs(operator.getLeftY()) > 0.1)
         .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftY()));
 
-    operator.leftTrigger().whileTrue(new IntakeSpin(intake));
-    operator.rightTrigger().whileTrue(new IntakeReverse(intake));
-
     // Manual Turret Controls
     new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
         .whileTrue(new ManualTurn(turret, () -> operator.getRightX()));
@@ -186,6 +183,19 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+
+    operator.a().onTrue(intake.extendIntake());
+    operator.b().onTrue(intake.retractIntake());
+
+    operator
+        .rightTrigger()
+        .whileTrue(Commands.run(() -> intake.runIntake(1), intake))
+        .onFalse(Commands.runOnce(intake::stopAll, intake));
+
+    operator
+        .leftTrigger()
+        .whileTrue(Commands.run(() -> intake.runIntake(-1), intake))
+        .onFalse(Commands.runOnce(intake::stopAll, intake));
   }
 
   /**
