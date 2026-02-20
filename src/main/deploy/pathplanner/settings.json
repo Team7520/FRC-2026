@@ -3,12 +3,10 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "Rebuilt",
-    "Reefscape"
+    "Rebuilt"
   ],
   "autoFolders": [
-    "Rebuilt",
-    "Reefscape"
+    "Rebuilt"
   ],
   "defaultMaxVel": 2.0,
   "defaultMaxAccel": 2.0,
