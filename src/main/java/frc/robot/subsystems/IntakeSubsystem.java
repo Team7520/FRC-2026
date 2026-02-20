@@ -4,7 +4,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -16,15 +15,15 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFX extendMotor;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
-  double extendedPosition = 0;
-  double retractedPosition = -16.4794921875;
+  double extendedPosition = 0.4;
+  double retractedPosition = 15.7;
 
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(57);
     extendMotor = new TalonFX(58);
 
     TalonFXConfiguration config = new TalonFXConfiguration();
-    config.Slot0.kP = 2;
+    config.Slot0.kP = 0.5;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;

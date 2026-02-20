@@ -160,7 +160,7 @@ public class RobotContainer {
     // Manual Intake Controls
 
     new Trigger(() -> Math.abs(operator.getLeftY()) > 0.1)
-        .whileTrue(new ManualIntakeExtend(intake, () -> operator.getRightY()));
+        .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftY()));
 
     operator.a().onTrue(new IntakeExtend(intake));
     // Manual Turret Controls
@@ -183,31 +183,19 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
-    
+
     operator.a().onTrue(intake.extendIntake());
     operator.b().onTrue(intake.retractIntake());
 
-    operator.rightTrigger()
-    .whileTrue(
-        Commands.run(
-            () -> intake.runIntake(1),
-            intake
-        )
-    )
-    .onFalse(
-        Commands.runOnce(intake::stopAll, intake)
-    );
+    operator
+        .rightTrigger()
+        .whileTrue(Commands.run(() -> intake.runIntake(1), intake))
+        .onFalse(Commands.runOnce(intake::stopAll, intake));
 
-    operator.leftTrigger()
-    .whileTrue(
-        Commands.run(
-            () -> intake.runIntake(-1),
-            intake
-        )
-    )
-    .onFalse(
-        Commands.runOnce(intake::stopAll, intake)
-    );
+    operator
+        .leftTrigger()
+        .whileTrue(Commands.run(() -> intake.runIntake(-1), intake))
+        .onFalse(Commands.runOnce(intake::stopAll, intake));
   }
 
   /**
