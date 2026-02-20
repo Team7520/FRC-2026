@@ -10,6 +10,7 @@ package frc.robot.subsystems.drive;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -22,6 +23,7 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -32,6 +34,9 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -39,6 +44,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.AprilTagSystem;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
@@ -50,6 +56,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
+
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
       Math.max(
@@ -78,6 +85,7 @@ public class Drive extends SubsystemBase {
               1),
           getModuleTranslations());
 
+  AprilTagSystem aprilTagSystem = new AprilTagSystem();
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -97,6 +105,28 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+
+  StructPublisher<Pose2d> currentPosePublisher =
+      NetworkTableInstance.getDefault().getStructTopic("MyPose", Pose2d.struct).publish();
+
+  StructPublisher<Pose2d> publisher2 =
+      NetworkTableInstance.getDefault()
+          .getStructTopic("PathplannerTargetRight", Pose2d.struct)
+          .publish();
+  StructPublisher<Pose2d> publisher3 =
+      NetworkTableInstance.getDefault()
+          .getStructTopic("PathplannerTargetLeft", Pose2d.struct)
+          .publish();
+  // StructArrayPublisher<Pose2d> arrayPublisher = NetworkTableInstance.getDefault()
+  //   .getStructArrayTopic("MyPoseArray", Pose2d.struct).publish();
+
+  StructPublisher<Pose3d> pose3dPublisher =
+      NetworkTableInstance.getDefault().getStructTopic("MyPose3d", Pose3d.struct).publish();
+
+  StructArrayPublisher<SwerveModuleState> publisherStates =
+      NetworkTableInstance.getDefault()
+          .getStructArrayTopic("MyStates", SwerveModuleState.struct)
+          .publish();
 
   public Drive(
       GyroIO gyroIO,
@@ -202,9 +232,16 @@ public class Drive extends SubsystemBase {
 
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
+      Pose2d fieldPose = aprilTagSystem.getCurrentRobotFieldPose();
+      double timestamp = aprilTagSystem.getCaptureTime();
+      if (fieldPose != null && timestamp != -1) {
+        poseEstimator.addVisionMeasurement(fieldPose, timestamp);
+      }
+
+      currentPosePublisher.set(getPose());
     }
 
-    // Update gyro alert
+    // Update gyro alertz
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
   }
 
@@ -321,6 +358,11 @@ public class Drive extends SubsystemBase {
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
+  }
+
+  public Command getAutonomousCommand(String pathName) {
+    // Create a path following command using AutoBuilder. This will also trigger event markers.
+    return new PathPlannerAuto(pathName);
   }
 
   /** Resets the current odometry pose. */
