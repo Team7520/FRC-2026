@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -99,44 +98,52 @@ public class AprilTagSystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    allOpen = true;
-    boolean lime1 = true;
-    boolean lime2 = true;
-    for (int i = 0; i < cameraList.size(); i++) {
-      if (cameraList.get(i).camera.isConnected()) {
-        cameraList.get(i).isOpen = true;
-      } else {
-        cameraList.get(i).isOpen = false;
-        allOpen = false;
-        System.out.printf("Failed to open camera %d: %s \n", i + 1, cameraList.get(i).name);
-      }
-      SmartDashboard.putBoolean(cameraList.get(i).name + " OPEN?", cameraList.get(i).isOpen);
-    }
-    if (LimelightHelpers.getHeartbeat(limelight1) == 0) {
-      allOpen = false;
-      lime1 = false;
-      System.out.println("Failed to open limelight 1, " + limelight1);
-    }
-    SmartDashboard.putBoolean("Limelight One Open?", lime1);
-    if (LimelightHelpers.getHeartbeat(limelight2) == 0) {
-      lime2 = false;
-      allOpen = false;
-      System.out.println("Failed to open limelight 2, " + limelight2);
-    }
-    SmartDashboard.putBoolean("Limelight Two Open?", lime2);
-    SmartDashboard.putNumber("Limelight One Heartbeat", LimelightHelpers.getHeartbeat(limelight1));
-    SmartDashboard.putNumber("Limelight Two Heartbeat", LimelightHelpers.getHeartbeat(limelight2));
+    // allOpen = true;
+    // boolean lime1 = true;
+    // boolean lime2 = true;
+    // for (int i = 0; i < cameraList.size(); i++) {
+    //   if (cameraList.get(i).camera.isConnected()) {
+    //     cameraList.get(i).isOpen = true;
+    //   } else {
+    //     cameraList.get(i).isOpen = false;
+    //     allOpen = false;
+    //     System.out.printf("Failed to open camera %d: %s \n", i + 1, cameraList.get(i).name);
+    //   }
+    //   SmartDashboard.putBoolean(cameraList.get(i).name + " OPEN?", cameraList.get(i).isOpen);
+    // }
+    // if (LimelightHelpers.getHeartbeat(limelight1) == 0) {
+    //   allOpen = false;
+    //   lime1 = false;
+    //   System.out.println("Failed to open limelight 1, " + limelight1);
+    // }
+    // SmartDashboard.putBoolean("Limelight One Open?", lime1);
+    // if (LimelightHelpers.getHeartbeat(limelight2) == 0) {
+    //   lime2 = false;
+    //   allOpen = false;
+    //   System.out.println("Failed to open limelight 2, " + limelight2);
+    // }
+    // SmartDashboard.putBoolean("Limelight Two Open?", lime2);
+    // SmartDashboard.putNumber("Limelight One Heartbeat",
+    // LimelightHelpers.getHeartbeat(limelight1));
+    // SmartDashboard.putNumber("Limelight Two Heartbeat",
+    // LimelightHelpers.getHeartbeat(limelight2));
 
-    SmartDashboard.putNumber("Closest cam", whichClosest());
-    SmartDashboard.putNumber("Lime1 Distance", getClosest(2));
-    SmartDashboard.putNumber("Lime2 Distance", getClosest(3));
-    SmartDashboard.putNumber("Pi 1 Distance", getClosest(0));
-    SmartDashboard.putNumber("Lime1 X", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[0]);
-    SmartDashboard.putNumber("Lime1 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[1]);
-    SmartDashboard.putNumber("Lime1 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[2]);
-    SmartDashboard.putNumber("Lime2 X", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[0]);
-    SmartDashboard.putNumber("Lime2 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[1]);
-    SmartDashboard.putNumber("Lime2 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[2]);
+    // SmartDashboard.putNumber("Closest cam", whichClosest());
+    // SmartDashboard.putNumber("Lime1 Distance", getClosest(2));
+    // SmartDashboard.putNumber("Lime2 Distance", getClosest(3));
+    // SmartDashboard.putNumber("Pi 1 Distance", getClosest(0));
+    // SmartDashboard.putNumber("Lime1 X",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight1)[0]);
+    // SmartDashboard.putNumber("Lime1 Y",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight1)[1]);
+    // SmartDashboard.putNumber("Lime1 Z",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight1)[2]);
+    // SmartDashboard.putNumber("Lime2 X",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight2)[0]);
+    // SmartDashboard.putNumber("Lime2 Y",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight2)[1]);
+    // SmartDashboard.putNumber("Lime2 Z",
+    // LimelightHelpers.getTargetPose_CameraSpace(limelight2)[2]);
   }
 
   public List<PhotonCamera> getCameras() {
