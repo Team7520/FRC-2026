@@ -58,6 +58,12 @@ public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
 
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
+
+  // private static final Vector<N3> stateStdDevs = VecBuilder.fill(1.5, 1.5,
+  // Units.degreesToRadians(5));
+  // private static final Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(0.2, 0.2,
+  // Units.degreesToRadians(10));
+
   public static final double DRIVE_BASE_RADIUS =
       Math.max(
           Math.max(
@@ -104,10 +110,17 @@ public class Drive extends SubsystemBase {
         new SwerveModulePosition()
       };
   private SwerveDrivePoseEstimator poseEstimator =
-      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+      new SwerveDrivePoseEstimator(
+          kinematics,
+          rawGyroRotation,
+          lastModulePositions,
+          Pose2d.kZero /*, stateStdDevs, visionMeasurementStdDevs*/);
 
   StructPublisher<Pose2d> currentPosePublisher =
       NetworkTableInstance.getDefault().getStructTopic("MyPose", Pose2d.struct).publish();
+
+  StructPublisher<Pose2d> estimatorPublisher =
+      NetworkTableInstance.getDefault().getStructTopic("EstimatorPose", Pose2d.struct).publish();
 
   StructPublisher<Pose2d> publisher2 =
       NetworkTableInstance.getDefault()
@@ -234,9 +247,12 @@ public class Drive extends SubsystemBase {
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
       Pose2d fieldPose = aprilTagSystem.getCurrentRobotFieldPose();
       double timestamp = aprilTagSystem.getCaptureTime();
-      if (fieldPose != null && timestamp != -1) {
+      int index = aprilTagSystem.whichClosest();
+      double distance = aprilTagSystem.getClosest(index);
+      if (fieldPose != null && timestamp != -1 && distance <= 3) {
         poseEstimator.addVisionMeasurement(fieldPose, timestamp);
       }
+      estimatorPublisher.set(poseEstimator.getEstimatedPosition());
 
       currentPosePublisher.set(getPose());
     }

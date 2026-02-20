@@ -8,7 +8,7 @@ import java.util.function.DoubleSupplier;
 public class ManualTurn extends Command {
   private final TurretSubsystem turretSubsystem;
   private final DoubleSupplier input;
-  private static final double MANUAL_ADJUSTMENT_RATE = 0.3; // Rotations per execution
+  private static final double MANUAL_ADJUSTMENT_RATE = -0.3; // Rotations per execution
 
   public ManualTurn(TurretSubsystem turretSubsystem, DoubleSupplier input) {
     this.turretSubsystem = turretSubsystem;

@@ -1,24 +1,10 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.IntakeSubsystem;
-import java.util.function.DoubleSupplier;
 
-public class IntakeExtend extends Command {
-
-  IntakeSubsystem intake;
-  DoubleSupplier leftBumper;
-
+public class IntakeExtend extends SequentialCommandGroup {
   public IntakeExtend(IntakeSubsystem intake) {
-    this.intake = intake;
-    addRequirements(intake);
+    addCommands(intake.extendIntake());
   }
-
-  @Override
-  public void execute() {
-    intake.extend();
-  }
-
-  @Override
-  public void end(boolean interrupted) {}
 }

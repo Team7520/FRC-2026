@@ -51,9 +51,9 @@ public class TurretSubsystem extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 20;
+    config.CurrentLimits.StatorCurrentLimit = 15;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 20;
+    config.CurrentLimits.SupplyCurrentLimit = 15;
 
     config.Feedback.RotorToSensorRatio = 75;
 
@@ -74,8 +74,6 @@ public class TurretSubsystem extends SubsystemBase {
     config.SoftwareLimitSwitch = limits;
 
     hoodMotor.getConfigurator().apply(config);
-
-    hoodMotor.setPosition(0);
   }
 
   private void configTurret() {
@@ -188,10 +186,16 @@ public class TurretSubsystem extends SubsystemBase {
       double angleReq =
           Math.toDegrees(
                   Math.atan2(
-                      UniverseConstants.hubY - robotPose.getY(),
-                      UniverseConstants.hubX - robotPose.getX()))
+                      UniverseConstants.redhubY - robotPose.getY(),
+                      UniverseConstants.redhubX - robotPose.getX()))
               - robotPose.getRotation().getDegrees();
       SmartDashboard.putNumber("Angle to turn to", angleReq);
+      SmartDashboard.putNumber(
+          "atan",
+          Math.toDegrees(
+              Math.atan2(
+                  UniverseConstants.redhubY - robotPose.getY(),
+                  UniverseConstants.redhubX - robotPose.getX())));
     }
   }
 }

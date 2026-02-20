@@ -58,8 +58,10 @@ public final class Constants {
   // You should probably find a better place to put this?
   public static class UniverseConstants {
     public static double g = 9.81;
-    public static double hubX = Units.inchesToMeters(182.11);
-    public static double hubY = Units.inchesToMeters(158.84);
+    public static double redhubX = Units.inchesToMeters(651.22 - 182.11);
+    public static double redhubY = Units.inchesToMeters(158.84);
+    public static double bluehubX = Units.inchesToMeters(182.11);
+    public static double bluehubY = Units.inchesToMeters(158.84);
   }
 
   public static class ClimberConstants {
