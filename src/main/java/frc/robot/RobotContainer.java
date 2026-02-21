@@ -55,7 +55,6 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
 
   public final AprilTagSystem aprilTagSystem = new AprilTagSystem();
-  public final TurretSubsystem turret = new TurretSubsystem();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -167,7 +166,7 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller.a().onTrue(turret.moveToPosition(-26));
+    driver.a().onTrue(turret.moveToPosition(-26));
 
     driver.rightBumper().whileTrue(new TurretWheels(turret));
     driver.leftBumper().whileTrue(new IndexSpin(turret));
