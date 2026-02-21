@@ -5,11 +5,17 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.AprilTagSystem;
 import frc.robot.Constants.TurretConstants;
@@ -28,6 +34,8 @@ public class TurretSubsystem extends SubsystemBase {
 
   AprilTagSystem aprilTagSystem = new AprilTagSystem();
   Drive drive;
+  double rot;
+  private final CANcoder encoder;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle positionRequest = new PositionDutyCycle(0);
   private final VelocityDutyCycle velocityRequest = new VelocityDutyCycle(0);
@@ -39,8 +47,8 @@ public class TurretSubsystem extends SubsystemBase {
     leftMotor = new TalonFX(TurretConstants.LEFT_MOTOR);
     rightMotor = new TalonFX(TurretConstants.RIGHT_MOTOR);
     feedMotor = new TalonFX(TurretConstants.FEEDER_MOTOR);
-    indexMotor = new TalonFX(TurretConstants.INDEX_MOTOR);
-
+    indexMotor = new TalonFX(TurretConstants.INDEXER_MOTOR);
+    encoder = new CANcoder(53);
     configHood();
     configTurret();
     configFlywheels();
@@ -81,8 +89,15 @@ public class TurretSubsystem extends SubsystemBase {
 
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = 30;
+    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    config.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
 
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    SoftwareLimitSwitchConfigs limits = new SoftwareLimitSwitchConfigs();
+    limits.ForwardSoftLimitEnable = true;
+    limits.ForwardSoftLimitThreshold = 0.5;
+    limits.ReverseSoftLimitEnable = true;
+    limits.ReverseSoftLimitThreshold = -0.5;
+    config.SoftwareLimitSwitch = limits;
 
     // TUNE PID
     config.Slot0.kP = 2;
@@ -122,20 +137,49 @@ public class TurretSubsystem extends SubsystemBase {
     indexMotor.getConfigurator().apply(config);
   }
 
-  public double getHoodPosition() {
-    return hoodMotor.getPosition().getValueAsDouble();
+  public Command moveToPosition(double position) {
+    return Commands.run(() -> turnToPosition(position), this).until(() -> atTarget(position));
+  }
+
+  public boolean atTarget(double position) {
+    double current = turnMotor.getPosition().getValueAsDouble();
+    double error = Math.abs(position - current);
+    return error < 0.1;
+  }
+
+  public boolean hoodAtTarget(double position) {
+    double current = hoodMotor.getPosition().getValueAsDouble();
+    double error = Math.abs(position - current);
+    return error < 0.1;
   }
 
   public void turn(double speed) {
     turnMotor.setControl(duty.withOutput(speed));
   }
 
-  public void turnToPosition(double turretPosition, double speed) {
-    turnMotor.setControl(positionRequest.withPosition(turretPosition).withVelocity(speed));
+  public void turnToPosition(double turretPosition) {
+    turnMotor.setControl(positionRequest.withPosition(turretPosition));
   }
 
-  public void turnToAngle(double hoodPosition, double speed) {
-    hoodMotor.setControl(positionRequest.withPosition(hoodPosition).withVelocity(speed));
+  public void setTurretAngle(double hoodPosition) {
+    hoodMotor.setControl(positionRequest.withPosition(hoodPosition));
+  }
+
+  public Command setTurretAngleCommand(double hoodPosition) {
+    return Commands.run(() -> setTurretAngle(hoodPosition), this)
+        .until(() -> hoodAtTarget(hoodPosition));
+  }
+
+  public Rotation2d calculateTurretAngle(Pose2d robotPose, Pose2d goalPose) {
+    Translation2d robotToGoal = goalPose.getTranslation().minus(robotPose.getTranslation());
+    Rotation2d fieldAngle = robotToGoal.getAngle();
+    return fieldAngle.minus(robotPose.getRotation()).plus(new Rotation2d(Math.PI / 2));
+  }
+
+  public Command testTurret() {
+    double x = SmartDashboard.getNumber("Turret Test", 0);
+    System.out.println(x);
+    return Commands.run(() -> setTurretAngle(x), this).until(() -> hoodAtTarget(x));
   }
 
   public void hood(double speed) {
@@ -165,37 +209,28 @@ public class TurretSubsystem extends SubsystemBase {
     leftMotor.stopMotor();
     rightMotor.stopMotor();
     feedMotor.stopMotor();
-    indexMotor.stopMotor();
+  }
+
+  public Command autoAim() {
+    return Commands.run(() -> turnToPosition(rot), this).until(() -> atTarget(rot));
   }
 
   @Override
   public void periodic() {
+
     SmartDashboard.putNumber("Hood Rotations", hoodMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Turret Rotations", turnMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Flywheel Velocity", leftMotor.getVelocity().getValueAsDouble());
-
-    // Keeping turret pointed at hub, formula would be:
-    // Take x and y difference btween coords of hub/robo, inverse tan for angle and subtract robot
-    // heading to find
-    // angle the turret needs to be at relative to robot
-
-    // Use boolean to decide when to use it, when not to. Don't care about how much it can turn,
-    // just leave that for later
-    if (autoTurn) {
-      Pose2d robotPose = drive.getPose();
-      double angleReq =
-          Math.toDegrees(
-                  Math.atan2(
-                      UniverseConstants.redhubY - robotPose.getY(),
-                      UniverseConstants.redhubX - robotPose.getX()))
-              - robotPose.getRotation().getDegrees();
-      SmartDashboard.putNumber("Angle to turn to", angleReq);
-      SmartDashboard.putNumber(
-          "atan",
-          Math.toDegrees(
-              Math.atan2(
-                  UniverseConstants.redhubY - robotPose.getY(),
-                  UniverseConstants.redhubX - robotPose.getX())));
-    }
+    SmartDashboard.putNumber(
+        "Absolute Turret rotatations", encoder.getAbsolutePosition().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Turret position rotatations", encoder.getPosition().getValueAsDouble());
+    double turretDeg =
+        calculateTurretAngle(
+                drive.getPose(),
+                new Pose2d(UniverseConstants.redhubX, UniverseConstants.redhubY, new Rotation2d(0)))
+            .getDegrees();
+    rot = turretDeg / 180 * 0.5;
+    SmartDashboard.putNumber("Degree turret go to", rot);
   }
 }

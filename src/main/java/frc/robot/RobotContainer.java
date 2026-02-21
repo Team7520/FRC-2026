@@ -19,8 +19,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IndexSpin;
-import frc.robot.commands.IntakeReverse;
-import frc.robot.commands.IntakeSpin;
 import frc.robot.commands.ManualHood;
 import frc.robot.commands.ManualIntakeExtend;
 import frc.robot.commands.ManualTurn;
@@ -50,7 +48,7 @@ public class RobotContainer {
   private final IntakeSubsystem intake;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController driver = new CommandXboxController(0);
   private final CommandXboxController operator = new CommandXboxController(1);
 
   // Dashboard inputs
@@ -151,12 +149,30 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
+    turret.setDefaultCommand(turret.autoAim());
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+
+    // DRIVER CONTROLS
+
+    // Reset gyro to 0° when B button is pressed
+    driver
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                    drive)
+                .ignoringDisable(true));
+
+    // operator.y().onTrue(turret.autoAim());
+
+    driver.rightBumper().whileTrue(new TurretWheels(turret));
+    driver.leftBumper().whileTrue(new IndexSpin(turret));
+
+    // OPERATOR CONTROLS
 
     // Manual Intake Controls
 
@@ -170,22 +186,9 @@ public class RobotContainer {
     new Trigger(() -> Math.abs(operator.getRightY()) > 0.1)
         .whileTrue(new ManualHood(turret, () -> operator.getRightY()));
 
-    controller.rightBumper().whileTrue(new TurretWheels(turret));
-    controller.leftBumper().whileTrue(new IndexSpin(turret));
-
-    // Reset gyro to 0° when B button is pressed
-    controller
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
-
     operator.a().onTrue(intake.extendIntake());
     operator.b().onTrue(intake.retractIntake());
+    operator.x().onTrue(turret.testTurret());
 
     operator
         .rightTrigger()
