@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -181,6 +182,51 @@ public class TurretSubsystem extends SubsystemBase {
     return fieldAngle.minus(robotPose.getRotation()).plus(new Rotation2d(Math.PI / 2));
   }
 
+  public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
+      // Horizontal distance
+      double dx = goalPose.getX() - robotPose.getX();
+      double dy = goalPose.getY() - robotPose.getY();
+      double d = Math.sqrt(dx*dx + dy*dy);
+
+      // Vertical difference
+      double h = goalPose.getZ() - TurretConstants.launchHeight;
+
+      double v = TurretConstants.closeLaunchSpeed;
+      double v2 = v * v;
+
+      // Discriminant of ballistic equation
+      double discriminant = v2*v2 - UniverseConstants.g * (UniverseConstants.g*d*d + 2*h*v2);
+
+      if (discriminant < 0) {
+          return Double.NaN; // No physical solution
+      }
+
+      double sqrtDisc = Math.sqrt(discriminant);
+
+      // Two possible launch angles
+      double tanTheta1 = (v2 + sqrtDisc) / (UniverseConstants.g * d);
+      double tanTheta2 = (v2 - sqrtDisc) / (UniverseConstants.g * d);
+
+      double theta1 = Math.atan(tanTheta1);
+      double theta2 = Math.atan(tanTheta2);
+
+      double minAngle = Math.toRadians(45);
+
+      // Choose the valid angle ≥ 45°
+      double chosen = Double.NaN;
+      if (theta1 >= minAngle) chosen = theta1;
+      if (theta2 >= minAngle && (Double.isNaN(chosen) || theta2 > chosen)) chosen = theta2;
+
+      return chosen; // radians
+  }
+
+
+  public Command testTurret() {
+    double x = SmartDashboard.getNumber("Turret Test", 0);
+    System.out.println(x);
+    return Commands.run(() -> setTurretAngle(x), this).until(() -> hoodAtTarget(x));
+  }
+
   public void hood(double speed) {
     hoodMotor.setControl(duty.withOutput(-speed));
   }
@@ -238,9 +284,15 @@ public class TurretSubsystem extends SubsystemBase {
     double turretDeg =
         calculateTurretAngle(
                 drive.getPose(),
-                new Pose2d(UniverseConstants.redhubX, UniverseConstants.redhubY, new Rotation2d(0)))
+                UniverseConstants.redGoalPose)
             .getDegrees();
+    double hoodDeg = 
+        Math.toDegrees(calculateHoodAngle(
+                drive.getPose(), 
+                UniverseConstants.redGoalPose
+        ));
     rot = turretDeg / 180 * 0.5;
     SmartDashboard.putNumber("Degree turret go to", rot);
+    SmartDashboard.putNumber("Degree hood go to", hoodDeg);
   }
 }
