@@ -19,8 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IndexSpin;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.IntakeExtend;
+import frc.robot.commands.IntakeReverse;
 import frc.robot.commands.IntakeSpin;
 import frc.robot.commands.ManualHood;
 import frc.robot.commands.ManualIntakeExtend;
@@ -164,11 +163,6 @@ public class RobotContainer {
     new Trigger(() -> Math.abs(operator.getLeftY()) > 0.1)
         .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftY()));
 
-    operator.a().onTrue(new IntakeExtend(intake));
-    operator.b().onTrue(intake.retractIntake());
-    operator.x().onTrue(new IntakeCommand(intake));
-
-    operator.leftTrigger().whileTrue(new IntakeSpin(intake));
     // Manual Turret Controls
     new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
         .whileTrue(new ManualTurn(turret, () -> operator.getRightX()));
@@ -176,8 +170,8 @@ public class RobotContainer {
     new Trigger(() -> Math.abs(operator.getRightY()) > 0.1)
         .whileTrue(new ManualHood(turret, () -> operator.getRightY()));
 
-    operator.leftBumper().whileTrue(new TurretWheels(turret));
-    operator.rightBumper().whileTrue(new IndexSpin(turret));
+    controller.rightBumper().whileTrue(new TurretWheels(turret));
+    controller.leftBumper().whileTrue(new IndexSpin(turret));
 
     // Reset gyro to 0° when B button is pressed
     controller
@@ -189,6 +183,19 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+
+    operator.a().onTrue(intake.extendIntake());
+    operator.b().onTrue(intake.retractIntake());
+
+    operator
+        .rightTrigger()
+        .whileTrue(Commands.run(() -> intake.runIntake(1), intake))
+        .onFalse(Commands.runOnce(intake::stopAll, intake));
+
+    operator
+        .leftTrigger()
+        .whileTrue(Commands.run(() -> intake.runIntake(-1), intake))
+        .onFalse(Commands.runOnce(intake::stopAll, intake));
   }
 
   /**

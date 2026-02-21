@@ -173,8 +173,8 @@ public class AprilTagSystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Closest cam", whichClosest());
     SmartDashboard.putNumber(limes.get(0).name + " Distance", getClosest(1));
-    SmartDashboard.putNumber(limes.get(0).name + " Distance", getClosest(2));
-    SmartDashboard.putNumber(limes.get(0).name + " Distance", getClosest(3));
+    SmartDashboard.putNumber(limes.get(1).name + " Distance", getClosest(2));
+    SmartDashboard.putNumber(limes.get(2).name + " Distance", getClosest(3));
     SmartDashboard.putNumber("Pi 1 Distance", getClosest(0));
   }
 
@@ -203,7 +203,7 @@ public class AprilTagSystem extends SubsystemBase {
     int highest = -1;
     for (int i = 0; i < 5; i++) {
       double distance = getClosest(i);
-      if (distance < closest && distance != -1) {
+      if (distance < closest && distance != -1 && distance <= 3) {
         closest = distance;
         highest = i;
       }

@@ -4,18 +4,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 import java.util.function.DoubleSupplier;
 
-public class IntakeSpin extends Command {
+public class IntakeReverse extends Command {
 
   IntakeSubsystem intake;
   DoubleSupplier leftBumper;
 
-  public IntakeSpin(IntakeSubsystem intake) {
+  public IntakeReverse(IntakeSubsystem intake) {
     this.intake = intake;
   }
 
   @Override
   public void execute() {
-    intake.runIntake(0.3);
+    intake.runIntake(-0.6);
   }
 
   @Override
