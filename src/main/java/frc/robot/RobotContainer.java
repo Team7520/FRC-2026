@@ -149,6 +149,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
+    turret.setDefaultCommand(turret.autoAim());
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
@@ -166,7 +167,7 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    driver.a().onTrue(turret.moveToPosition(-26));
+    // operator.y().onTrue(turret.autoAim());
 
     driver.rightBumper().whileTrue(new TurretWheels(turret));
     driver.leftBumper().whileTrue(new IndexSpin(turret));
@@ -187,6 +188,7 @@ public class RobotContainer {
 
     operator.a().onTrue(intake.extendIntake());
     operator.b().onTrue(intake.retractIntake());
+    operator.x().onTrue(turret.testTurret());
 
     operator
         .rightTrigger()

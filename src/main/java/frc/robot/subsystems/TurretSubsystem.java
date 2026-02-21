@@ -7,14 +7,19 @@ import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.AprilTagSystem;
 import frc.robot.Constants.TurretConstants;
+import frc.robot.Constants.UniverseConstants;
 import frc.robot.subsystems.drive.Drive;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -29,6 +34,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   AprilTagSystem aprilTagSystem = new AprilTagSystem();
   Drive drive;
+  double rot;
   private final CANcoder encoder;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle positionRequest = new PositionDutyCycle(0);
@@ -83,8 +89,15 @@ public class TurretSubsystem extends SubsystemBase {
 
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = 30;
+    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    config.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
 
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    SoftwareLimitSwitchConfigs limits = new SoftwareLimitSwitchConfigs();
+    limits.ForwardSoftLimitEnable = true;
+    limits.ForwardSoftLimitThreshold = 0.5;
+    limits.ReverseSoftLimitEnable = true;
+    limits.ReverseSoftLimitThreshold = -0.5;
+    config.SoftwareLimitSwitch = limits;
 
     // TUNE PID
     config.Slot0.kP = 2;
@@ -125,12 +138,11 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public Command moveToPosition(double position) {
-    return Commands.run(() -> turnToPosition(position), this)
-        .until(() -> atTarget(position));
+    return Commands.run(() -> turnToPosition(position), this).until(() -> atTarget(position));
   }
 
   public boolean atTarget(double position) {
-    double current = encoder.getAbsolutePosition().getValueAsDouble();
+    double current = turnMotor.getPosition().getValueAsDouble();
     double error = Math.abs(position - current);
     return error < 0.1;
   }
@@ -149,13 +161,25 @@ public class TurretSubsystem extends SubsystemBase {
     turnMotor.setControl(positionRequest.withPosition(turretPosition));
   }
 
-  public void setTurretAngle(double hoodPosition){
+  public void setTurretAngle(double hoodPosition) {
     hoodMotor.setControl(positionRequest.withPosition(hoodPosition));
   }
 
   public Command setTurretAngleCommand(double hoodPosition) {
     return Commands.run(() -> setTurretAngle(hoodPosition), this)
         .until(() -> hoodAtTarget(hoodPosition));
+  }
+
+  public Rotation2d calculateTurretAngle(Pose2d robotPose, Pose2d goalPose) {
+    Translation2d robotToGoal = goalPose.getTranslation().minus(robotPose.getTranslation());
+    Rotation2d fieldAngle = robotToGoal.getAngle();
+    return fieldAngle.minus(robotPose.getRotation()).plus(new Rotation2d(Math.PI / 2));
+  }
+
+  public Command testTurret() {
+    double x = SmartDashboard.getNumber("Turret Test", 0);
+    System.out.println(x);
+    return Commands.run(() -> setTurretAngle(x), this).until(() -> hoodAtTarget(x));
   }
 
   public void hood(double speed) {
@@ -180,10 +204,33 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void stopAll() {
-    turnMotor.setControl(duty.withOutput(0));
-    hoodMotor.setControl(duty.withOutput(0));
-    leftMotor.setControl(duty.withOutput(0));
-    rightMotor.setControl(duty.withOutput(0));
-    feedMotor.setControl(duty.withOutput(0));
+    turnMotor.stopMotor();
+    hoodMotor.stopMotor();
+    leftMotor.stopMotor();
+    rightMotor.stopMotor();
+    feedMotor.stopMotor();
+  }
+
+  public Command autoAim() {
+    return Commands.run(() -> turnToPosition(rot), this).until(() -> atTarget(rot));
+  }
+
+  @Override
+  public void periodic() {
+
+    SmartDashboard.putNumber("Hood Rotations", hoodMotor.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Turret Rotations", turnMotor.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber("Flywheel Velocity", leftMotor.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Absolute Turret rotatations", encoder.getAbsolutePosition().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Turret position rotatations", encoder.getPosition().getValueAsDouble());
+    double turretDeg =
+        calculateTurretAngle(
+                drive.getPose(),
+                new Pose2d(UniverseConstants.redhubX, UniverseConstants.redhubY, new Rotation2d(0)))
+            .getDegrees();
+    rot = turretDeg / 180 * 0.5;
+    SmartDashboard.putNumber("Degree turret go to", rot);
   }
 }
