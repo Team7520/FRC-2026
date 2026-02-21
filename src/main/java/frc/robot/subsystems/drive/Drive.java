@@ -236,8 +236,9 @@ public class Drive extends SubsystemBase {
       double timestamp = aprilTagSystem.getCaptureTime();
       int index = aprilTagSystem.whichClosest();
       double distance = aprilTagSystem.getClosest(index);
-      if (fieldPose != null && timestamp != -1 && distance <= 3.5) {
-        poseEstimator.addVisionMeasurement(fieldPose, timestamp);
+      if (fieldPose != null && fieldPose.getX() != 0 && timestamp != -1 && distance <= 3.5) {
+        // poseEstimator.addVisionMeasurement(fieldPose, timestamp);
+        setPose(fieldPose);
       }
 
       currentPosePublisher.set(getPose());

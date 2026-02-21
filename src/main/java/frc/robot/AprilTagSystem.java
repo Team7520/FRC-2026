@@ -338,7 +338,11 @@ public class AprilTagSystem extends SubsystemBase {
               robotToCamera.inverse());
       return robotPose.toPose2d();
     } else if (cam2Use != -1) {
-      return LimelightHelpers.getBotPose2d_wpiBlue(limes.get(cam2Use - 1).name);
+      if (LimelightHelpers.getTV(limes.get(cam2Use - 1).name)) {
+        return LimelightHelpers.getBotPose2d_wpiBlue(limes.get(cam2Use - 1).name);
+      } else {
+        return null;
+      }
     } else {
       return null;
     }
