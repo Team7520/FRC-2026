@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -171,15 +172,13 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public Rotation2d calculateTurretAngle(Pose2d robotPose, Pose2d goalPose) {
-    Translation2d robotToGoal = goalPose.getTranslation().minus(robotPose.getTranslation());
-    Rotation2d fieldAngle = robotToGoal.getAngle();
-    return fieldAngle.minus(robotPose.getRotation()).plus(new Rotation2d(Math.PI / 2));
-  }
+    Transform2d robotToTurret =
+        new Transform2d(new Translation2d(13.97, 0.0), new Rotation2d()); // 5.5 inches
+    Pose2d turretPose = robotPose.transformBy(robotToTurret);
+    Translation2d turretToGoal = goalPose.getTranslation().minus(turretPose.getTranslation());
+    Rotation2d fieldAngle = turretToGoal.getAngle();
 
-  public Command testTurret() {
-    double x = SmartDashboard.getNumber("Turret Test", 0);
-    System.out.println(x);
-    return Commands.run(() -> setTurretAngle(x), this).until(() -> hoodAtTarget(x));
+    return fieldAngle.minus(robotPose.getRotation()).plus(new Rotation2d(Math.PI / 2));
   }
 
   public void hood(double speed) {
@@ -215,9 +214,20 @@ public class TurretSubsystem extends SubsystemBase {
     return Commands.run(() -> turnToPosition(rot), this).until(() -> atTarget(rot));
   }
 
+  public static double hoodPositionToDegrees(double position) {
+    double deg = 5.0 * position + 20.0;
+    return deg;
+  }
+
+  public static double hoodDegreesToPosition(double degrees) {
+    double position = (degrees - 20.0) / 5.0;
+    return position;
+  }
+
   @Override
   public void periodic() {
-
+    SmartDashboard.putNumber(
+        "Hood Angle Degrees", hoodPositionToDegrees(hoodMotor.getPosition().getValueAsDouble()));
     SmartDashboard.putNumber("Hood Rotations", hoodMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Turret Rotations", turnMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber("Flywheel Velocity", leftMotor.getVelocity().getValueAsDouble());

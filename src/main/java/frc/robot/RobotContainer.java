@@ -188,7 +188,6 @@ public class RobotContainer {
 
     operator.a().onTrue(intake.extendIntake());
     operator.b().onTrue(intake.retractIntake());
-    operator.x().onTrue(turret.testTurret());
 
     operator
         .rightTrigger()
