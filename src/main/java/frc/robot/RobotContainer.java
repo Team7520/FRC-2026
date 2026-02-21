@@ -15,9 +15,17 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.IndexSpin;
+import frc.robot.commands.ManualHood;
+import frc.robot.commands.ManualIntakeExtend;
+import frc.robot.commands.ManualTurn;
+import frc.robot.commands.TurretWheels;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -36,8 +44,12 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
 
+  private final TurretSubsystem turret;
+  private final IntakeSubsystem intake;
+
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController driver = new CommandXboxController(0);
+  private final CommandXboxController operator = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -101,6 +113,9 @@ public class RobotContainer {
         break;
     }
 
+    turret = new TurretSubsystem(drive);
+    intake = new IntakeSubsystem();
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -120,6 +135,8 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+    autoChooser.addOption("test", drive.getAutonomousCommand("testauto"));
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -132,28 +149,15 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
+    turret.setDefaultCommand(turret.autoAim());
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    // Lock to 0° when A button is held
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> Rotation2d.kZero));
-
-    // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // DRIVER CONTROLS
 
     // Reset gyro to 0° when B button is pressed
-    controller
+    driver
         .b()
         .onTrue(
             Commands.runOnce(
@@ -162,6 +166,39 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+
+    // operator.y().onTrue(turret.autoAim());
+
+    driver.rightBumper().whileTrue(new TurretWheels(turret));
+    driver.leftBumper().whileTrue(new IndexSpin(turret));
+
+    // OPERATOR CONTROLS
+
+    // Manual Intake Controls
+
+    new Trigger(() -> Math.abs(operator.getLeftY()) > 0.1)
+        .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftY()));
+
+    // Manual Turret Controls
+    new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
+        .whileTrue(new ManualTurn(turret, () -> operator.getRightX()));
+
+    new Trigger(() -> Math.abs(operator.getRightY()) > 0.1)
+        .whileTrue(new ManualHood(turret, () -> operator.getRightY()));
+
+    operator.a().onTrue(intake.extendIntake());
+    operator.b().onTrue(intake.retractIntake());
+    operator.x().onTrue(turret.testTurret());
+
+    operator
+        .rightTrigger()
+        .whileTrue(Commands.run(() -> intake.runIntake(1), intake))
+        .onFalse(Commands.runOnce(intake::stopAll, intake));
+
+    operator
+        .leftTrigger()
+        .whileTrue(Commands.run(() -> intake.runIntake(-1), intake))
+        .onFalse(Commands.runOnce(intake::stopAll, intake));
   }
 
   /**

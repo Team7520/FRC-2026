@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -58,6 +59,10 @@ public final class Constants {
     public static Pose3d redGoalPose = new Pose3d(redHubX, redHubY, hubHeight, new Rotation3d());
 
     public static double g = 9.81;
+    public static double redhubX = Units.inchesToMeters(651.22 - 182.11);
+    public static double redhubY = Units.inchesToMeters(158.84);
+    public static double bluehubX = Units.inchesToMeters(182.11);
+    public static double bluehubY = Units.inchesToMeters(158.84);
   }
 
   public static class ClimberConstants {
