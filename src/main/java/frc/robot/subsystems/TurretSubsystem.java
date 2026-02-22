@@ -232,8 +232,8 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setFlywheelVelocity(double rps) {
-    leftMotor.setControl(duty.withOutput(rps));
-    rightMotor.setControl(duty.withOutput(rps));
+    leftMotor.setControl(velocityRequest.withVelocity(rps));
+    rightMotor.setControl(velocityRequest.withVelocity(rps));
   }
 
   public void setFeeder(double speed) {
@@ -253,7 +253,7 @@ public class TurretSubsystem extends SubsystemBase {
     hoodMotor.stopMotor();
     leftMotor.stopMotor();
     rightMotor.stopMotor();
-    feedMotor.stopMotor();
+    // feedMotor.stopMotor();
   }
 
   public Command autoAim() {
