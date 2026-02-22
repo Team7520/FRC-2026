@@ -20,6 +20,6 @@ public class TurretWheels extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    turret.stopAll();
+    turret.stopFlywheels();
   }
 }

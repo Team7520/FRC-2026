@@ -152,7 +152,10 @@ public class RobotContainer {
     turret.setDefaultCommand(turret.autoAim());
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+            drive,
+            () -> -driver.getLeftY() * 0.5,
+            () -> -driver.getLeftX() * 0.5,
+            () -> -driver.getRightX() * 0.5));
 
     // DRIVER CONTROLS
 

@@ -11,10 +11,10 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -44,6 +44,14 @@ public class TurretSubsystem extends SubsystemBase {
   private final PositionDutyCycle positionRequest = new PositionDutyCycle(0);
   private final VelocityDutyCycle velocityRequest = new VelocityDutyCycle(0);
 
+  private InterpolatingDoubleTreeMap map1 = new InterpolatingDoubleTreeMap();
+  private InterpolatingDoubleTreeMap map2 = new InterpolatingDoubleTreeMap();
+  private InterpolatingDoubleTreeMap map3 = new InterpolatingDoubleTreeMap();
+
+  private double RPS1 = 33.0;
+  private double RPS2 = 36.0;
+  private double RPS3 = 40.0;
+
   public TurretSubsystem(Drive drive) {
     this.drive = drive;
     turnMotor = new TalonFX(TurretConstants.TURN_MOTOR);
@@ -57,6 +65,15 @@ public class TurretSubsystem extends SubsystemBase {
     configTurret();
     configFlywheels();
     configFeeders();
+    map1.put(1.995, 0.05);
+    map1.put(2.43, 0.95);
+    map1.put(2.75, 2.626);
+
+    map2.put(2.98, 1.25);
+    map2.put(3.27, 3.33);
+
+    map3.put(3.48, 0.43);
+    map3.put(4.18, 1.82);
   }
 
   private void configHood() {
@@ -104,7 +121,7 @@ public class TurretSubsystem extends SubsystemBase {
     config.SoftwareLimitSwitch = limits;
 
     // TUNE PID
-    config.Slot0.kP = 2;
+    config.Slot0.kP = 3;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
@@ -184,50 +201,44 @@ public class TurretSubsystem extends SubsystemBase {
     return fieldAngle.minus(robotPose.getRotation()).plus(new Rotation2d(Math.PI / 2));
   }
 
-  public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
-    // Horizontal distance
-    double dx = goalPose.getX() - robotPose.getX();
-    double dy = goalPose.getY() - robotPose.getY();
-    double d = Math.sqrt(dx * dx + dy * dy);
+  // public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
+  //   // Horizontal distance
+  //   double dx = goalPose.getX() - robotPose.getX();
+  //   double dy = goalPose.getY() - robotPose.getY();
+  //   double d = Math.sqrt(dx * dx + dy * dy);
 
-    // Vertical difference
-    double h = goalPose.getZ() - TurretConstants.launchHeight;
+  //   // Vertical difference
+  //   double h = goalPose.getZ() - TurretConstants.launchHeight;
 
-    double v = TurretConstants.closeLaunchSpeed;
-    double v2 = v * v;
+  //   double v = TurretConstants.closeLaunchSpeed;
+  //   double v2 = v * v;
 
-    // Discriminant of ballistic equation
-    double discriminant =
-        v2 * v2 - UniverseConstants.g * (UniverseConstants.g * d * d + 2 * h * v2);
+  //   // Discriminant of ballistic equation
+  //   double discriminant =
+  //       v2 * v2 - UniverseConstants.g * (UniverseConstants.g * d * d + 2 * h * v2);
 
-    if (discriminant < 0) {
-      return Double.NaN; // No physical solution
-    }
+  //   if (discriminant < 0) {
+  //     return Double.NaN; // No physical solution
+  //   }
 
-    double sqrtDisc = Math.sqrt(discriminant);
+  //   double sqrtDisc = Math.sqrt(discriminant);
 
-    // Two possible launch angles
-    double tanTheta1 = (v2 + sqrtDisc) / (UniverseConstants.g * d);
-    double tanTheta2 = (v2 - sqrtDisc) / (UniverseConstants.g * d);
+  //   // Two possible launch angles
+  //   double tanTheta1 = (v2 + sqrtDisc) / (UniverseConstants.g * d);
+  //   double tanTheta2 = (v2 - sqrtDisc) / (UniverseConstants.g * d);
 
-    double theta1 = Math.atan(tanTheta1);
-    double theta2 = Math.atan(tanTheta2);
+  //   double theta1 = Math.atan(tanTheta1);
+  //   double theta2 = Math.atan(tanTheta2);
 
-    double minAngle = Math.toRadians(45);
+  //   double minAngle = Math.toRadians(45);
 
-    // Choose the valid angle ≥ 45°
-    double chosen = Double.NaN;
-    if (theta1 >= minAngle) chosen = theta1;
-    if (theta2 >= minAngle && (Double.isNaN(chosen) || theta2 > chosen)) chosen = theta2;
+  //   // Choose the valid angle ≥ 45°
+  //   double chosen = Double.NaN;
+  //   if (theta1 >= minAngle) chosen = theta1;
+  //   if (theta2 >= minAngle && (Double.isNaN(chosen) || theta2 > chosen)) chosen = theta2;
 
-    return chosen; // radians
-  }
-
-  public Command testTurret() {
-    double x = SmartDashboard.getNumber("Turret Test", 0);
-    System.out.println(x);
-    return Commands.run(() -> setTurretAngle(x), this).until(() -> hoodAtTarget(x));
-  }
+  //   return chosen; // radians
+  // }
 
   public void hood(double speed) {
     pivotHolding = false;
@@ -241,6 +252,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setFlywheelVelocity(double rps) {
+    System.out.println(rps);
     leftMotor.setControl(velocityRequest.withVelocity(rps));
     rightMotor.setControl(velocityRequest.withVelocity(rps));
   }
@@ -262,38 +274,91 @@ public class TurretSubsystem extends SubsystemBase {
     hoodMotor.stopMotor();
     leftMotor.stopMotor();
     rightMotor.stopMotor();
-    // feedMotor.stopMotor();
+    feedMotor.stopMotor();
+  }
+
+  public void stopFlywheels() {
+    leftMotor.stopMotor();
+    rightMotor.stopMotor();
   }
 
   public Command autoAim() {
-    return Commands.run(() -> turnToPosition(rot), this).until(() -> atTarget(rot));
+    return Commands.run(
+        () -> {
+          Pose2d goal =
+              new Pose2d(
+                  UniverseConstants.redGoalPose.getX(),
+                  UniverseConstants.redGoalPose.getY(),
+                  new Rotation2d());
+
+          double dist = getDistance(drive.getPose(), goal);
+
+          double turretDeg = calculateTurretAngle(drive.getPose(), goal).getDegrees();
+          double turretPos = turretDegreesToPosition(turretDeg);
+
+          double hoodPos = getHoodForDistance(dist);
+
+          turnToPosition(turretPos);
+          setTurretAngle(hoodPos);
+        },
+        this);
   }
 
-  public static double hoodPositionToDegrees(double position) {
+  public double hoodPositionToDegrees(double position) {
     double deg = 5.0 * position + 20.0;
     return deg;
   }
 
-  public static double hoodDegreesToPosition(double degrees) {
+  public double hoodDegreesToPosition(double degrees) {
     double position = (degrees - 20.0) / 5.0;
     return position;
   }
 
-  public static double getDistance(Pose2d robotPose, Pose2d goalPose) {
+  public double turretPositionToDegrees(double position) {
+    double deg = position / 0.5 * 180;
+    return deg;
+  }
+
+  public double turretDegreesToPosition(double degrees) {
+    double pos = degrees / 180 * 0.5;
+    return pos;
+  }
+
+  public double getDistance(Pose2d robotPose, Pose2d goalPose) {
     Transform2d robotToTurret =
-        new Transform2d(new Translation2d(0.1397, 0.0), new Rotation2d()); // 5.5 inches
-    Pose2d turretPose = robotPose.transformBy(robotToTurret);
-    double x = goalPose.getX() - turretPose.getX();
-    double y = goalPose.getY() - turretPose.getY();
-    double distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-    return distance;
+        new Transform2d(new Translation2d(0.1397, 0.0), new Rotation2d()); // 5.5 inches in meters
+
+    Pose2d turretPose = robotPose.plus(robotToTurret);
+
+    return turretPose.getTranslation().getDistance(goalPose.getTranslation());
+  }
+
+  public double getHoodForDistance(double distance) {
+    InterpolatingDoubleTreeMap selectedMap;
+    double flywheelRPS;
+
+    // Determine speed zone
+    if (distance <= 2.75) { // Zone 1
+      selectedMap = map1;
+      flywheelRPS = RPS1;
+    } else if (distance <= 3.5) { // Zone 2
+      selectedMap = map2;
+      flywheelRPS = RPS2;
+    } else { // Zone 3
+      selectedMap = map3;
+      flywheelRPS = RPS3;
+    }
+    setFlywheelVelocity(flywheelRPS);
+
+    double hoodPos = selectedMap.get(distance);
+    return hoodPos;
   }
 
   @Override
   public void periodic() {
-    if (pivotHolding) {
-      hoodMotor.setControl(positionRequest.withPosition(holdPivotRot));
-    }
+    // if (pivotHolding) {
+    //   hoodMotor.setControl(positionRequest.withPosition(holdPivotRot));
+    // }
     SmartDashboard.putNumber(
         "Hood Angle Degrees", hoodPositionToDegrees(hoodMotor.getPosition().getValueAsDouble()));
     SmartDashboard.putNumber("Hood Rotations", hoodMotor.getPosition().getValueAsDouble());
@@ -320,10 +385,15 @@ public class TurretSubsystem extends SubsystemBase {
                     UniverseConstants.redGoalPose.getY(),
                     new Rotation2d()))
             .getDegrees();
-    double hoodDeg =
-        Math.toDegrees(calculateHoodAngle(drive.getPose(), UniverseConstants.redGoalPose));
-    rot = turretDeg / 180 * 0.5;
+
+    rot = turretDegreesToPosition(turretDeg);
     SmartDashboard.putNumber("Degree turret go to", rot);
-    SmartDashboard.putNumber("Degree hood go to", hoodDeg);
+
+    double hoodPos = getHoodForDistance(dist);
+    SmartDashboard.putNumber("Hood position go to", hoodPos);
+
+    // double hoodDeg =
+    //     Math.toDegrees(calculateHoodAngle(drive.getPose(), UniverseConstants.redGoalPose));
+    // SmartDashboard.putNumber("Degree hood go to", hoodDeg);
   }
 }
