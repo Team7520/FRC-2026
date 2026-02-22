@@ -15,7 +15,8 @@ public class TurretWheels extends Command {
 
   @Override
   public void execute() {
-    turret.setFlywheelVelocity(33);
+    turret.setFlywheelVelocity(40);
+    
   }
 
   @Override

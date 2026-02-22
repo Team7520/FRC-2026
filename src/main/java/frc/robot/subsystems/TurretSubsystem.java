@@ -270,6 +270,16 @@ public class TurretSubsystem extends SubsystemBase {
     return position;
   }
 
+  public static double getDistance(Pose2d robotPose, Pose2d goalPose) {
+    Transform2d robotToTurret =
+        new Transform2d(new Translation2d(0.1397, 0.0), new Rotation2d()); // 5.5 inches
+    Pose2d turretPose = robotPose.transformBy(robotToTurret);
+    double x = goalPose.getX() - turretPose.getX();
+    double y = goalPose.getY() - turretPose.getY();
+    double distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    return distance;
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber(
@@ -281,6 +291,15 @@ public class TurretSubsystem extends SubsystemBase {
         "Absolute Turret rotatations", encoder.getAbsolutePosition().getValueAsDouble());
     SmartDashboard.putNumber(
         "Turret position rotatations", encoder.getPosition().getValueAsDouble());
+    double dist =
+        getDistance(
+            drive.getPose(),
+            new Pose2d(
+                UniverseConstants.redGoalPose.getX(),
+                UniverseConstants.redGoalPose.getY(),
+                new Rotation2d()));
+    SmartDashboard.putNumber("Distance to goal", dist);
+
     double turretDeg =
         calculateTurretAngle(
                 drive.getPose(),
