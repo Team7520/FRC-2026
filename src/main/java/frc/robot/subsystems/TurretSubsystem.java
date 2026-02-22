@@ -174,7 +174,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public Rotation2d calculateTurretAngle(Pose2d robotPose, Pose2d goalPose) {
     Transform2d robotToTurret =
-        new Transform2d(new Translation2d(13.97, 0.0), new Rotation2d()); // 5.5 inches
+        new Transform2d(new Translation2d(0.1397, 0.0), new Rotation2d()); // 5.5 inches
     Pose2d turretPose = robotPose.transformBy(robotToTurret);
     Translation2d turretToGoal = goalPose.getTranslation().minus(turretPose.getTranslation());
     Rotation2d fieldAngle = turretToGoal.getAngle();
@@ -183,43 +183,43 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
-      // Horizontal distance
-      double dx = goalPose.getX() - robotPose.getX();
-      double dy = goalPose.getY() - robotPose.getY();
-      double d = Math.sqrt(dx*dx + dy*dy);
+    // Horizontal distance
+    double dx = goalPose.getX() - robotPose.getX();
+    double dy = goalPose.getY() - robotPose.getY();
+    double d = Math.sqrt(dx * dx + dy * dy);
 
-      // Vertical difference
-      double h = goalPose.getZ() - TurretConstants.launchHeight;
+    // Vertical difference
+    double h = goalPose.getZ() - TurretConstants.launchHeight;
 
-      double v = TurretConstants.closeLaunchSpeed;
-      double v2 = v * v;
+    double v = TurretConstants.closeLaunchSpeed;
+    double v2 = v * v;
 
-      // Discriminant of ballistic equation
-      double discriminant = v2*v2 - UniverseConstants.g * (UniverseConstants.g*d*d + 2*h*v2);
+    // Discriminant of ballistic equation
+    double discriminant =
+        v2 * v2 - UniverseConstants.g * (UniverseConstants.g * d * d + 2 * h * v2);
 
-      if (discriminant < 0) {
-          return Double.NaN; // No physical solution
-      }
+    if (discriminant < 0) {
+      return Double.NaN; // No physical solution
+    }
 
-      double sqrtDisc = Math.sqrt(discriminant);
+    double sqrtDisc = Math.sqrt(discriminant);
 
-      // Two possible launch angles
-      double tanTheta1 = (v2 + sqrtDisc) / (UniverseConstants.g * d);
-      double tanTheta2 = (v2 - sqrtDisc) / (UniverseConstants.g * d);
+    // Two possible launch angles
+    double tanTheta1 = (v2 + sqrtDisc) / (UniverseConstants.g * d);
+    double tanTheta2 = (v2 - sqrtDisc) / (UniverseConstants.g * d);
 
-      double theta1 = Math.atan(tanTheta1);
-      double theta2 = Math.atan(tanTheta2);
+    double theta1 = Math.atan(tanTheta1);
+    double theta2 = Math.atan(tanTheta2);
 
-      double minAngle = Math.toRadians(45);
+    double minAngle = Math.toRadians(45);
 
-      // Choose the valid angle ≥ 45°
-      double chosen = Double.NaN;
-      if (theta1 >= minAngle) chosen = theta1;
-      if (theta2 >= minAngle && (Double.isNaN(chosen) || theta2 > chosen)) chosen = theta2;
+    // Choose the valid angle ≥ 45°
+    double chosen = Double.NaN;
+    if (theta1 >= minAngle) chosen = theta1;
+    if (theta2 >= minAngle && (Double.isNaN(chosen) || theta2 > chosen)) chosen = theta2;
 
-      return chosen; // radians
+    return chosen; // radians
   }
-
 
   public Command testTurret() {
     double x = SmartDashboard.getNumber("Turret Test", 0);
@@ -284,13 +284,13 @@ public class TurretSubsystem extends SubsystemBase {
     double turretDeg =
         calculateTurretAngle(
                 drive.getPose(),
-                UniverseConstants.redGoalPose)
+                new Pose2d(
+                    UniverseConstants.redGoalPose.getX(),
+                    UniverseConstants.redGoalPose.getY(),
+                    new Rotation2d()))
             .getDegrees();
-    double hoodDeg = 
-        Math.toDegrees(calculateHoodAngle(
-                drive.getPose(), 
-                UniverseConstants.redGoalPose
-        ));
+    double hoodDeg =
+        Math.toDegrees(calculateHoodAngle(drive.getPose(), UniverseConstants.redGoalPose));
     rot = turretDeg / 180 * 0.5;
     SmartDashboard.putNumber("Degree turret go to", rot);
     SmartDashboard.putNumber("Degree hood go to", hoodDeg);

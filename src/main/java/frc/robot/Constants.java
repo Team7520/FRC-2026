@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -53,7 +52,7 @@ public final class Constants {
     public static double redHubY = Units.inchesToMeters(158.84);
     public static double blueHubX = Units.inchesToMeters(182.11);
     public static double blueHubY = Units.inchesToMeters(158.84);
-  
+
     public static Pose3d blueGoalPose = new Pose3d(blueHubX, blueHubY, hubHeight, new Rotation3d());
 
     public static Pose3d redGoalPose = new Pose3d(redHubX, redHubY, hubHeight, new Rotation3d());
