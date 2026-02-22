@@ -25,6 +25,8 @@ import frc.robot.Constants.UniverseConstants;
 import frc.robot.subsystems.drive.Drive;
 
 public class TurretSubsystem extends SubsystemBase {
+  private boolean pivotHolding = false;
+  private double holdPivotRot = 0.0;
   private final TalonFX turnMotor;
   private final TalonFX hoodMotor;
   private final TalonFX leftMotor;
@@ -228,7 +230,14 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void hood(double speed) {
+    pivotHolding = false;
     hoodMotor.setControl(duty.withOutput(-speed));
+  }
+
+  public void startHoldPivot() {
+    holdPivotRot = hoodMotor.getPosition().getValueAsDouble();
+    hoodMotor.setControl(positionRequest.withPosition(holdPivotRot));
+    pivotHolding = true;
   }
 
   public void setFlywheelVelocity(double rps) {
@@ -282,6 +291,9 @@ public class TurretSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (pivotHolding) {
+      hoodMotor.setControl(positionRequest.withPosition(holdPivotRot));
+    }
     SmartDashboard.putNumber(
         "Hood Angle Degrees", hoodPositionToDegrees(hoodMotor.getPosition().getValueAsDouble()));
     SmartDashboard.putNumber("Hood Rotations", hoodMotor.getPosition().getValueAsDouble());

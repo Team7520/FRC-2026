@@ -170,7 +170,10 @@ public class RobotContainer {
     // operator.y().onTrue(turret.autoAim());
 
     driver.rightBumper().whileTrue(new TurretWheels(turret));
-    driver.leftBumper().whileTrue(new IndexSpin(turret));
+    driver
+        .leftBumper()
+        .whileTrue(new IndexSpin(turret))
+        .onFalse(Commands.runOnce(turret::startHoldPivot, turret));
 
     // OPERATOR CONTROLS
 
