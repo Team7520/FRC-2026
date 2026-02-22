@@ -10,6 +10,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.fasterxml.jackson.databind.util.RootNameLookup;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -178,10 +180,11 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
-      // Horizontal distance
-      double dx = goalPose.getX() - robotPose.getX();
-      double dy = goalPose.getY() - robotPose.getY();
-      double d = Math.sqrt(dx*dx + dy*dy);
+      double d = goalPose
+                  .toPose2d()
+                  .minus(robotPose)
+                  .getTranslation()
+                  .getNorm();
 
       // Vertical difference
       double h = goalPose.getZ() - TurretConstants.launchHeight;
@@ -215,6 +218,12 @@ public class TurretSubsystem extends SubsystemBase {
       return chosen; // radians
   }
 
+  public Pose2d getShooterPose(Pose2d robotPose, Translation2d shooterOffset) {
+    Translation2d rotatedOffset = shooterOffset.rotateBy(robotPose.getRotation());
+    Translation2d shooterPose = robotPose.getTranslation().plus(rotatedOffset);
+
+    return new Pose2d(shooterPose, robotPose.getRotation());
+  }
 
   public Command testTurret() {
     double x = SmartDashboard.getNumber("Turret Test", 0);
