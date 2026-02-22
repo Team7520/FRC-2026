@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.Pair;
@@ -44,6 +45,7 @@ public final class Constants {
     public static final int TURN_MOTOR = 60;
     public static final int FEEDER_MOTOR = 40;
     public static final int INDEXER_MOTOR = 52;
+    public static Translation2d turretOffset = new Translation2d();
   }
 
   public static class UniverseConstants {

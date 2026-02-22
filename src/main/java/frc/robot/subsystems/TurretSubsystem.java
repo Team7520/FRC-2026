@@ -274,14 +274,15 @@ public class TurretSubsystem extends SubsystemBase {
         "Absolute Turret rotatations", encoder.getAbsolutePosition().getValueAsDouble());
     SmartDashboard.putNumber(
         "Turret position rotatations", encoder.getPosition().getValueAsDouble());
+    Pose2d hoodPose = getShooterPose(drive.getPose(), TurretConstants.turretOffset);
     double turretDeg =
         calculateTurretAngle(
-                drive.getPose(),
+                hoodPose,
                 UniverseConstants.redGoalPose)
             .getDegrees();
     double hoodDeg = 
         Math.toDegrees(calculateHoodAngle(
-                drive.getPose(), 
+                hoodPose, 
                 UniverseConstants.redGoalPose
         ));
     rot = turretDeg / 180 * 0.5;
