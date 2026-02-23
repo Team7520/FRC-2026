@@ -67,9 +67,11 @@ public class TurretSubsystem extends SubsystemBase {
     configFlywheels();
     configFeeders();
     map1.put(1.995, 0.05);
+    map1.put(2.213, 0.625);
     map1.put(2.43, 0.95);
     map1.put(2.75, 2.626);
 
+    map2.put(2.751, 1.04);
     map2.put(2.98, 1.25);
     map2.put(3.27, 3.33);
 
