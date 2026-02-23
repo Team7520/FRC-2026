@@ -19,8 +19,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IndexSpin;
-import frc.robot.commands.IntakeReverse;
-import frc.robot.commands.IntakeSpin;
 import frc.robot.commands.ManualHood;
 import frc.robot.commands.ManualIntakeExtend;
 import frc.robot.commands.ManualTurn;
@@ -172,6 +170,8 @@ public class RobotContainer {
 
     controller.rightBumper().whileTrue(new TurretWheels(turret));
     controller.leftBumper().whileTrue(new IndexSpin(turret));
+
+    controller.x().onTrue(Commands.runOnce(() -> drive.resetGyro(180)));
 
     // Reset gyro to 0° when B button is pressed
     controller

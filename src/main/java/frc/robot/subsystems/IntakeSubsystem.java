@@ -27,7 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 40.0; 
+    config.CurrentLimits.StatorCurrentLimit = 40.0;
 
     intakeMotor.getConfigurator().apply(config);
     intakeMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
