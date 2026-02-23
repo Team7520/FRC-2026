@@ -120,7 +120,7 @@ public class AprilTagSystem extends SubsystemBase {
             new Transform3d(
                 0.300942,
                 -0.275542,
-                0.076781,
+                0.196104,
                 new Rotation3d(
                     Units.degreesToRadians(180),
                     Units.degreesToRadians(60),
@@ -133,7 +133,7 @@ public class AprilTagSystem extends SubsystemBase {
             new Transform3d(
                 0.300942,
                 0.275542,
-                0.076781,
+                0.196104,
                 new Rotation3d(
                     Units.degreesToRadians(180),
                     Units.degreesToRadians(60),
@@ -144,13 +144,13 @@ public class AprilTagSystem extends SubsystemBase {
             backRight,
             false,
             new Transform3d(
-                0.279069,
-                0.216958,
-                0.167095,
+                0.272828,
+                0.221779,
+                0.287592,
                 new Rotation3d(
-                    Units.degreesToRadians(14.028),
-                    Units.degreesToRadians(65),
-                    Units.degreesToRadians(-121.321)))));
+                    Units.degreesToRadians(35), // 14.028, 35
+                    Units.degreesToRadians(42.063), // 65, 25, 42.063
+                    Units.degreesToRadians(-121.131))))); // 145, -121.321, 137.937
   }
 
   public String getLimeName(int index) {

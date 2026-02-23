@@ -366,7 +366,7 @@ public class TurretSubsystem extends SubsystemBase {
       selectedMap = map3;
       flywheelRPS = RPS3;
     }
-    setFlywheelVelocity(flywheelRPS);
+    // setFlywheelVelocity(flywheelRPS);
 
     double hoodPos = selectedMap.get(distance);
     return hoodPos;
