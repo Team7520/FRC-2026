@@ -24,6 +24,7 @@ public class BallisticSolver {
     double t = t0;
 
     for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < 40; i++) {
 
       double Ft = F(t, dx, dy, dz, vrx, vry, v0);
       if (Math.abs(Ft) < 1e-6) return t;
@@ -36,10 +37,16 @@ public class BallisticSolver {
     }
     return null;
   }
+      t = t - Ft / dFt;
+      if (t <= 0) return null;
+    }
+    return null;
+  }
 
   private static double F(
       double t, double dx, double dy, double dz, double vrx, double vry, double v0) {
 
+    if (t <= 0) return 1e9;
     if (t <= 0) return 1e9;
 
     double vzTerm = (dz + 0.5 * Constants.UniverseConstants.g * t * t) / (v0 * t);
@@ -47,7 +54,12 @@ public class BallisticSolver {
     double hx = dx - vrx * t;
     double hy = dy - vry * t;
     double R2 = hx * hx + hy * hy;
+    double hx = dx - vrx * t;
+    double hy = dy - vry * t;
+    double R2 = hx * hx + hy * hy;
 
+    return v0 * v0 * (1 - vzTerm * vzTerm) - R2 / (t * t);
+  }
     return v0 * v0 * (1 - vzTerm * vzTerm) - R2 / (t * t);
   }
 
@@ -78,7 +90,10 @@ public class BallisticSolver {
     Double t = solveTimeNewton(dx, dy, dz, robotVx, robotVy, launchSpeed, 2.0);
 
     if (t == null) return null;
+    if (t == null) return null;
 
+    // Compute azimuth
+    double phi = Math.atan2(dy - robotVy * t, dx - robotVx * t);
     // Compute azimuth
     double phi = Math.atan2(dy - robotVy * t, dx - robotVx * t);
 
@@ -86,6 +101,7 @@ public class BallisticSolver {
     double sinTheta = (dz + 0.5 * Constants.UniverseConstants.g * t * t) / (launchSpeed * t);
     if (sinTheta > 1 || sinTheta < -1) return null;
 
+    double theta = Math.asin(sinTheta);
     double theta = Math.asin(sinTheta);
 
     return new ShotSolution(Math.toDegrees(phi), Math.toDegrees(theta), launchSpeed);

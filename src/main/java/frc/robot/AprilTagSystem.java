@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -79,6 +80,7 @@ public class AprilTagSystem extends SubsystemBase {
   private List<AprilTag> apriltags;
   public boolean aprilTagLayoutLoaded = false;
   private final double MAX_RANGE = 20; // In meters, anything beyond 2 meters should not be used
+  private Pigeon2 gyro;
 
   private Pose2d robotPose;
   private AprilTag closestTag;
@@ -151,8 +153,23 @@ public class AprilTagSystem extends SubsystemBase {
                     Units.degreesToRadians(-121.321)))));
   }
 
+  public String getLimeName(int index) {
+    return limes.get(index).name;
+  }
+
+  public double getYaw() {
+    int index = whichClosest();
+    if (index == -1) {
+      return -1;
+    }
+    return LimelightHelpers.getBotPose2d_wpiBlue(limes.get(index - 1).name)
+        .getRotation()
+        .getDegrees();
+  }
+
   @Override
   public void periodic() {
+
     allOpen = true;
     for (int i = 0; i < cameraList.size(); i++) {
       if (cameraList.get(i).camera.isConnected()) {
@@ -297,11 +314,11 @@ public class AprilTagSystem extends SubsystemBase {
    *
    * @return capture time in milliseconds
    */
-  public double getCaptureTime() {
+  public double getCaptureTime(int index) {
     CameraInfo cameraInfo;
     LimeInfo lime;
     PhotonPipelineResult result;
-    int cam = whichClosest();
+    int cam = index;
     if (cam == 0) {
       cameraInfo = cameraList.get(cam);
       result = cameraInfo.camera.getLatestResult();
@@ -315,19 +332,26 @@ public class AprilTagSystem extends SubsystemBase {
     return -1;
   }
 
+  public double getAmbuigity(int index) {
+    return LimelightHelpers.getTA(limes.get(index - 1).name);
+  }
+
   /**
    * Estimates the current robot position based on the april tag it sees. April tags farther than
    * {@link #MAX_RANGE} are not considered.
    *
    * @return a Pose2d
    */
-  public Pose2d getCurrentRobotFieldPose() {
+  public Pose2d getCurrentRobotFieldPose(int index) {
     PhotonPipelineResult result = null;
-    int cam2Use = whichClosest();
+    int cam2Use = index;
     if (cam2Use == 0) {
       result = getLatestCameraResult(cameraList.get(cam2Use).camera);
       Transform3d robotToCamera = cameraList.get(cam2Use).robotToCamera;
       PhotonTrackedTarget target = result.getBestTarget();
+      if (target == null) {
+        return null;
+      }
       if (target.getBestCameraToTarget().getX() > MAX_RANGE) {
         return null;
       }
@@ -338,7 +362,11 @@ public class AprilTagSystem extends SubsystemBase {
               robotToCamera.inverse());
       return robotPose.toPose2d();
     } else if (cam2Use != -1) {
-      return LimelightHelpers.getBotPose2d_wpiBlue(limes.get(cam2Use - 1).name);
+      if (LimelightHelpers.getTV(limes.get(cam2Use - 1).name)) {
+        return LimelightHelpers.getBotPose2d_wpiBlue(limes.get(cam2Use - 1).name);
+      } else {
+        return null;
+      }
     } else {
       return null;
     }

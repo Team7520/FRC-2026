@@ -192,6 +192,22 @@ public class RobotContainer {
     new Trigger(() -> Math.abs(operator.getRightY()) > 0.1)
         .whileTrue(new ManualHood(turret, () -> operator.getRightY()));
 
+    controller.rightBumper().whileTrue(new TurretWheels(turret));
+    controller.leftBumper().whileTrue(new IndexSpin(turret));
+
+    controller.x().onTrue(Commands.runOnce(() -> drive.resetGyro(180)));
+
+    // Reset gyro to 0° when B button is pressed
+    controller
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                    drive)
+                .ignoringDisable(true));
+
     operator.a().onTrue(intake.extendIntake());
     operator.b().onTrue(intake.retractIntake());
 
