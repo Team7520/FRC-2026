@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -285,18 +286,33 @@ public class TurretSubsystem extends SubsystemBase {
   public Command autoAim() {
     return Commands.run(
         () -> {
+          Pose2d robotPose = drive.getPose();
+
           Pose2d goal =
               new Pose2d(
                   UniverseConstants.redGoalPose.getX(),
                   UniverseConstants.redGoalPose.getY(),
                   new Rotation2d());
 
-          double dist = getDistance(drive.getPose(), goal);
+          double distance = getDistance(robotPose, goal);
 
-          double turretDeg = calculateTurretAngle(drive.getPose(), goal).getDegrees();
+          ChassisSpeeds speeds = drive.getFieldRelativeSpeeds();
+
+          Translation2d robotVelocity =
+              new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+          double ballSpeed = 2; // tune this
+          double time = distance / ballSpeed;
+          Translation2d lead = robotVelocity.times(time);
+
+          Translation2d adjustedGoal = goal.getTranslation().minus(lead);
+
+          Pose2d virtualGoal = new Pose2d(adjustedGoal, new Rotation2d());
+          double turretDeg = calculateTurretAngle(robotPose, virtualGoal).getDegrees();
           double turretPos = turretDegreesToPosition(turretDeg);
 
-          double hoodPos = getHoodForDistance(dist);
+          double adjustedDistance = robotPose.getTranslation().getDistance(adjustedGoal);
+
+          double hoodPos = getHoodForDistance(adjustedDistance);
 
           turnToPosition(turretPos);
           setTurretAngle(hoodPos);
