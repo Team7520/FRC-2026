@@ -112,7 +112,6 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void turretWheels(boolean on) {
     setWheels = on;
-    System.out.println("Ran command");
   }
 
   private void configTurret() {
@@ -381,7 +380,6 @@ public class TurretSubsystem extends SubsystemBase {
     if (setWheels) {
       setFlywheelVelocity(flywheelRPS);
     } else {
-      System.out.println("ran into stoppppppp");
       stopFlywheels();
     }
     double hoodPos = selectedMap.get(distance);
