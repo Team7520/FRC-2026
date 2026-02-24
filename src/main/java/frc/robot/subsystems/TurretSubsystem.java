@@ -53,6 +53,8 @@ public class TurretSubsystem extends SubsystemBase {
   private double RPS2 = 36.0;
   private double RPS3 = 40.0;
 
+  private boolean setWheels = false;
+
   public TurretSubsystem(Drive drive) {
     this.drive = drive;
     turnMotor = new TalonFX(TurretConstants.TURN_MOTOR);
@@ -108,6 +110,11 @@ public class TurretSubsystem extends SubsystemBase {
     hoodMotor.getConfigurator().apply(config);
   }
 
+  public void turretWheels(boolean on) {
+    setWheels = on;
+    System.out.println("Ran command");
+  }
+
   private void configTurret() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -159,6 +166,11 @@ public class TurretSubsystem extends SubsystemBase {
 
     feedMotor.getConfigurator().apply(config);
     indexMotor.getConfigurator().apply(config);
+  }
+
+  public void feed(double speed) {
+    setFeeder(speed);
+    setIndexer(-speed);
   }
 
   public Command moveToPosition(double position) {
@@ -366,8 +378,12 @@ public class TurretSubsystem extends SubsystemBase {
       selectedMap = map3;
       flywheelRPS = RPS3;
     }
-    // setFlywheelVelocity(flywheelRPS);
-
+    if (setWheels) {
+      setFlywheelVelocity(flywheelRPS);
+    } else {
+      System.out.println("ran into stoppppppp");
+      stopFlywheels();
+    }
     double hoodPos = selectedMap.get(distance);
     return hoodPos;
   }

@@ -8,12 +8,14 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -113,6 +115,9 @@ public class RobotContainer {
         break;
     }
 
+    NamedCommands.registerCommand("test", Commands.print("WHAHHAHH"));
+    registerNamedCommands();
+
     turret = new TurretSubsystem(drive);
     intake = new IntakeSubsystem();
 
@@ -136,9 +141,19 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     autoChooser.addOption("test", drive.getAutonomousCommand("testauto"));
+    autoChooser.addOption("outpost", drive.getAutonomousCommand("Basic"));
 
     // Configure the button bindings
     configureButtonBindings();
+  }
+
+  private void registerNamedCommands() {
+    NamedCommands.registerCommand(
+        "Turret wheels", new InstantCommand(() -> turret.turretWheels(true)));
+    NamedCommands.registerCommand(
+        "Turret wheels off", new InstantCommand(() -> turret.turretWheels(false)));
+    NamedCommands.registerCommand("feed index", new InstantCommand(() -> turret.feed(0.8)));
+    NamedCommands.registerCommand("feed off", new InstantCommand(() -> turret.feed(0)));
   }
 
   /**
@@ -217,6 +232,9 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(Commands.run(() -> intake.runIntake(-1), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
+
+    driver.a().onTrue(new InstantCommand(() -> turret.turretWheels(true)));
+    driver.y().onTrue(new InstantCommand(() -> turret.turretWheels(false)));
   }
 
   /**
