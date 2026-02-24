@@ -15,11 +15,11 @@ public class TurretWheels extends Command {
 
   @Override
   public void execute() {
-    turret.setFlywheelVelocity(0.5);
+    turret.setFlywheelVelocity(40);
   }
 
   @Override
   public void end(boolean interrupted) {
-    turret.setFlywheelVelocity(0);
+    turret.stopFlywheels();
   }
 }

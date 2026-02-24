@@ -7,7 +7,8 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -33,7 +34,8 @@ public final class Constants {
 
   public static class TurretConstants {
     public static double launchHeight = 0.8; // m
-    public static double launchSpeed = 8.0; // m/s
+    public static double closeLaunchSpeed = 8.0; // m/s
+    public static double farLaunchSpeed = 10.0;
     public static double aimTolerance = 0.50; // m
     public static final int LEFT_MOTOR = 50;
     public static final int RIGHT_MOTOR = 51;
@@ -43,20 +45,18 @@ public final class Constants {
     public static final int INDEXER_MOTOR = 52;
   }
 
-  public static class FieldConstants {
-    public static double blueHubX = 4.62;
-    public static double blueHubY = 4.03;
-    public static Pair<Double, Double> blueHubLoc = new Pair<>(blueHubX, blueHubY);
-
-    public static double redHubX = 0.00;
-    public static double redHubY = 4.03;
-    public static Pair<Double, Double> redHubLoc = new Pair<>(redHubX, redHubY);
-
-    public static double hubHeight = 1.82; // m
-  }
-
-  // You should probably find a better place to put this?
   public static class UniverseConstants {
+    public static double hubHeight = 1.82; // m
+
+    public static double redHubX = Units.inchesToMeters(651.22 - 182.11);
+    public static double redHubY = Units.inchesToMeters(158.84);
+    public static double blueHubX = Units.inchesToMeters(182.11);
+    public static double blueHubY = Units.inchesToMeters(158.84);
+
+    public static Pose3d blueGoalPose = new Pose3d(blueHubX, blueHubY, hubHeight, new Rotation3d());
+
+    public static Pose3d redGoalPose = new Pose3d(redHubX, redHubY, hubHeight, new Rotation3d());
+
     public static double g = 9.81;
     public static double redhubX = Units.inchesToMeters(651.22 - 182.11);
     public static double redhubY = Units.inchesToMeters(158.84);

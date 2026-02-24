@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "start to outpost"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "outpost to middle field bottom through trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "middle field bottom to oupost through trench"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

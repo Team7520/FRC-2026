@@ -9,6 +9,7 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.config.ModuleConfig;
@@ -41,12 +42,14 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.AprilTagSystem;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
@@ -56,6 +59,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
+  Pigeon2 gyro = new Pigeon2(13, TunerConstants.kCANBus);
+  int counter = 0;
 
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
 
@@ -245,13 +250,38 @@ public class Drive extends SubsystemBase {
 
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
-      Pose2d fieldPose = aprilTagSystem.getCurrentRobotFieldPose();
-      double timestamp = aprilTagSystem.getCaptureTime();
-      int index = aprilTagSystem.whichClosest();
-      double distance = aprilTagSystem.getClosest(index);
-      if (fieldPose != null && timestamp != -1 && distance <= 3) {
-        poseEstimator.addVisionMeasurement(fieldPose, timestamp);
+
+      // double yaw = aprilTagSystem.getYaw();
+      // if (yaw != -1) {
+      //   resetGyro(yaw);
+      // }
+      for (int a = 0; a < 3; a++) {
+        LimelightHelpers.SetRobotOrientation(
+            aprilTagSystem.getLimeName(a), gyro.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
       }
+
+      for (int j = 0; j < 3; j++) {
+        Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
+        double timestamp = aprilTagSystem.getCaptureTime(j);
+        // if (pose != null) {
+        //   distance =
+        //       Math.sqrt(
+        //           Math.abs(pose.getX() - poseEstimator.getEstimatedPosition().getX())
+        //               + Math.abs(pose.getY() - poseEstimator.getEstimatedPosition().getY()));
+        // }
+        if ((pose != null && pose.getX() != 0)) {
+          // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+          poseEstimator.addVisionMeasurement(pose, timestamp);
+          counter = 0;
+          // } else if (distance != 1000 && distance > 0.7) {
+          //   counter++;
+          //   System.out.println("Ran into error part");
+          // }
+        }
+      }
+      SmartDashboard.putNumber("Gyro Yaw", gyro.getYaw().getValueAsDouble());
+      SmartDashboard.putNumber("Gyro Pitch", gyro.getPitch().getValueAsDouble());
+      SmartDashboard.putNumber("Gyro Roll", gyro.getRoll().getValueAsDouble());
       estimatorPublisher.set(poseEstimator.getEstimatedPosition());
 
       currentPosePublisher.set(getPose());
@@ -347,6 +377,16 @@ public class Drive extends SubsystemBase {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
+  public ChassisSpeeds getFieldRelativeSpeeds() {
+    ChassisSpeeds robotRelative = getChassisSpeeds();
+
+    return ChassisSpeeds.fromRobotRelativeSpeeds(
+        robotRelative.vxMetersPerSecond,
+        robotRelative.vyMetersPerSecond,
+        robotRelative.omegaRadiansPerSecond,
+        getRotation());
+  }
+
   /** Returns the position of each module in radians. */
   public double[] getWheelRadiusCharacterizationPositions() {
     double[] values = new double[4];
@@ -379,6 +419,10 @@ public class Drive extends SubsystemBase {
   public Command getAutonomousCommand(String pathName) {
     // Create a path following command using AutoBuilder. This will also trigger event markers.
     return new PathPlannerAuto(pathName);
+  }
+
+  public void resetGyro(double value) {
+    gyro.setYaw(value);
   }
 
   /** Resets the current odometry pose. */
