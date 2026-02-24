@@ -123,7 +123,7 @@ public class AprilTagSystem extends SubsystemBase {
                 0.196104,
                 new Rotation3d(
                     Units.degreesToRadians(180),
-                    Units.degreesToRadians(60),
+                    Units.degreesToRadians(30),
                     Units.degreesToRadians(45)))));
 
     limes.add(
@@ -136,7 +136,7 @@ public class AprilTagSystem extends SubsystemBase {
                 0.196104,
                 new Rotation3d(
                     Units.degreesToRadians(180),
-                    Units.degreesToRadians(60),
+                    Units.degreesToRadians(30),
                     Units.degreesToRadians(-45)))));
 
     limes.add(
@@ -363,7 +363,8 @@ public class AprilTagSystem extends SubsystemBase {
       return robotPose.toPose2d();
     } else if (cam2Use != -1) {
       if (LimelightHelpers.getTV(limes.get(cam2Use - 1).name)) {
-        return LimelightHelpers.getBotPose2d_wpiBlue(limes.get(cam2Use - 1).name);
+        return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limes.get(cam2Use - 1).name)
+            .pose;
       } else {
         return null;
       }

@@ -261,23 +261,22 @@ public class Drive extends SubsystemBase {
       }
 
       for (int j = 0; j < 3; j++) {
-        double distance = 1000;
         Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
         double timestamp = aprilTagSystem.getCaptureTime(j);
-        if (pose != null) {
-          distance =
-              Math.sqrt(
-                  Math.abs(pose.getX() - poseEstimator.getEstimatedPosition().getX())
-                      + Math.abs(pose.getY() - poseEstimator.getEstimatedPosition().getY()));
-        }
-        if ((pose != null && pose.getX() != 0 && distance <= 0.7)
-            || counter == 15 && pose != null) {
+        // if (pose != null) {
+        //   distance =
+        //       Math.sqrt(
+        //           Math.abs(pose.getX() - poseEstimator.getEstimatedPosition().getX())
+        //               + Math.abs(pose.getY() - poseEstimator.getEstimatedPosition().getY()));
+        // }
+        if ((pose != null && pose.getX() != 0)) {
           // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
           poseEstimator.addVisionMeasurement(pose, timestamp);
           counter = 0;
-        } else if (distance != 1000 && distance > 0.7) {
-          counter++;
-          System.out.println("Ran into error part");
+          // } else if (distance != 1000 && distance > 0.7) {
+          //   counter++;
+          //   System.out.println("Ran into error part");
+          // }
         }
       }
       SmartDashboard.putNumber("Gyro Yaw", gyro.getYaw().getValueAsDouble());
