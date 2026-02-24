@@ -9,15 +9,9 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "path",
                 "data": {
-                  "waitTime": 6.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
+                  "pathName": "New Path"
                 }
               }
             ]
@@ -28,37 +22,67 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "wait",
                 "data": {
-                  "pathName": "Start to Outpost"
+                  "waitTime": 5.0
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.0
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake out"
-                      }
-                    }
-                  ]
+                  "name": "Turret wheels"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "feed index"
                 }
               }
             ]
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 3.0
+            "name": "Turret wheels off"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot to Outpost"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Turret wheels"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 5.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Turret wheels off"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "feed off"
           }
         },
         {
@@ -69,12 +93,6 @@
                 "type": "path",
                 "data": {
                   "pathName": "Outpost to Tower"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
                 }
               },
               {

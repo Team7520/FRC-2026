@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -14,6 +15,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.io.IOException;
@@ -45,7 +48,30 @@ public class AprilTagSystem extends SubsystemBase {
     }
   }
 
+  public static class LimeInfo {
+    public final String name;
+    public boolean isOpen;
+    public Transform3d position;
+
+    public LimeInfo(String name, boolean isOpen, Transform3d position) {
+      this.name = name;
+      this.isOpen = isOpen;
+      this.position = position;
+
+      LimelightHelpers.setCameraPose_RobotSpace(
+          name,
+          position.getX(), // Forward offset (meters)
+          position.getY(), // Side offset (meters)
+          position.getZ(), // Height offset (meters)
+          Units.radiansToDegrees(position.getRotation().getX()), // Roll (degrees)
+          Units.radiansToDegrees(position.getRotation().getY()), // Pitch (degrees)
+          Units.radiansToDegrees(position.getRotation().getZ()) // Yaw (degrees)
+          );
+    }
+  }
+
   private final List<CameraInfo> cameraList = new ArrayList<>();
+  private final List<LimeInfo> limes = new ArrayList<>();
 
   private final PipeLineType TYPE = PipeLineType.APRIL_TAG;
   private boolean allOpen = false;
@@ -54,13 +80,15 @@ public class AprilTagSystem extends SubsystemBase {
   private List<AprilTag> apriltags;
   public boolean aprilTagLayoutLoaded = false;
   private final double MAX_RANGE = 20; // In meters, anything beyond 2 meters should not be used
+  private Pigeon2 gyro;
 
   private Pose2d robotPose;
   private AprilTag closestTag;
   private List<PhotonPoseEstimator> estimators = null;
 
-  private final String limelight1 = "limelight-one";
-  private final String limelight2 = "limelight-two";
+  private final String frontRight = "limelight-frontr";
+  private final String frontLeft = "limelight-frontl";
+  private final String backRight = "limelight-backr";
 
   public enum PipeLineType {
     APRIL_TAG,
@@ -85,62 +113,86 @@ public class AprilTagSystem extends SubsystemBase {
                     0.0 // facing forward
                     ))));
 
-    cameraList.add(
-        new CameraInfo(
-            "Cam2",
-            new PhotonCamera("Cam2"),
+    limes.add(
+        new LimeInfo(
+            frontLeft,
             false,
             new Transform3d(
-                0.283940504, // X forward
-                0.188200919, // Y left
-                0.205,
-                new Rotation3d(0.0, Math.toRadians(15), 0.0))));
+                0.300942,
+                -0.275542,
+                0.196104,
+                new Rotation3d(
+                    Units.degreesToRadians(180),
+                    Units.degreesToRadians(60),
+                    Units.degreesToRadians(45)))));
+
+    limes.add(
+        new LimeInfo(
+            frontRight,
+            false,
+            new Transform3d(
+                0.300942,
+                0.275542,
+                0.196104,
+                new Rotation3d(
+                    Units.degreesToRadians(180),
+                    Units.degreesToRadians(60),
+                    Units.degreesToRadians(-45)))));
+
+    limes.add(
+        new LimeInfo(
+            backRight,
+            false,
+            new Transform3d(
+                0.272828,
+                0.221779,
+                0.287592,
+                new Rotation3d(
+                    Units.degreesToRadians(35), // 14.028, 35
+                    Units.degreesToRadians(42.063), // 65, 25, 42.063
+                    Units.degreesToRadians(-121.131))))); // 145, -121.321, 137.937
+  }
+
+  public String getLimeName(int index) {
+    return limes.get(index).name;
+  }
+
+  public double getYaw() {
+    int index = whichClosest();
+    if (index == -1) {
+      return -1;
+    }
+    return LimelightHelpers.getBotPose2d_wpiBlue(limes.get(index - 1).name)
+        .getRotation()
+        .getDegrees();
   }
 
   @Override
   public void periodic() {
+
     allOpen = true;
-    boolean lime1 = true;
-    boolean lime2 = true;
     for (int i = 0; i < cameraList.size(); i++) {
       if (cameraList.get(i).camera.isConnected()) {
         cameraList.get(i).isOpen = true;
       } else {
-        cameraList.get(i).isOpen = false;
         allOpen = false;
-        System.out.printf("Failed to open camera %d: %s \n", i + 1, cameraList.get(i).name);
       }
       SmartDashboard.putBoolean(cameraList.get(i).name + " OPEN?", cameraList.get(i).isOpen);
     }
-    if (LimelightHelpers.getHeartbeat(limelight1) == 0) {
-      allOpen = false;
-      lime1 = false;
-      System.out.println("Failed to open limelight 1, " + limelight1);
+    for (int i = 0; i < limes.size(); i++) {
+      if (LimelightHelpers.getHeartbeat(limes.get(i).name) != 0) {
+        limes.get(i).isOpen = true;
+      } else {
+        allOpen = false;
+      }
+      SmartDashboard.putBoolean(limes.get(i).name + " OPEN?", limes.get(i).isOpen);
     }
-    SmartDashboard.putBoolean("Limelight One Open?", lime1);
-    if (LimelightHelpers.getHeartbeat(limelight2) == 0) {
-      lime2 = false;
-      allOpen = false;
-      System.out.println("Failed to open limelight 2, " + limelight2);
-    }
-    SmartDashboard.putBoolean("Limelight Two Open?", lime2);
-    SmartDashboard.putNumber("Limelight One Heartbeat", LimelightHelpers.getHeartbeat(limelight1));
-    SmartDashboard.putNumber("Limelight Two Heartbeat", LimelightHelpers.getHeartbeat(limelight2));
 
     SmartDashboard.putNumber("Closest cam", whichClosest());
-    SmartDashboard.putNumber("Lime1 Distance", getClosest(2));
-    SmartDashboard.putNumber("Lime2 Distance", getClosest(3));
+    SmartDashboard.putNumber(limes.get(0).name + " Distance", getClosest(1));
+    SmartDashboard.putNumber(limes.get(1).name + " Distance", getClosest(2));
+    SmartDashboard.putNumber(limes.get(2).name + " Distance", getClosest(3));
     SmartDashboard.putNumber("Pi 1 Distance", getClosest(0));
-    SmartDashboard.putNumber("Lime1 X", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[0]);
-    SmartDashboard.putNumber("Lime1 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[1]);
-    SmartDashboard.putNumber("Lime1 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight1)[2]);
-    SmartDashboard.putNumber("Lime2 X", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[0]);
-    SmartDashboard.putNumber("Lime2 Y", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[1]);
-    SmartDashboard.putNumber("Lime2 Z", LimelightHelpers.getTargetPose_CameraSpace(limelight2)[2]);
-  }
-
-  public List<PhotonCamera> getCameras() {
-    return cameraList.stream().map(info -> info.camera).collect(Collectors.toList());
   }
 
   public List<PhotonPoseEstimator> getEstimators() {
@@ -166,9 +218,9 @@ public class AprilTagSystem extends SubsystemBase {
   public int whichClosest() {
     double closest = 100;
     int highest = -1;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
       double distance = getClosest(i);
-      if (distance < closest && distance != -1) {
+      if (distance < closest && distance != -1 && distance <= 3) {
         closest = distance;
         highest = i;
       }
@@ -207,61 +259,54 @@ public class AprilTagSystem extends SubsystemBase {
 
   /**
    * Returns the distance of the tag to the given camera, used to determine which has the most
-   * accurate data. Index 0-1 represent photonCameras, 2-3 represent Limelights
+   * accurate data. Index 0 represent photonCamera, 1-3 represent Limelights
    *
    * @return a double representing the ambiguity of the camera
    */
   public double getClosest(int cameraIndex) {
+    // if (true) {
+    //   return -1;
+    // }
     if (cameraIndex < 0 || cameraIndex > 3) {
       return -1; // Handle invalid camera index
     }
 
     PhotonPipelineResult result = null;
-    if (cameraIndex >= 0 && cameraIndex <= 1) {
+    double x, y, z, distance = 0;
+    double[] offsets;
+
+    if (cameraIndex == 0) {
       CameraInfo cameraInfo = cameraList.get(cameraIndex);
-      result = cameraInfo.camera.getLatestResult();
+      result = getLatestCameraResult(cameraInfo.camera);
 
       if (result == null || !result.hasTargets()) {
         return -1; // Handle the case where no targets are found
       }
-    }
-    
-    if ((cameraIndex == 2 && !LimelightHelpers.getTV(limelight1)) || 
-        (cameraIndex == 3 && !LimelightHelpers.getTV(limelight2))) {
-      return -1;
-    }
 
-    double x, y, z, distance = 0;
-    double[] offsets;
-    switch (cameraIndex) {
-      case 0:
-      case 1:
-        PhotonTrackedTarget target = result.getBestTarget();
-        Transform3d targets = target.getBestCameraToTarget();
-        x = targets.getX();
-        y = targets.getY();
-        z = targets.getZ();
-        distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
-        return distance;
-      case 2:
-        offsets = LimelightHelpers.getTargetPose_CameraSpace(limelight1);
-        x = offsets[0];
-        y = offsets[1];
-        z = offsets[2];
-        distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
-        return distance;
-      case 3:
-        offsets = LimelightHelpers.getTargetPose_CameraSpace(limelight2);
-        x = offsets[0];
-        y = offsets[1];
-        z = offsets[2];
-        distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
-        return distance;
-      default:
-        System.out.println("Issue with camera index!");
-        break;
+      PhotonTrackedTarget target = result.getBestTarget();
+      Transform3d targets = target.getBestCameraToTarget();
+      x = targets.getX();
+      y = targets.getY();
+      z = targets.getZ();
+      distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+      return distance;
+
+    } else {
+      LimeInfo lime = limes.get(cameraIndex - 1);
+      if (!LimelightHelpers.getTV(lime.name)) {
+        return -1;
+      }
+
+      offsets = LimelightHelpers.getTargetPose_CameraSpace(lime.name);
+      if (offsets.length == 0) {
+        return -1;
+      }
+      x = offsets[0];
+      y = offsets[1];
+      z = offsets[2];
+      distance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+      return distance;
     }
-    return -1;
   }
 
   /**
@@ -269,19 +314,26 @@ public class AprilTagSystem extends SubsystemBase {
    *
    * @return capture time in milliseconds
    */
-  public double getCaptureTime(int cameraIndex) {
-    if (cameraIndex < 0 || cameraIndex >= cameraList.size()) {
-      return -1; // Handle invalid camera index
+  public double getCaptureTime(int index) {
+    CameraInfo cameraInfo;
+    LimeInfo lime;
+    PhotonPipelineResult result;
+    int cam = index;
+    if (cam == 0) {
+      cameraInfo = cameraList.get(cam);
+      result = cameraInfo.camera.getLatestResult();
+      return result.getTimestampSeconds();
+    } else if (cam != -1) {
+      lime = limes.get(cam - 1);
+      return Timer.getFPGATimestamp()
+          - (LimelightHelpers.getLatency_Capture(lime.name) / 1000.0)
+          - (LimelightHelpers.getLatency_Pipeline(lime.name) / 1000.0);
     }
+    return -1;
+  }
 
-    CameraInfo cameraInfo = cameraList.get(cameraIndex);
-    PhotonPipelineResult result = cameraInfo.camera.getLatestResult();
-
-    if (result == null || !result.hasTargets()) {
-      return -1; // Handle the case where no targets are found
-    }
-
-    return result.getTimestampSeconds() * 1000; // Convert seconds to milliseconds
+  public double getAmbuigity(int index) {
+    return LimelightHelpers.getTA(limes.get(index - 1).name);
   }
 
   /**
@@ -290,44 +342,34 @@ public class AprilTagSystem extends SubsystemBase {
    *
    * @return a Pose2d
    */
-  public Pose2d getCurrentRobotFieldPose(int camera) {
+  public Pose2d getCurrentRobotFieldPose(int index) {
     PhotonPipelineResult result = null;
-    if (camera >= 0 && camera < cameraList.size()) {
-      result = cameraList.get(camera).camera.getLatestResult();
-    }
-
-    if (result == null || !result.hasTargets()) {
+    int cam2Use = index;
+    if (cam2Use == 0) {
+      result = getLatestCameraResult(cameraList.get(cam2Use).camera);
+      Transform3d robotToCamera = cameraList.get(cam2Use).robotToCamera;
+      PhotonTrackedTarget target = result.getBestTarget();
+      if (target == null) {
+        return null;
+      }
+      if (target.getBestCameraToTarget().getX() > MAX_RANGE) {
+        return null;
+      }
+      Pose3d robotPose =
+          PhotonUtils.estimateFieldToRobotAprilTag(
+              target.getBestCameraToTarget(),
+              aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
+              robotToCamera.inverse());
+      return robotPose.toPose2d();
+    } else if (cam2Use != -1) {
+      if (LimelightHelpers.getTV(limes.get(cam2Use - 1).name)) {
+        return LimelightHelpers.getBotPose2d_wpiBlue(limes.get(cam2Use - 1).name);
+      } else {
+        return null;
+      }
+    } else {
       return null;
     }
-    /*
-     * To avoid confusion regarding whether rotation is applied first or translation, and whether the rotation/translational
-     * axes are transformed along with the object, we'll assume translation is considered first before rotation, where each
-     * component of the transformation is considered in the order as it is labeled as a parameter.
-     *
-     * According to WPILIB Documentation, the related object/class, Transform2d, consists of a translation and a rotation.
-     * In Transform2d, the rotation is applied TO THE TRANSLATION, then the rotation is applied to the object.
-     * This is mathematically equivalent to applying an unrotated translation, then applying the rotation to the object.
-     * Both seqences transform the object to the same destination in space.
-     *
-     * For simplicity reasons, we should base the camera's transformation relative to the robot center, and then simply inverse
-     * the transformtation - instead of having robot relative to camera.
-     *
-     * -Robin
-     */
-    Transform3d robotToCamera = cameraList.get(camera).robotToCamera;
-
-    PhotonTrackedTarget target = result.getBestTarget();
-    if (target.getBestCameraToTarget().getX() > MAX_RANGE) {
-      return null;
-    }
-    Pose3d robotPose =
-        PhotonUtils.estimateFieldToRobotAprilTag(
-            target.getBestCameraToTarget(),
-            aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
-            robotToCamera.inverse());
-    // SmartDashboard.putNumber("Tag X", target.getBestCameraToTarget().getX());
-    // SmartDashboard.putNumber("Tag Y", target.getBestCameraToTarget().getY());
-    return robotPose.toPose2d();
   }
 
   /**
@@ -442,5 +484,13 @@ public class AprilTagSystem extends SubsystemBase {
         robotPose.getTranslation().getDistance(poseB.getTranslation())
             + Math.abs(robotPose.getRotation().minus(poseB.getRotation()).getRadians());
     return (costA <= costB) ? poseA : poseB;
+  }
+
+  private PhotonPipelineResult getLatestCameraResult(PhotonCamera camera) {
+    List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+    if (results.isEmpty()) {
+      return new PhotonPipelineResult();
+    }
+    return results.get(results.size() - 1);
   }
 }
