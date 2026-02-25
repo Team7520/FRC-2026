@@ -23,16 +23,21 @@ public class IntakeSubsystem extends SubsystemBase {
     extendMotor = new TalonFX(58);
 
     TalonFXConfiguration config = new TalonFXConfiguration();
-    config.Slot0.kP = 0.5;
+    config.Slot0.kP = 2;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 40.0;
+    config.CurrentLimits.StatorCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 60;
 
     intakeMotor.getConfigurator().apply(config);
     intakeMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+    config.Slot0.kP = 0.5;
+    config.Slot0.kI = 0;
+    config.Slot0.kD = 0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 10;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
     extendMotor.getConfigurator().apply(config);
     extendMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
   }

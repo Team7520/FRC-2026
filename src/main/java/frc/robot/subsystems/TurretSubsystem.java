@@ -296,7 +296,7 @@ public class TurretSubsystem extends SubsystemBase {
     rightMotor.stopMotor();
   }
 
-  public Command autoAim() {
+  public Command aautoAim() {
     return Commands.run(
         () -> {
           Pose2d robotPose = drive.getPose();
@@ -326,6 +326,28 @@ public class TurretSubsystem extends SubsystemBase {
           double adjustedDistance = robotPose.getTranslation().getDistance(adjustedGoal);
 
           double hoodPos = getHoodForDistance(adjustedDistance);
+
+          turnToPosition(turretPos);
+          setTurretAngle(hoodPos);
+        },
+        this);
+  }
+
+  public Command autoAim() {
+    return Commands.run(
+        () -> {
+          Pose2d goal =
+              new Pose2d(
+                  UniverseConstants.blueGoalPose.getX(),
+                  UniverseConstants.blueGoalPose.getY(),
+                  new Rotation2d());
+
+          double dist = getDistance(drive.getPose(), goal);
+
+          double turretDeg = calculateTurretAngle(drive.getPose(), goal).getDegrees();
+          double turretPos = turretDegreesToPosition(turretDeg);
+
+          double hoodPos = getHoodForDistance(dist);
 
           turnToPosition(turretPos);
           setTurretAngle(hoodPos);
