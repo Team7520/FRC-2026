@@ -65,6 +65,9 @@ public class TurretSubsystem extends SubsystemBase {
 
   private boolean setWheels = false;
 
+  private double goalPoseX;
+  private double goalPoseY;
+
   public TurretSubsystem(Drive drive) {
     this.drive = drive;
     turnMotor = new TalonFX(TurretConstants.TURN_MOTOR);
@@ -95,6 +98,14 @@ public class TurretSubsystem extends SubsystemBase {
     map4.put(4.766, 1.453);
     map4.put(5.0, 1.686);
     map4.put(5.67, 3.20);
+    if (DriverStation.getAlliance().isPresent()
+        && DriverStation.getAlliance().get() == Alliance.Red) {
+      goalPoseX = UniverseConstants.redGoalPose.getX();
+      goalPoseY = UniverseConstants.redGoalPose.getY();
+    } else {
+      goalPoseX = UniverseConstants.blueGoalPose.getX();
+      goalPoseY = UniverseConstants.blueGoalPose.getY();
+    }
   }
 
   private void configHood() {
@@ -329,16 +340,6 @@ public class TurretSubsystem extends SubsystemBase {
     return Commands.run(
         () -> {
           Pose2d robotPose = drive.getPose();
-          double goalPoseX;
-          double goalPoseY;
-          if (DriverStation.getAlliance().isPresent()
-              && DriverStation.getAlliance().get() == Alliance.Red) {
-            goalPoseX = UniverseConstants.redGoalPose.getX();
-            goalPoseY = UniverseConstants.redGoalPose.getY();
-          } else {
-            goalPoseX = UniverseConstants.blueGoalPose.getX();
-            goalPoseY = UniverseConstants.blueGoalPose.getY();
-          }
 
           Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
 
@@ -372,22 +373,12 @@ public class TurretSubsystem extends SubsystemBase {
     return Commands.run(
         () -> {
           Pose2d robotPose = drive.getPose();
-          double goalPoseX;
-          double goalPoseY;
-          if (DriverStation.getAlliance().isPresent()
-              && DriverStation.getAlliance().get() == Alliance.Red) {
-            goalPoseX = UniverseConstants.redGoalPose.getX();
-            goalPoseY = UniverseConstants.redGoalPose.getY();
-          } else {
-            goalPoseX = UniverseConstants.blueGoalPose.getX();
-            goalPoseY = UniverseConstants.blueGoalPose.getY();
-          }
 
           Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
 
           double dist = getDistance(robotPose, goal);
 
-          double turretDeg = calculateTurretAngle(drive.getPose(), goal).getDegrees();
+          double turretDeg = calculateTurretAngle(robotPose, goal).getDegrees();
           double turretPos = turretDegreesToPosition(turretDeg);
 
           double hoodPos = getHoodForDistance(dist);
@@ -402,22 +393,10 @@ public class TurretSubsystem extends SubsystemBase {
     return Commands.run(
         () -> {
           Pose2d robotPose = drive.getPose();
-          double goalPoseX;
-          double goalPoseY;
-          if (DriverStation.getAlliance().isPresent()
-              && DriverStation.getAlliance().get() == Alliance.Red) {
-            goalPoseX = UniverseConstants.redGoalPose.getX();
-            goalPoseY = UniverseConstants.redGoalPose.getY();
-          } else {
-            goalPoseX = UniverseConstants.blueGoalPose.getX();
-            goalPoseY = UniverseConstants.blueGoalPose.getY();
-          }
 
           Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
 
-          double dist = getDistance(robotPose, goal);
-
-          double turretDeg = calculateTurretAngle(drive.getPose(), goal).getDegrees();
+          double turretDeg = calculateTurretAngle(robotPose, goal).getDegrees();
           double turretPos = turretDegreesToPosition(turretDeg);
 
           turnToPosition(turretPos);
