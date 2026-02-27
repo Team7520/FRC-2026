@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -221,15 +222,27 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public Rotation2d calculateTurretAngle(Pose2d robotPose, Pose2d goalPose) {
+    Pose2d futurePose = predictFuturePose(robotPose, 0.1); // predict 100ms into the future
     Transform2d robotToTurret =
         new Transform2d(new Translation2d(0.1397, 0.0), new Rotation2d()); // 5.5 inches
-    Pose2d turretPose = robotPose.transformBy(robotToTurret);
+    Pose2d turretPose = futurePose.transformBy(robotToTurret);
     Translation2d turretToGoal = goalPose.getTranslation().minus(turretPose.getTranslation());
     Rotation2d fieldAngle = turretToGoal.getAngle();
     turretPosePublisher.set(turretPose);
 
-    return fieldAngle.minus(robotPose.getRotation()).plus(new Rotation2d(Math.PI / 2));
+    return fieldAngle.minus(futurePose.getRotation()).plus(new Rotation2d(Math.PI / 2));
   }
+
+  public Pose2d predictFuturePose(Pose2d pose, double latencySeconds) {
+    ChassisSpeeds currentSpeed = drive.getFieldRelativeSpeeds();
+    return pose.exp(
+        new Twist2d(
+            currentSpeed.vxMetersPerSecond * latencySeconds,
+            currentSpeed.vyMetersPerSecond * latencySeconds,
+            currentSpeed.omegaRadiansPerSecond * latencySeconds
+        )
+    );
+}
 
   // public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
   //   // Horizontal distance

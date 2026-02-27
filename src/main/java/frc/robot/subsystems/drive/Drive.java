@@ -251,39 +251,26 @@ public class Drive extends SubsystemBase {
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
 
-      // double yaw = aprilTagSystem.getYaw();
-      // if (yaw != -1) {
-      //   resetGyro(yaw);
-      // }
+      // Take gyro angle and feed it to limelight for megatag2. Limelight assumes facing red alliance wall as 0°
       for (int a = 0; a < 3; a++) {
         LimelightHelpers.SetRobotOrientation(
             aprilTagSystem.getLimeName(a), gyro.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
       }
 
+      // Take vision from the 3 limelights (orangepi cam TBA) and feed it to pose estimator along with timestamp
       for (int j = 0; j < 3; j++) {
         Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
         double timestamp = aprilTagSystem.getCaptureTime(j);
-        // if (pose != null) {
-        //   distance =
-        //       Math.sqrt(
-        //           Math.abs(pose.getX() - poseEstimator.getEstimatedPosition().getX())
-        //               + Math.abs(pose.getY() - poseEstimator.getEstimatedPosition().getY()));
-        // }
         if ((pose != null && pose.getX() != 0)) {
           // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
           poseEstimator.addVisionMeasurement(pose, timestamp);
           counter = 0;
-          // } else if (distance != 1000 && distance > 0.7) {
-          //   counter++;
-          //   System.out.println("Ran into error part");
-          // }
         }
       }
-      SmartDashboard.putNumber("Gyro Yaw", gyro.getYaw().getValueAsDouble());
-      SmartDashboard.putNumber("Gyro Pitch", gyro.getPitch().getValueAsDouble());
-      SmartDashboard.putNumber("Gyro Roll", gyro.getRoll().getValueAsDouble());
-      estimatorPublisher.set(poseEstimator.getEstimatedPosition());
 
+      // Log data
+      SmartDashboard.putNumber("Gyro Yaw", gyro.getYaw().getValueAsDouble());
+      estimatorPublisher.set(poseEstimator.getEstimatedPosition());
       currentPosePublisher.set(getPose());
     }
 
