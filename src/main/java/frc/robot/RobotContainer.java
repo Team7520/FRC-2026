@@ -165,6 +165,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
     turret.setDefaultCommand(turret.autoAim());
+    // turret.setDefaultCommand(turret.aimTest());
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
@@ -222,7 +223,10 @@ public class RobotContainer {
 
     operator.a().onTrue(intake.extendIntake());
     operator.b().onTrue(intake.retractIntake());
-
+    driver
+        .rightTrigger()
+        .whileTrue(Commands.run(() -> intake.runIntake(0.3), intake))
+        .onFalse(Commands.runOnce(intake::stopAll, intake));
     operator
         .rightTrigger()
         .whileTrue(Commands.run(() -> intake.runIntake(0.3), intake))

@@ -16,6 +16,10 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -26,6 +30,9 @@ import frc.robot.Constants.UniverseConstants;
 import frc.robot.subsystems.drive.Drive;
 
 public class TurretSubsystem extends SubsystemBase {
+  StructPublisher<Pose2d> turretPosePublisher =
+      NetworkTableInstance.getDefault().getStructTopic("TurretPose", Pose2d.struct).publish();
+
   private boolean pivotHolding = false;
   private double holdPivotRot = 0.0;
   private final TalonFX turnMotor;
@@ -48,10 +55,12 @@ public class TurretSubsystem extends SubsystemBase {
   private InterpolatingDoubleTreeMap map1 = new InterpolatingDoubleTreeMap();
   private InterpolatingDoubleTreeMap map2 = new InterpolatingDoubleTreeMap();
   private InterpolatingDoubleTreeMap map3 = new InterpolatingDoubleTreeMap();
+  private InterpolatingDoubleTreeMap map4 = new InterpolatingDoubleTreeMap();
 
   private double RPS1 = 33.0;
   private double RPS2 = 36.0;
-  private double RPS3 = 40.0;
+  private double RPS3 = 41.0;
+  private double RPS4 = 45.0;
 
   private boolean setWheels = false;
 
@@ -79,6 +88,12 @@ public class TurretSubsystem extends SubsystemBase {
 
     map3.put(3.48, 0.43);
     map3.put(4.18, 1.82);
+    map3.put(4.45, 2.748);
+
+    map4.put(4.55, 1.249);
+    map4.put(4.766, 1.453);
+    map4.put(5.0, 1.686);
+    map4.put(5.67, 3.20);
   }
 
   private void configHood() {
@@ -211,6 +226,7 @@ public class TurretSubsystem extends SubsystemBase {
     Pose2d turretPose = robotPose.transformBy(robotToTurret);
     Translation2d turretToGoal = goalPose.getTranslation().minus(turretPose.getTranslation());
     Rotation2d fieldAngle = turretToGoal.getAngle();
+    turretPosePublisher.set(turretPose);
 
     return fieldAngle.minus(robotPose.getRotation()).plus(new Rotation2d(Math.PI / 2));
   }
@@ -266,7 +282,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setFlywheelVelocity(double rps) {
-    System.out.println(rps);
+    SmartDashboard.putNumber("RPS target", rps);
     leftMotor.setControl(velocityRequest.withVelocity(rps));
     rightMotor.setControl(velocityRequest.withVelocity(rps));
   }
@@ -300,12 +316,18 @@ public class TurretSubsystem extends SubsystemBase {
     return Commands.run(
         () -> {
           Pose2d robotPose = drive.getPose();
+          double goalPoseX;
+          double goalPoseY;
+          if (DriverStation.getAlliance().isPresent()
+              && DriverStation.getAlliance().get() == Alliance.Red) {
+            goalPoseX = UniverseConstants.redGoalPose.getX();
+            goalPoseY = UniverseConstants.redGoalPose.getY();
+          } else {
+            goalPoseX = UniverseConstants.blueGoalPose.getX();
+            goalPoseY = UniverseConstants.blueGoalPose.getY();
+          }
 
-          Pose2d goal =
-              new Pose2d(
-                  UniverseConstants.redGoalPose.getX(),
-                  UniverseConstants.redGoalPose.getY(),
-                  new Rotation2d());
+          Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
 
           double distance = getDistance(robotPose, goal);
 
@@ -336,13 +358,21 @@ public class TurretSubsystem extends SubsystemBase {
   public Command autoAim() {
     return Commands.run(
         () -> {
-          Pose2d goal =
-              new Pose2d(
-                  UniverseConstants.blueGoalPose.getX(),
-                  UniverseConstants.blueGoalPose.getY(),
-                  new Rotation2d());
+          Pose2d robotPose = drive.getPose();
+          double goalPoseX;
+          double goalPoseY;
+          if (DriverStation.getAlliance().isPresent()
+              && DriverStation.getAlliance().get() == Alliance.Red) {
+            goalPoseX = UniverseConstants.redGoalPose.getX();
+            goalPoseY = UniverseConstants.redGoalPose.getY();
+          } else {
+            goalPoseX = UniverseConstants.blueGoalPose.getX();
+            goalPoseY = UniverseConstants.blueGoalPose.getY();
+          }
 
-          double dist = getDistance(drive.getPose(), goal);
+          Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
+
+          double dist = getDistance(robotPose, goal);
 
           double turretDeg = calculateTurretAngle(drive.getPose(), goal).getDegrees();
           double turretPos = turretDegreesToPosition(turretDeg);
@@ -351,6 +381,33 @@ public class TurretSubsystem extends SubsystemBase {
 
           turnToPosition(turretPos);
           setTurretAngle(hoodPos);
+        },
+        this);
+  }
+
+  public Command aimTest() {
+    return Commands.run(
+        () -> {
+          Pose2d robotPose = drive.getPose();
+          double goalPoseX;
+          double goalPoseY;
+          if (DriverStation.getAlliance().isPresent()
+              && DriverStation.getAlliance().get() == Alliance.Red) {
+            goalPoseX = UniverseConstants.redGoalPose.getX();
+            goalPoseY = UniverseConstants.redGoalPose.getY();
+          } else {
+            goalPoseX = UniverseConstants.blueGoalPose.getX();
+            goalPoseY = UniverseConstants.blueGoalPose.getY();
+          }
+
+          Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
+
+          double dist = getDistance(robotPose, goal);
+
+          double turretDeg = calculateTurretAngle(drive.getPose(), goal).getDegrees();
+          double turretPos = turretDegreesToPosition(turretDeg);
+
+          turnToPosition(turretPos);
         },
         this);
   }
@@ -395,9 +452,12 @@ public class TurretSubsystem extends SubsystemBase {
     } else if (distance <= 3.5) { // Zone 2
       selectedMap = map2;
       flywheelRPS = RPS2;
-    } else { // Zone 3
+    } else if (distance <= 4.5) { // Zone 3
       selectedMap = map3;
       flywheelRPS = RPS3;
+    } else { // Zone 4
+      selectedMap = map4;
+      flywheelRPS = RPS4;
     }
     if (setWheels) {
       setFlywheelVelocity(flywheelRPS);
