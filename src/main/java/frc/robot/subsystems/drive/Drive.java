@@ -251,13 +251,15 @@ public class Drive extends SubsystemBase {
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
 
-      // Take gyro angle and feed it to limelight for megatag2. Limelight assumes facing red alliance wall as 0°
+      // Take gyro angle and feed it to limelight for megatag2. Limelight assumes facing red
+      // alliance wall as 0°
       for (int a = 0; a < 3; a++) {
         LimelightHelpers.SetRobotOrientation(
             aprilTagSystem.getLimeName(a), gyro.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
       }
 
-      // Take vision from the 3 limelights (orangepi cam TBA) and feed it to pose estimator along with timestamp
+      // Take vision from the 3 limelights (orangepi cam TBA) and feed it to pose estimator along
+      // with timestamp
       for (int j = 0; j < 3; j++) {
         Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
         double timestamp = aprilTagSystem.getCaptureTime(j);

@@ -19,8 +19,6 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -98,14 +96,14 @@ public class TurretSubsystem extends SubsystemBase {
     map4.put(4.766, 1.453);
     map4.put(5.0, 1.686);
     map4.put(5.67, 3.20);
-    if (DriverStation.getAlliance().isPresent()
-        && DriverStation.getAlliance().get() == Alliance.Red) {
-      goalPoseX = UniverseConstants.redGoalPose.getX();
-      goalPoseY = UniverseConstants.redGoalPose.getY();
-    } else {
-      goalPoseX = UniverseConstants.blueGoalPose.getX();
-      goalPoseY = UniverseConstants.blueGoalPose.getY();
-    }
+    // if (DriverStation.getAlliance().isPresent()
+    //     && DriverStation.getAlliance().get() == Alliance.Red) {
+    goalPoseX = UniverseConstants.redGoalPose.getX();
+    goalPoseY = UniverseConstants.redGoalPose.getY();
+    // } else {
+    //   goalPoseX = UniverseConstants.blueGoalPose.getX();
+    //   goalPoseY = UniverseConstants.blueGoalPose.getY();
+    // }
   }
 
   private void configHood() {
@@ -157,7 +155,7 @@ public class TurretSubsystem extends SubsystemBase {
     config.SoftwareLimitSwitch = limits;
 
     // TUNE PID
-    config.Slot0.kP = 3;
+    config.Slot0.kP = 9;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
@@ -173,7 +171,7 @@ public class TurretSubsystem extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     // TUNE PID
-    config.Slot0.kP = 2;
+    config.Slot0.kP = 12;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
@@ -233,7 +231,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public Rotation2d calculateTurretAngle(Pose2d robotPose, Pose2d goalPose) {
-    Pose2d futurePose = predictFuturePose(robotPose, 0.1); // predict 100ms into the future
+    Pose2d futurePose = predictFuturePose(robotPose, 0.9); // predict 100ms into the future
     Transform2d robotToTurret =
         new Transform2d(new Translation2d(0.1397, 0.0), new Rotation2d()); // 5.5 inches
     Pose2d turretPose = futurePose.transformBy(robotToTurret);
@@ -250,10 +248,8 @@ public class TurretSubsystem extends SubsystemBase {
         new Twist2d(
             currentSpeed.vxMetersPerSecond * latencySeconds,
             currentSpeed.vyMetersPerSecond * latencySeconds,
-            currentSpeed.omegaRadiansPerSecond * latencySeconds
-        )
-    );
-}
+            currentSpeed.omegaRadiansPerSecond * latencySeconds));
+  }
 
   // public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
   //   // Horizontal distance

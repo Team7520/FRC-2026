@@ -9,93 +9,6 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "New Path"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 4.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Turret wheels"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "feed index"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Turret wheels off"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "feed off"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot to Outpost"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Outpost to Tower"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.0
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Turret wheels"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -108,13 +21,31 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "feed index"
+                        "name": "Turret wheels"
                       }
                     }
                   ]
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "New Path"
+                }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "feed index"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake spin"
           }
         }
       ]

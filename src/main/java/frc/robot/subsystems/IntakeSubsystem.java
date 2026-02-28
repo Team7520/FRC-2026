@@ -15,7 +15,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFX extendMotor;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
-  double extendedPosition = -14.5;
+  double extendedPosition = -16;
   double retractedPosition = 0;
 
   public IntakeSubsystem() {
