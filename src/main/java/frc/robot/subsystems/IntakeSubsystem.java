@@ -15,7 +15,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFX extendMotor;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
-  double extendedPosition = -14.5;
+  double extendedPosition = -16;
   double retractedPosition = 0;
 
   public IntakeSubsystem() {
@@ -63,18 +63,25 @@ public class IntakeSubsystem extends SubsystemBase {
     extendMotor.setControl(duty.withOutput(0));
   }
 
+  // public Command extendIntake() {
+  //   return Commands.run(() -> extend(), this).until(() -> atTarget(extendedPosition));
+  // }
+
+  // public Command retractIntake() {
+  //   return Commands.run(() -> retract(), this).until(() -> atTarget(retractedPosition));
+  // }
   public Command extendIntake() {
-    return Commands.run(() -> extend(), this).until(() -> atTarget(extendedPosition));
+    return Commands.runOnce(() -> extend(), this);
   }
 
   public Command retractIntake() {
-    return Commands.run(() -> retract(), this).until(() -> atTarget(retractedPosition));
+    return Commands.runOnce(() -> retract(), this);
   }
 
   public boolean atTarget(double position) {
     double current = extendMotor.getPosition().getValueAsDouble();
     double error = Math.abs(position - current);
-    System.out.print(error);
+    // System.out.print(error);
     return error < 0.1;
   }
 

@@ -154,6 +154,7 @@ public class RobotContainer {
         "Turret wheels off", new InstantCommand(() -> turret.turretWheels(false)));
     NamedCommands.registerCommand("feed index", new InstantCommand(() -> turret.feed(0.8)));
     NamedCommands.registerCommand("feed off", new InstantCommand(() -> turret.feed(0)));
+    NamedCommands.registerCommand("intake spin", new InstantCommand(() -> intake.runIntake(0.5)));
   }
 
   /**
@@ -190,7 +191,7 @@ public class RobotContainer {
 
     driver.rightBumper().whileTrue(new TurretWheels(turret));
     driver
-        .leftBumper()
+        .rightTrigger()
         .whileTrue(new IndexSpin(turret))
         .onFalse(Commands.runOnce(turret::startHoldPivot, turret));
 
@@ -224,7 +225,7 @@ public class RobotContainer {
     operator.a().onTrue(intake.extendIntake());
     operator.b().onTrue(intake.retractIntake());
     driver
-        .rightTrigger()
+        .leftTrigger()
         .whileTrue(Commands.run(() -> intake.runIntake(0.3), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
     operator
