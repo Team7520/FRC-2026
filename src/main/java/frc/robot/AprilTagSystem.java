@@ -149,7 +149,7 @@ public class AprilTagSystem extends SubsystemBase {
                 0.287592,
                 new Rotation3d(
                     Units.degreesToRadians(35), // 14.028, 35
-                    Units.degreesToRadians(42.063), // 65, 25, 42.063
+                    Units.degreesToRadians(42.063), // 65, 25, 42.063                 25
                     Units.degreesToRadians(-121.131))))); // 145, -121.321, 137.937
   }
 

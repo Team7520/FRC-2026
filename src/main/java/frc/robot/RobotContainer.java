@@ -226,16 +226,16 @@ public class RobotContainer {
     operator.b().onTrue(intake.retractIntake());
     driver
         .leftTrigger()
-        .whileTrue(Commands.run(() -> intake.runIntake(0.3), intake))
+        .whileTrue(Commands.run(() -> intake.runIntake(0.6), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
     operator
         .rightTrigger()
-        .whileTrue(Commands.run(() -> intake.runIntake(0.3), intake))
+        .whileTrue(Commands.run(() -> intake.runIntake(0.5), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
 
     operator
         .leftTrigger()
-        .whileTrue(Commands.run(() -> intake.runIntake(-0.3), intake))
+        .whileTrue(Commands.run(() -> intake.runIntake(-0.5), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
 
     driver.a().onTrue(new InstantCommand(() -> turret.turretWheels(true)));

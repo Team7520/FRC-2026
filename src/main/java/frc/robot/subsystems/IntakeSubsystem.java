@@ -43,7 +43,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void runIntake(double speed) {
-    intakeMotor.setControl(duty.withOutput(speed));
+    intakeMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
   }
 
   public void extendSpin(double speed) {

@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -50,6 +51,7 @@ public class TurretSubsystem extends SubsystemBase {
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle positionRequest = new PositionDutyCycle(0);
   private final VelocityDutyCycle velocityRequest = new VelocityDutyCycle(0);
+  private final TorqueCurrentFOC torqueRequest = new TorqueCurrentFOC(80);
 
   private InterpolatingDoubleTreeMap map1 = new InterpolatingDoubleTreeMap();
   private InterpolatingDoubleTreeMap map2 = new InterpolatingDoubleTreeMap();
@@ -171,9 +173,10 @@ public class TurretSubsystem extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     // TUNE PID
-    config.Slot0.kP = 12;
+    config.Slot0.kP = 0.045;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
+    config.Slot0.kV = 0.011; // Tested at Dist 1.765576281608437
 
     leftMotor.getConfigurator().apply(config);
 
@@ -184,7 +187,7 @@ public class TurretSubsystem extends SubsystemBase {
   private void configFeeders() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 60;
+    config.CurrentLimits.StatorCurrentLimit = 80;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -303,16 +306,16 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setFlywheelVelocity(double rps) {
     SmartDashboard.putNumber("RPS target", rps);
-    leftMotor.setControl(velocityRequest.withVelocity(rps));
-    rightMotor.setControl(velocityRequest.withVelocity(rps));
+    leftMotor.setControl(velocityRequest.withVelocity(rps).withEnableFOC(true));
+    rightMotor.setControl(velocityRequest.withVelocity(rps).withEnableFOC(true));
   }
 
   public void setFeeder(double speed) {
-    feedMotor.setControl(duty.withOutput(speed));
+    feedMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
   }
 
   public void setIndexer(double speed) {
-    indexMotor.setControl(duty.withOutput(speed));
+    indexMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
   }
 
   public void changeAutoTurn(boolean turn) {
