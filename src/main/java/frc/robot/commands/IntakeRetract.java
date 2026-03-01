@@ -16,7 +16,7 @@ public class IntakeRetract extends Command {
 
   @Override
   public void execute() {
-    intake.retract();
+    intake.retract(1);
   }
 
   @Override

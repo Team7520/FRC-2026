@@ -17,6 +17,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
   double extendedPosition = 0.4;
   double retractedPosition = 15.7;
+  double extendSpeed = 1;
+  double oscillateSpeed = 0.5;
 
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(57);
@@ -45,12 +47,12 @@ public class IntakeSubsystem extends SubsystemBase {
     extendMotor.setControl(duty.withOutput(speed));
   }
 
-  public void extend() {
-    extendMotor.setControl(pivotPosReq.withPosition(extendedPosition));
+  public void extend(double speed) {
+    extendMotor.setControl(pivotPosReq.withPosition(extendedPosition).withVelocity(speed));
   }
 
-  public void retract() {
-    extendMotor.setControl(pivotPosReq.withPosition(retractedPosition));
+  public void retract(double speed) {
+    extendMotor.setControl(pivotPosReq.withPosition(retractedPosition).withVelocity(speed));
   }
 
   public void stopAll() {
@@ -58,12 +60,12 @@ public class IntakeSubsystem extends SubsystemBase {
     extendMotor.setControl(duty.withOutput(0));
   }
 
-  public Command extendIntake() {
-    return Commands.run(() -> extend(), this).until(() -> atTarget(extendedPosition));
+  public Command extendIntake(double speed) {
+    return Commands.run(() -> extend(speed), this).until(() -> atTarget(extendedPosition));
   }
 
-  public Command retractIntake() {
-    return Commands.run(() -> retract(), this).until(() -> atTarget(retractedPosition));
+  public Command retractIntake(double speed) {
+    return Commands.run(() -> retract(speed), this).until(() -> atTarget(retractedPosition));
   }
 
   public boolean atTarget(double position) {
@@ -73,6 +75,11 @@ public class IntakeSubsystem extends SubsystemBase {
     double error = Math.abs(position - current);
     System.out.print(error);
     return error < 0.1;
+  }
+
+  public Command oscillate() {
+    return Commands.sequence(extendIntake(oscillateSpeed), retractIntake(oscillateSpeed))
+        .repeatedly();
   }
 
   @Override

@@ -171,7 +171,13 @@ public class RobotContainer {
         .whileTrue(new ManualHood(turret, () -> operator.getRightY()));
 
     operator.leftBumper().whileTrue(new TurretWheels(turret));
-    operator.rightBumper().whileTrue(new IndexSpin(turret));
+    operator
+        .rightBumper()
+        .whileTrue(
+            Commands.parallel(
+                new IndexSpin(turret),
+                Commands.sequence(Commands.waitSeconds(1), intake.oscillate())))
+        .onFalse(intake.extendIntake(1));
 
     // Reset gyro to 0° when B button is pressed
     controller
@@ -184,8 +190,8 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    operator.a().onTrue(intake.extendIntake());
-    operator.b().onTrue(intake.retractIntake());
+    operator.a().onTrue(intake.extendIntake(1));
+    operator.b().onTrue(intake.retractIntake(1));
 
     operator
         .rightTrigger()

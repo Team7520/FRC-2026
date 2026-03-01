@@ -16,7 +16,7 @@ public class IntakeExtend extends Command {
 
   @Override
   public void execute() {
-    intake.extend();
+    intake.extend(1);
   }
 
   @Override
