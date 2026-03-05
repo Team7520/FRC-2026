@@ -260,7 +260,7 @@ public class Drive extends SubsystemBase {
 
       // Take vision from the 3 limelights (orangepi cam TBA) and feed it to pose estimator along
       // with timestamp
-      for (int j = 0; j < 3; j++) {
+      for (int j = 0; j < 4; j++) {
         Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
         double timestamp = aprilTagSystem.getCaptureTime(j);
         if ((pose != null && pose.getX() != 0)) {

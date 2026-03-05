@@ -60,6 +60,8 @@ public class RobotContainer {
 
   public final AprilTagSystem aprilTagSystem = new AprilTagSystem();
 
+  private double speedCutoff = 1;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
@@ -171,14 +173,14 @@ public class RobotContainer {
     climber.setDefaultCommand(
         new RunCommand(() -> climber.runClimber(operator.getLeftY() * 0.8), climber));
     // Default command, normal field-relative drive
-    // turret.setDefaultCommand(turret.autoAim());
+    turret.setDefaultCommand(turret.aautoAim());
     // turret.setDefaultCommand(turret.aimTest());
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -driver.getLeftY() * 0.5,
-            () -> -driver.getLeftX() * 0.5,
-            () -> -driver.getRightX() * 0.5));
+            () -> -driver.getLeftY() * speedCutoff,
+            () -> -driver.getLeftX() * speedCutoff,
+            () -> -driver.getRightX() * speedCutoff));
 
     // DRIVER CONTROLS
 
@@ -199,7 +201,9 @@ public class RobotContainer {
     driver
         .rightTrigger()
         .whileTrue(new IndexSpin(turret))
-        .onFalse(Commands.runOnce(turret::startHoldPivot, turret));
+        .onTrue(new InstantCommand(() -> speedCutoff = 0.5))
+        .onFalse(new InstantCommand(() -> speedCutoff = 1));
+    // .onFalse(Commands.runOnce(turret::startHoldPivot, turret));
 
     driver.x().onTrue(Commands.runOnce(() -> drive.resetGyro(180)));
 
