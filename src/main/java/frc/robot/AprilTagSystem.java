@@ -148,9 +148,9 @@ public class AprilTagSystem extends SubsystemBase {
                 0.221779,
                 0.287592,
                 new Rotation3d(
-                    Units.degreesToRadians(35), // 14.028, 35
-                    Units.degreesToRadians(42.063), // 65, 25, 42.063
-                    Units.degreesToRadians(-121.131))))); // 145, -121.321, 137.937
+                    Units.degreesToRadians(-15), // 14.028, 35
+                    Units.degreesToRadians(20.25), // 65, 25, 42.063 20.25                 25
+                    Units.degreesToRadians(-137))))); // -148))))); // 145, -121.321, 137.937
   }
 
   public String getLimeName(int index) {

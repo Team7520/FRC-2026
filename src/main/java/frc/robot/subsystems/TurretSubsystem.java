@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,6 +20,8 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -50,11 +53,17 @@ public class TurretSubsystem extends SubsystemBase {
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle positionRequest = new PositionDutyCycle(0);
   private final VelocityDutyCycle velocityRequest = new VelocityDutyCycle(0);
+  private final TorqueCurrentFOC torqueRequest = new TorqueCurrentFOC(80);
 
   private InterpolatingDoubleTreeMap map1 = new InterpolatingDoubleTreeMap();
   private InterpolatingDoubleTreeMap map2 = new InterpolatingDoubleTreeMap();
   private InterpolatingDoubleTreeMap map3 = new InterpolatingDoubleTreeMap();
   private InterpolatingDoubleTreeMap map4 = new InterpolatingDoubleTreeMap();
+
+  private InterpolatingDoubleTreeMap tofmap1 = new InterpolatingDoubleTreeMap();
+  private InterpolatingDoubleTreeMap tofmap2 = new InterpolatingDoubleTreeMap();
+  private InterpolatingDoubleTreeMap tofmap3 = new InterpolatingDoubleTreeMap();
+  private InterpolatingDoubleTreeMap tofmap4 = new InterpolatingDoubleTreeMap();
 
   private double RPS1 = 33.0;
   private double RPS2 = 36.0;
@@ -79,6 +88,20 @@ public class TurretSubsystem extends SubsystemBase {
     configTurret();
     configFlywheels();
     configFeeders();
+
+    // (distance in meters, time in seconds)
+    tofmap1.put(2.00, 0.947);
+    tofmap1.put(2.71, 0.807);
+
+    tofmap2.put(2.97, 1.067);
+    tofmap2.put(3.44, 0.900);
+
+    tofmap3.put(3.54, 1.297);
+    tofmap3.put(4.45, 1.101);
+
+    tofmap4.put(4.96, 1.333);
+
+    // (distance in meters, hood in rotations)
     map1.put(1.995, 0.05);
     map1.put(2.213, 0.625);
     map1.put(2.43, 0.95);
@@ -96,14 +119,14 @@ public class TurretSubsystem extends SubsystemBase {
     map4.put(4.766, 1.453);
     map4.put(5.0, 1.686);
     map4.put(5.67, 3.20);
-    // if (DriverStation.getAlliance().isPresent()
-    //     && DriverStation.getAlliance().get() == Alliance.Red) {
-    goalPoseX = UniverseConstants.redGoalPose.getX();
-    goalPoseY = UniverseConstants.redGoalPose.getY();
-    // } else {
-    //   goalPoseX = UniverseConstants.blueGoalPose.getX();
-    //   goalPoseY = UniverseConstants.blueGoalPose.getY();
-    // }
+    if (DriverStation.getAlliance().isPresent()
+        && DriverStation.getAlliance().get() == Alliance.Red) {
+      goalPoseX = UniverseConstants.redGoalPose.getX();
+      goalPoseY = UniverseConstants.redGoalPose.getY();
+    } else {
+      goalPoseX = UniverseConstants.blueGoalPose.getX();
+      goalPoseY = UniverseConstants.blueGoalPose.getY();
+    }
   }
 
   private void configHood() {
@@ -147,12 +170,12 @@ public class TurretSubsystem extends SubsystemBase {
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     config.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
 
-    SoftwareLimitSwitchConfigs limits = new SoftwareLimitSwitchConfigs();
-    limits.ForwardSoftLimitEnable = true;
-    limits.ForwardSoftLimitThreshold = 0.5;
-    limits.ReverseSoftLimitEnable = true;
-    limits.ReverseSoftLimitThreshold = -0.5;
-    config.SoftwareLimitSwitch = limits;
+    // SoftwareLimitSwitchConfigs limits = new SoftwareLimitSwitchConfigs();
+    // limits.ForwardSoftLimitEnable = true;
+    // limits.ForwardSoftLimitThreshold = 0.75;
+    // limits.ReverseSoftLimitEnable = true;
+    // limits.ReverseSoftLimitThreshold = -0.75;
+    // config.SoftwareLimitSwitch = limits;
 
     // TUNE PID
     config.Slot0.kP = 9;
@@ -171,9 +194,10 @@ public class TurretSubsystem extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     // TUNE PID
-    config.Slot0.kP = 12;
+    config.Slot0.kP = 0.045;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
+    config.Slot0.kV = 0.011; // Tested at Dist 1.765576281608437
 
     leftMotor.getConfigurator().apply(config);
 
@@ -184,7 +208,7 @@ public class TurretSubsystem extends SubsystemBase {
   private void configFeeders() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 60;
+    config.CurrentLimits.StatorCurrentLimit = 80;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -231,19 +255,23 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public Rotation2d calculateTurretAngle(Pose2d robotPose, Pose2d goalPose) {
-    Pose2d futurePose = predictFuturePose(robotPose, 0.9); // predict 100ms into the future
     Transform2d robotToTurret =
         new Transform2d(new Translation2d(0.1397, 0.0), new Rotation2d()); // 5.5 inches
-    Pose2d turretPose = futurePose.transformBy(robotToTurret);
+    Pose2d turretPose = robotPose.transformBy(robotToTurret);
     Translation2d turretToGoal = goalPose.getTranslation().minus(turretPose.getTranslation());
     Rotation2d fieldAngle = turretToGoal.getAngle();
     turretPosePublisher.set(turretPose);
 
-    return fieldAngle.minus(futurePose.getRotation()).plus(new Rotation2d(Math.PI / 2));
+    return fieldAngle
+        .minus(robotPose.getRotation())
+        .plus(new Rotation2d(Math.PI / 2)); // Adjust for turret 90 degree offset angle
   }
 
   public Pose2d predictFuturePose(Pose2d pose, double latencySeconds) {
+    latencySeconds = latencySeconds * -1;
     ChassisSpeeds currentSpeed = drive.getFieldRelativeSpeeds();
+    SmartDashboard.putNumber("Currnent Speed VX", currentSpeed.vxMetersPerSecond);
+    SmartDashboard.putNumber("Currnent Speed VY", currentSpeed.vyMetersPerSecond);
     return pose.exp(
         new Twist2d(
             currentSpeed.vxMetersPerSecond * latencySeconds,
@@ -303,16 +331,16 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setFlywheelVelocity(double rps) {
     SmartDashboard.putNumber("RPS target", rps);
-    leftMotor.setControl(velocityRequest.withVelocity(rps));
-    rightMotor.setControl(velocityRequest.withVelocity(rps));
+    leftMotor.setControl(velocityRequest.withVelocity(rps).withEnableFOC(true));
+    rightMotor.setControl(velocityRequest.withVelocity(rps).withEnableFOC(true));
   }
 
   public void setFeeder(double speed) {
-    feedMotor.setControl(duty.withOutput(speed));
+    feedMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
   }
 
   public void setIndexer(double speed) {
-    indexMotor.setControl(duty.withOutput(speed));
+    indexMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
   }
 
   public void changeAutoTurn(boolean turn) {
@@ -336,31 +364,50 @@ public class TurretSubsystem extends SubsystemBase {
     return Commands.run(
         () -> {
           Pose2d robotPose = drive.getPose();
-
           Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
+          double dist = getDistance(robotPose, goal);
+          InterpolatingDoubleTreeMap flightTimeMap;
 
-          double distance = getDistance(robotPose, goal);
+          if (dist <= 2.75) {
+            flightTimeMap = tofmap1;
+          } else if (dist <= 3.5) {
+            flightTimeMap = tofmap2;
+          } else if (dist <= 4.5) {
+            flightTimeMap = tofmap3;
+          } else {
+            flightTimeMap = tofmap4;
+          }
+          double scalingFactor = 1.0;
+          double flightTime = flightTimeMap.get(dist);
+          double latency = 0;
+          double totalPredictionTime = (flightTime + latency) * scalingFactor;
+          Pose2d predictedPose = predictFuturePose(robotPose, totalPredictionTime);
+          double newDist = getDistance(predictedPose, goal);
 
-          ChassisSpeeds speeds = drive.getFieldRelativeSpeeds();
+          if (newDist <= 2.75) {
+            flightTimeMap = tofmap1;
+          } else if (dist <= 3.5) {
+            flightTimeMap = tofmap2;
+          } else if (dist <= 4.5) {
+            flightTimeMap = tofmap3;
+          } else {
+            flightTimeMap = tofmap4;
+          }
 
-          Translation2d robotVelocity =
-              new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
-          double ballSpeed = 2; // tune this
-          double time = distance / ballSpeed;
-          Translation2d lead = robotVelocity.times(time);
+          double updatedFlightTime = flightTimeMap.get(newDist);
+          Pose2d updatedPose = predictFuturePose(robotPose, updatedFlightTime);
+          double updatedDist = getDistance(updatedPose, goal);
 
-          Translation2d adjustedGoal = goal.getTranslation().minus(lead);
+          double hoodPos = getHoodForDistance(updatedDist);
+          Rotation2d turretAngle = calculateTurretAngle(updatedPose, goal);
 
-          Pose2d virtualGoal = new Pose2d(adjustedGoal, new Rotation2d());
-          double turretDeg = calculateTurretAngle(robotPose, virtualGoal).getDegrees();
+          double turretDeg = turretAngle.getDegrees();
           double turretPos = turretDegreesToPosition(turretDeg);
-
-          double adjustedDistance = robotPose.getTranslation().getDistance(adjustedGoal);
-
-          double hoodPos = getHoodForDistance(adjustedDistance);
 
           turnToPosition(turretPos);
           setTurretAngle(hoodPos);
+          SmartDashboard.putNumber("TURRET POS", turretPos);
+          SmartDashboard.putNumber("TURRET DEG", turretDeg);
         },
         this);
   }
@@ -372,9 +419,12 @@ public class TurretSubsystem extends SubsystemBase {
 
           Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
 
-          double dist = getDistance(robotPose, goal);
+          Pose2d futurePose = predictFuturePose(robotPose, 0.9);
 
-          double turretDeg = calculateTurretAngle(robotPose, goal).getDegrees();
+          double dist = getDistance(futurePose, goal);
+
+          double turretDeg = calculateTurretAngle(futurePose, goal).getDegrees();
+
           double turretPos = turretDegreesToPosition(turretDeg);
 
           double hoodPos = getHoodForDistance(dist);

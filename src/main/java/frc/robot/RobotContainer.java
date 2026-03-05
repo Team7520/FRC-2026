@@ -16,16 +16,17 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IndexSpin;
 import frc.robot.commands.ManualHood;
-import frc.robot.commands.ManualIntakeExtend;
 import frc.robot.commands.ManualTurn;
 import frc.robot.commands.TurretWheels;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.drive.Drive;
@@ -48,6 +49,7 @@ public class RobotContainer {
 
   private final TurretSubsystem turret;
   private final IntakeSubsystem intake;
+  private final ClimberSubsystem climber;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -57,6 +59,8 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
 
   public final AprilTagSystem aprilTagSystem = new AprilTagSystem();
+
+  private double speedCutoff = 1;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -120,6 +124,7 @@ public class RobotContainer {
 
     turret = new TurretSubsystem(drive);
     intake = new IntakeSubsystem();
+    climber = new ClimberSubsystem();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -164,15 +169,18 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    // climber
+    climber.setDefaultCommand(
+        new RunCommand(() -> climber.runClimber(operator.getLeftY() * 0.8), climber));
     // Default command, normal field-relative drive
-    turret.setDefaultCommand(turret.autoAim());
+    turret.setDefaultCommand(turret.aautoAim());
     // turret.setDefaultCommand(turret.aimTest());
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -driver.getLeftY() * 0.5,
-            () -> -driver.getLeftX() * 0.5,
-            () -> -driver.getRightX() * 0.5));
+            () -> -driver.getLeftY() * speedCutoff,
+            () -> -driver.getLeftX() * speedCutoff,
+            () -> -driver.getRightX() * speedCutoff));
 
     // DRIVER CONTROLS
 
@@ -193,7 +201,9 @@ public class RobotContainer {
     driver
         .rightTrigger()
         .whileTrue(new IndexSpin(turret))
-        .onFalse(Commands.runOnce(turret::startHoldPivot, turret));
+        .onTrue(new InstantCommand(() -> speedCutoff = 0.5))
+        .onFalse(new InstantCommand(() -> speedCutoff = 1));
+    // .onFalse(Commands.runOnce(turret::startHoldPivot, turret));
 
     driver.x().onTrue(Commands.runOnce(() -> drive.resetGyro(180)));
 
@@ -212,8 +222,8 @@ public class RobotContainer {
 
     // Manual Intake Controls
 
-    new Trigger(() -> Math.abs(operator.getLeftY()) > 0.1)
-        .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftY()));
+    // new Trigger(() -> Math.abs(operator.getLeftY()) > 0.1)
+    //     .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftY()));
 
     // Manual Turret Controls
     new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
@@ -226,16 +236,16 @@ public class RobotContainer {
     operator.b().onTrue(intake.retractIntake());
     driver
         .leftTrigger()
-        .whileTrue(Commands.run(() -> intake.runIntake(0.3), intake))
+        .whileTrue(Commands.run(() -> intake.runIntake(0.6), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
     operator
         .rightTrigger()
-        .whileTrue(Commands.run(() -> intake.runIntake(0.3), intake))
+        .whileTrue(Commands.run(() -> intake.runIntake(0.5), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
 
     operator
         .leftTrigger()
-        .whileTrue(Commands.run(() -> intake.runIntake(-0.3), intake))
+        .whileTrue(Commands.run(() -> intake.runIntake(-0.5), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
 
     driver.a().onTrue(new InstantCommand(() -> turret.turretWheels(true)));
