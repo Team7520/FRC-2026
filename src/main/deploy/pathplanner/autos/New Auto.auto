@@ -7,6 +7,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Rebuilt",
+  "folder": null,
   "choreoAuto": false
 }
