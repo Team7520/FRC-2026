@@ -267,15 +267,15 @@ public class TurretSubsystem extends SubsystemBase {
         .plus(new Rotation2d(Math.PI / 2)); // Adjust for turret 90 degree offset angle
   }
 
-  public Pose2d predictFuturePose(Pose2d robotPose, double latencySeconds) {
+  public Pose2d predictFuturePose(Pose2d robotPose, double timeOfFlight, double odometryLatency) {
 
     ChassisSpeeds currentSpeed = drive.getFieldRelativeSpeeds();
     SmartDashboard.putNumber("Current Speed VX", currentSpeed.vxMetersPerSecond);
     SmartDashboard.putNumber("Current Speed VY", currentSpeed.vyMetersPerSecond);
     return new Pose2d(
-      robotPose.getX() + currentSpeed.vxMetersPerSecond * latencySeconds,
-      robotPose.getY() + currentSpeed.vyMetersPerSecond * latencySeconds,
-      robotPose.getRotation().plus(new Rotation2d(currentSpeed.omegaRadiansPerSecond * latencySeconds))
+      robotPose.getX() + currentSpeed.vxMetersPerSecond * (odometryLatency + timeOfFlight),
+      robotPose.getY() + currentSpeed.vyMetersPerSecond * (timeOfFlight + odometryLatency),
+      robotPose.getRotation().plus(new Rotation2d(currentSpeed.omegaRadiansPerSecond * odometryLatency))
     );
   }
 
@@ -366,40 +366,31 @@ public class TurretSubsystem extends SubsystemBase {
           Pose2d robotPose = drive.getPose();
           Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
           double dist = getDistance(robotPose, goal);
-          InterpolatingDoubleTreeMap flightTimeMap;
 
-          if (dist <= 2.75) {
-            flightTimeMap = tofmap1;
-          } else if (dist <= 3.5) {
-            flightTimeMap = tofmap2;
-          } else if (dist <= 4.5) {
-            flightTimeMap = tofmap3;
-          } else {
-            flightTimeMap = tofmap4;
-          }
-          double scalingFactor = 1.0;
-          double flightTime = flightTimeMap.get(dist);
-          double latency = 0;
-          double totalPredictionTime = (flightTime + latency) * scalingFactor;
-          Pose2d predictedPose = predictFuturePose(robotPose, totalPredictionTime);
-          double newDist = getDistance(predictedPose, goal);
-
-          if (newDist <= 2.75) {
-            flightTimeMap = tofmap1;
-          } else if (dist <= 3.5) {
-            flightTimeMap = tofmap2;
-          } else if (dist <= 4.5) {
-            flightTimeMap = tofmap3;
-          } else {
-            flightTimeMap = tofmap4;
+          // Iterate to refine prediction
+          Pose2d currentPose = robotPose;
+          double currentDist = dist;
+          double odometryLatency = 0.15; // Estimated latency for odometry updates
+          for (int i = 0; i < 2; i++) {
+            InterpolatingDoubleTreeMap flightTimeMap;
+            if (currentDist <= 2.75) {
+              flightTimeMap = tofmap1;
+            } else if (currentDist <= 3.5) {
+              flightTimeMap = tofmap2;
+            } else if (currentDist <= 4.5) {
+              flightTimeMap = tofmap3;
+            } else {
+              flightTimeMap = tofmap4;
+            }
+            
+            double flightTime = flightTimeMap.get(currentDist);
+            currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
+            currentDist = getDistance(currentPose, goal);
+            odometryLatency = 0;
           }
 
-          double updatedFlightTime = flightTimeMap.get(newDist);
-          Pose2d updatedPose = predictFuturePose(robotPose, updatedFlightTime);
-          double updatedDist = getDistance(updatedPose, goal);
-
-          double hoodPos = getHoodForDistance(updatedDist);
-          Rotation2d turretAngle = calculateTurretAngle(updatedPose, goal);
+          double hoodPos = getHoodForDistance(currentDist);
+          Rotation2d turretAngle = calculateTurretAngle(currentPose, goal);
 
           double turretDeg = turretAngle.getDegrees();
           double turretPos = turretDegreesToPosition(turretDeg);
@@ -419,7 +410,7 @@ public class TurretSubsystem extends SubsystemBase {
 
           Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
 
-          Pose2d futurePose = predictFuturePose(robotPose, 0.9);
+          Pose2d futurePose = predictFuturePose(robotPose, 0.9, 0.15);
 
           double dist = getDistance(futurePose, goal);
 
