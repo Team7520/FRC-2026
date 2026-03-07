@@ -9,8 +9,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -60,7 +58,7 @@ public class RobotContainer {
 
   public final AprilTagSystem aprilTagSystem = new AprilTagSystem();
 
-  private double speedCutoff = 1;
+  private double speedCutoff = 0.7;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -118,13 +116,12 @@ public class RobotContainer {
                 new ModuleIO() {});
         break;
     }
-
-    NamedCommands.registerCommand("test", Commands.print("WHAHHAHH"));
-    registerNamedCommands();
-
     turret = new TurretSubsystem(drive);
     intake = new IntakeSubsystem();
     climber = new ClimberSubsystem();
+
+    NamedCommands.registerCommand("test", Commands.print("WHAHHAHH"));
+    registerNamedCommands();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -147,6 +144,7 @@ public class RobotContainer {
 
     autoChooser.addOption("test", drive.getAutonomousCommand("testauto"));
     autoChooser.addOption("outpost", drive.getAutonomousCommand("Basic"));
+    autoChooser.addOption("mid auto", drive.getAutonomousCommand("middle"));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -160,6 +158,14 @@ public class RobotContainer {
     NamedCommands.registerCommand("feed index", new InstantCommand(() -> turret.feed(0.8)));
     NamedCommands.registerCommand("feed off", new InstantCommand(() -> turret.feed(0)));
     NamedCommands.registerCommand("intake spin", new InstantCommand(() -> intake.runIntake(0.5)));
+    NamedCommands.registerCommand("intake off", new InstantCommand(() -> intake.runIntake(0)));
+    NamedCommands.registerCommand(
+        "Deploy Climber",
+        Commands.run(() -> climber.moveToPosition(-36)).until(() -> climber.atTarget(-36)));
+    NamedCommands.registerCommand(
+        "Climb", Commands.run(() -> climber.moveToPosition(36)).until(() -> climber.atTarget(36)));
+    NamedCommands.registerCommand("intake out", intake.extendIntake());
+    NamedCommands.registerCommand("intake in", intake.retractIntake());
   }
 
   /**
@@ -185,15 +191,6 @@ public class RobotContainer {
     // DRIVER CONTROLS
 
     // Reset gyro to 0° when B button is pressed
-    driver
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
 
     // operator.y().onTrue(turret.autoAim());
 
@@ -202,21 +199,19 @@ public class RobotContainer {
         .rightTrigger()
         .whileTrue(new IndexSpin(turret))
         .onTrue(new InstantCommand(() -> speedCutoff = 0.5))
-        .onFalse(new InstantCommand(() -> speedCutoff = 1));
+        .onFalse(new InstantCommand(() -> speedCutoff = 0.7));
     // .onFalse(Commands.runOnce(turret::startHoldPivot, turret));
 
     driver.x().onTrue(Commands.runOnce(() -> drive.resetGyro(180)));
+    driver
+        .povDown()
+        .onTrue(Commands.run(() -> climber.moveToPosition(30)).until(() -> climber.atTarget(30)));
+    driver
+        .povUp()
+        .onTrue(Commands.run(() -> climber.moveToPosition(-36)).until(() -> climber.atTarget(-36)));
+    driver.povLeft().onTrue(Commands.run(() -> climber.resetPosition()));
 
     // Reset gyro to 0° when B button is pressed
-    driver
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
 
     // OPERATOR CONTROLS
 

@@ -7,7 +7,13 @@
         {
           "type": "named",
           "data": {
-            "name": "start shooter"
+            "name": "Deploy Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Turret wheels"
           }
         },
         {
@@ -17,19 +23,31 @@
           }
         },
         {
-          "type": "race",
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 3.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "start indexer"
+                  "name": "feed index"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake spin"
                 }
               }
             ]
@@ -38,13 +56,19 @@
         {
           "type": "named",
           "data": {
-            "name": "stop shooter"
+            "name": "Turret wheels off"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "stop indexer"
+            "name": "feed off"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake off"
           }
         },
         {
@@ -56,7 +80,7 @@
         {
           "type": "named",
           "data": {
-            "name": "climb"
+            "name": "Climb"
           }
         }
       ]
