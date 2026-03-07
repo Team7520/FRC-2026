@@ -19,7 +19,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -67,10 +66,10 @@ public class TurretSubsystem extends SubsystemBase {
   private InterpolatingDoubleTreeMap tofmap3 = new InterpolatingDoubleTreeMap();
   private InterpolatingDoubleTreeMap tofmap4 = new InterpolatingDoubleTreeMap();
 
-  private double RPS1 = 33.0;
-  private double RPS2 = 36.0;
-  private double RPS3 = 41.0;
-  private double RPS4 = 45.0;
+  private double RPS1 = 32.0;
+  private double RPS2 = 34.0;
+  private double RPS3 = 38.0;
+  private double RPS4 = 42.0;
 
   private boolean setWheels = false;
 
@@ -210,7 +209,7 @@ public class TurretSubsystem extends SubsystemBase {
     config.Slot0.kP = 0.045;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
-    config.Slot0.kV = 0.011; // Tested at Dist 1.765576281608437
+    config.Slot0.kV = 0.0115; // Tested at Dist 1.765576281608437
 
     leftMotor.getConfigurator().apply(config);
 
@@ -328,10 +327,11 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Current Speed VX", currentSpeed.vxMetersPerSecond);
     SmartDashboard.putNumber("Current Speed VY", currentSpeed.vyMetersPerSecond);
     return new Pose2d(
-      robotPose.getX() + currentSpeed.vxMetersPerSecond * (odometryLatency + timeOfFlight),
-      robotPose.getY() + currentSpeed.vyMetersPerSecond * (timeOfFlight + odometryLatency),
-      robotPose.getRotation().plus(new Rotation2d(currentSpeed.omegaRadiansPerSecond * odometryLatency))
-    );
+        robotPose.getX() + currentSpeed.vxMetersPerSecond * (odometryLatency + timeOfFlight),
+        robotPose.getY() + currentSpeed.vyMetersPerSecond * (timeOfFlight + odometryLatency),
+        robotPose
+            .getRotation()
+            .plus(new Rotation2d(currentSpeed.omegaRadiansPerSecond * odometryLatency)));
   }
 
   // public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
@@ -456,13 +456,12 @@ public class TurretSubsystem extends SubsystemBase {
             } else {
               flightTimeMap = tofmap4;
             }
-            
+
             double flightTime = flightTimeMap.get(currentDist);
             currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
             currentDist = getDistance(currentPose, goal);
             odometryLatency = 0;
           }
-
 
           double hoodPos = getHoodFromDistance(currentDist);
           Rotation2d turretAngle = calculateTurretAzimuth(currentPose, goal);

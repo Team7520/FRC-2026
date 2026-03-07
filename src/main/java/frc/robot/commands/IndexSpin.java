@@ -15,8 +15,8 @@ public class IndexSpin extends Command {
 
   @Override
   public void execute() {
-    turret.setFeeder(0.7);
-    turret.setIndexer(-0.65);
+    turret.setFeeder(1);
+    turret.setIndexer(-1);
   }
 
   @Override
