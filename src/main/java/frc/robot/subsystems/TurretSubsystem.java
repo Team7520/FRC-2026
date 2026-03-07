@@ -267,16 +267,16 @@ public class TurretSubsystem extends SubsystemBase {
         .plus(new Rotation2d(Math.PI / 2)); // Adjust for turret 90 degree offset angle
   }
 
-  public Pose2d predictFuturePose(Pose2d pose, double latencySeconds) {
-    latencySeconds = latencySeconds * -1;
+  public Pose2d predictFuturePose(Pose2d robotPose, double latencySeconds) {
+
     ChassisSpeeds currentSpeed = drive.getFieldRelativeSpeeds();
-    SmartDashboard.putNumber("Currnent Speed VX", currentSpeed.vxMetersPerSecond);
-    SmartDashboard.putNumber("Currnent Speed VY", currentSpeed.vyMetersPerSecond);
-    return pose.exp(
-        new Twist2d(
-            currentSpeed.vxMetersPerSecond * latencySeconds,
-            currentSpeed.vyMetersPerSecond * latencySeconds,
-            currentSpeed.omegaRadiansPerSecond * latencySeconds));
+    SmartDashboard.putNumber("Current Speed VX", currentSpeed.vxMetersPerSecond);
+    SmartDashboard.putNumber("Current Speed VY", currentSpeed.vyMetersPerSecond);
+    return new Pose2d(
+      robotPose.getX() + currentSpeed.vxMetersPerSecond * latencySeconds,
+      robotPose.getY() + currentSpeed.vyMetersPerSecond * latencySeconds,
+      robotPose.getRotation().plus(new Rotation2d(currentSpeed.omegaRadiansPerSecond * latencySeconds))
+    );
   }
 
   // public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
