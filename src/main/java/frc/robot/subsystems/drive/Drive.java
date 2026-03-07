@@ -42,7 +42,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -251,30 +250,31 @@ public class Drive extends SubsystemBase {
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
 
-      // Take gyro angle and feed it to limelight for megatag2. Limelight assumes facing red
-      // alliance wall as 0°
-      for (int a = 0; a < 3; a++) {
-        LimelightHelpers.SetRobotOrientation(
-            aprilTagSystem.getLimeName(a), gyro.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
-      }
-
-      // Take vision from the 3 limelights (orangepi cam TBA) and feed it to pose estimator along
-      // with timestamp
-      for (int j = 0; j < 4; j++) {
-        Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
-        double timestamp = aprilTagSystem.getCaptureTime(j);
-        if ((pose != null && pose.getX() != 0)) {
-          // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
-          poseEstimator.addVisionMeasurement(pose, timestamp);
-          counter = 0;
-        }
-      }
-
       // Log data
-      SmartDashboard.putNumber("Gyro Yaw", gyro.getYaw().getValueAsDouble());
-      estimatorPublisher.set(poseEstimator.getEstimatedPosition());
-      currentPosePublisher.set(getPose());
+
     }
+
+    // Take gyro angle and feed it to limelight for megatag2. Limelight assumes facing red
+    // alliance wall as 0°
+    for (int a = 0; a < 3; a++) {
+      LimelightHelpers.SetRobotOrientation(
+          aprilTagSystem.getLimeName(a), gyro.getYaw().getValueAsDouble(), 0, 0, 0, 0, 0);
+    }
+
+    // Take vision from the 3 limelights (orangepi cam TBA) and feed it to pose estimator along
+    // with timestamp
+    for (int j = 1; j < 4; j++) {
+      Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
+      double timestamp = aprilTagSystem.getCaptureTime(j);
+      if ((pose != null && pose.getX() != 0)) {
+        // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+        poseEstimator.addVisionMeasurement(pose, timestamp);
+        counter = 0;
+      }
+    }
+
+    estimatorPublisher.set(poseEstimator.getEstimatedPosition());
+    currentPosePublisher.set(getPose());
 
     // Update gyro alertz
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
