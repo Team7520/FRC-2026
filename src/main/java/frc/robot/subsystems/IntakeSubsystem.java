@@ -17,6 +17,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
   double extendedPosition = 0.4;
   double retractedPosition = 15.7;
+  double partialRetractPosition = 7;
   double extendSpeed = 1;
   double oscillateSpeed = 0.5;
 
@@ -51,6 +52,10 @@ public class IntakeSubsystem extends SubsystemBase {
     extendMotor.setControl(pivotPosReq.withPosition(extendedPosition).withVelocity(speed));
   }
 
+  public void retractPartial(double speed) {
+    extendMotor.setControl(pivotPosReq.withPosition(partialRetractPosition).withVelocity(speed));
+  }
+
   public void retract(double speed) {
     extendMotor.setControl(pivotPosReq.withPosition(retractedPosition).withVelocity(speed));
   }
@@ -66,6 +71,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Command retractIntake(double speed) {
     return Commands.run(() -> retract(speed), this).until(() -> atTarget(retractedPosition));
+  }
+
+  public Command retractIntakepartial(double speed) {
+    return Commands.run(() -> retractPartial(speed), this).until(() -> atTarget(partialRetractPosition));
   }
 
   public boolean atTarget(double position) {
