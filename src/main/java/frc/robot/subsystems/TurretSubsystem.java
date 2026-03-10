@@ -36,6 +36,17 @@ import frc.robot.subsystems.drive.Drive;
 import java.util.NoSuchElementException;
 
 public class TurretSubsystem extends SubsystemBase {
+
+  public enum RobotZone {
+    RED_SHOOTING,
+    RED_FEEDING,
+    RED_FAR_ZONE,
+    BLUE_SHOOTING,
+    BLUE_FEEDING,
+    BLUE_FAR_ZONE,
+    NO_ALLIANCE
+  }
+
   StructPublisher<Pose2d> turretPosePublisher =
       NetworkTableInstance.getDefault().getStructTopic("TurretPose", Pose2d.struct).publish();
 
@@ -426,85 +437,127 @@ public class TurretSubsystem extends SubsystemBase {
     rightMotor.set(0);
   }
 
+  public RobotZone getRobotZone() {
+    if (!availableAlliance) {
+      return RobotZone.NO_ALLIANCE;
+    }
+
+    double xPosition = drive.getPose().getX();
+    Alliance alliance = DriverStation.getAlliance().get();
+
+    if (alliance == Alliance.Red) {
+      if (xPosition <= 6) {
+        return RobotZone.RED_FAR_ZONE;
+      } else if (xPosition <= 10.5) {
+        return RobotZone.RED_FEEDING;
+      } else {
+        return RobotZone.RED_SHOOTING;
+      }
+    } else {
+      if (xPosition >= 10.5) {
+        return RobotZone.BLUE_FAR_ZONE;
+      } else if (xPosition >= 6) {
+        return RobotZone.BLUE_FEEDING;
+      } else {
+        return RobotZone.BLUE_SHOOTING;
+      }
+    }
+  }
+
   public Command aautoAim() {
-    // if (xPosition >= 6 && DriverStation.getAlliance().get() == Alliance.Blue) {
-    //   // feed towards field's 180 degrees
-    //   // 180 - robot angle - turret angle
-    //   return Commands.run(
-    //       () -> {
-    //         // double angle = 180 - drive.getPose().getRotation().getDegrees() - turretCurAngle;
-    //         Rotation2d angle =
-    //             new Rotation2d(
-    //                 Math.PI - drive.getPose().getRotation().getRadians() - turretCurAngle);
-    //         setTurretAzimuth(angle);
-    //         setHoodAngle(5.5);
-    //       },
-    //       this);
-    // }
     return Commands.run(
         () -> {
-          if (availableAlliance) {
-            double xPosition = drive.getPose().getX();
-            if (xPosition <= 10.5 && DriverStation.getAlliance().get() == Alliance.Red) {
-              // Turret angle relative to robot = desired field angle - robot angle
-              Rotation2d turretAngle =
-                  new Rotation2d(
-                      0 - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
+          RobotZone zone = getRobotZone();
+          SmartDashboard.putString("Robot Zone", zone.toString());
 
-              setTurretAzimuth(turretAngle);
-              if (xPosition <= 6) {
+          switch (zone) {
+            case RED_FAR_ZONE:
+              {
+                Rotation2d turretAngle =
+                    new Rotation2d(
+                        0 - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
+                setTurretAzimuth(turretAngle);
                 setHoodAngle(0);
-              } else {
-                setHoodAngle(5.5);
+                break;
               }
-            } else if (xPosition >= 6 && DriverStation.getAlliance().get() == Alliance.Blue) {
-              Rotation2d turretAngle =
-                  new Rotation2d(
-                      Math.PI - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
+            case RED_FEEDING:
+              {
+                Rotation2d turretAngle =
+                    new Rotation2d(
+                        0 - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
+                setTurretAzimuth(turretAngle);
+                setHoodAngle(5.5);
+                break;
+              }
+            case RED_SHOOTING:
+              {
+                Pose2d robotPose = drive.getPose();
+                Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
+                double dist = getDistance(robotPose, goal);
 
-              setTurretAzimuth(turretAngle);
-              if (xPosition >= 10.5) {
+                Pose2d currentPose = robotPose;
+                double currentDist = dist;
+                double odometryLatency = 0.125;
+
+                double flightTime = 0.0226 * currentDist + 0.947;
+                currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
+                currentDist = getDistance(currentPose, goal);
+
+                double hoodPos = getHoodFromDistance(currentDist);
+                Rotation2d turretAngle = calculateTurretAzimuth(currentPose, goal);
+
+                setTurretAzimuth(turretAngle);
+                setHoodAngle(hoodPos);
+                SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
+                SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
+                break;
+              }
+            case BLUE_FAR_ZONE:
+              {
+                Rotation2d turretAngle =
+                    new Rotation2d(
+                        Math.PI - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
+                setTurretAzimuth(turretAngle);
                 setHoodAngle(0);
-              } else {
-                setHoodAngle(5.5);
+                break;
               }
-            } else {
+            case BLUE_FEEDING:
+              {
+                Rotation2d turretAngle =
+                    new Rotation2d(
+                        Math.PI - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
+                setTurretAzimuth(turretAngle);
+                setHoodAngle(5.5);
+                break;
+              }
+            case BLUE_SHOOTING:
+              {
+                Pose2d robotPose = drive.getPose();
+                Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
+                double dist = getDistance(robotPose, goal);
 
-              Pose2d robotPose = drive.getPose();
-              Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
-              double dist = getDistance(robotPose, goal);
+                Pose2d currentPose = robotPose;
+                double currentDist = dist;
+                double odometryLatency = 0.125;
 
-              // Iterate to refine prediction
-              Pose2d currentPose = robotPose;
-              double currentDist = dist;
-              double odometryLatency = 0.125; // Estimated latency for odometry updates
-              // for (int i = 0; i < 2; i++) {
-              //   InterpolatingDoubleTreeMap flightTimeMap;
-              //   if (currentDist <= 2.75) {
-              //     flightTimeMap = tofmap1;
-              //   } else if (currentDist <= 3.5) {
-              //     flightTimeMap = tofmap2;
-              //   } else if (currentDist <= 4.5) {
-              //     flightTimeMap = tofmap3;
-              //   } else {
-              //     flightTimeMap = tofmap4;
-              //   }
+                double flightTime = 0.0226 * currentDist + 0.947;
+                currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
+                currentDist = getDistance(currentPose, goal);
 
-              double flightTime = 0.0226 * currentDist + 0.947;
-              currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
-              currentDist = getDistance(currentPose, goal);
-              odometryLatency = 0;
+                double hoodPos = getHoodFromDistance(currentDist);
+                Rotation2d turretAngle = calculateTurretAzimuth(currentPose, goal);
 
-              double hoodPos = getHoodFromDistance(currentDist);
-              Rotation2d turretAngle = calculateTurretAzimuth(currentPose, goal);
-
-              setTurretAzimuth(turretAngle);
-              setHoodAngle(hoodPos);
-              SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
-              SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
-            }
-          } else {
-            System.out.println("Did nothing, alliance not selected yet!");
+                setTurretAzimuth(turretAngle);
+                setHoodAngle(hoodPos);
+                SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
+                SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
+                break;
+              }
+            case NO_ALLIANCE:
+              {
+                System.out.println("Did nothing, alliance not selected yet!");
+                break;
+              }
           }
         },
         this);

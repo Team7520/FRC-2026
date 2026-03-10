@@ -57,7 +57,7 @@ public class RobotContainer {
 
   public final AprilTagSystem aprilTagSystem = new AprilTagSystem();
 
-  private double speedCutoff = 0.7;
+  private double speedCutoff = 1;
 
   //   public Map<Command, String> autoNames = new HashMap<>();
 
@@ -227,9 +227,18 @@ public class RobotContainer {
     driver
         .rightTrigger()
         .whileTrue(new IndexSpin(turret, -1))
-        .onTrue(new InstantCommand(() -> speedCutoff = 0.4))
-        .onFalse(
-            new InstantCommand(() -> speedCutoff = 1)); // MAKE A FEED STATE, DO NOT CUT OF IF TRUE
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  TurretSubsystem.RobotZone zone = turret.getRobotZone();
+                  if (zone == TurretSubsystem.RobotZone.RED_SHOOTING
+                      || zone == TurretSubsystem.RobotZone.BLUE_SHOOTING) {
+                    speedCutoff = 0.4;
+                  } else {
+                    speedCutoff = 1;
+                  }
+                }))
+        .onFalse(new InstantCommand(() -> speedCutoff = 1));
 
     driver
         .back()
