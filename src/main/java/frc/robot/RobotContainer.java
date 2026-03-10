@@ -192,6 +192,7 @@ public class RobotContainer {
         reverse index = y
         turret on = a, b for off
         reverse intake = right bumper
+        reset gyro to 180 = pov up
 
         all manuals on operator
 
@@ -263,9 +264,13 @@ public class RobotContainer {
             new InstantCommand(() -> turret.turretWheels(false))
                 .alongWith(new InstantCommand(() -> turret.setFeeder(0))));
 
+    driver.y().whileTrue(new IndexSpin(turret, 1));
+
     driver.rightBumper().whileTrue(new IntakeCommand(intake, -0.6));
 
-    driver.x().onTrue(Commands.runOnce(() -> drive.resetGyro(180))); // change to wheels in x form
+    driver.povUp().onTrue(Commands.runOnce(() -> drive.resetGyro(180))); // disable for competition
+
+    driver.x().onTrue(Commands.runOnce(() -> drive.stopWithX()));
 
     // driver.povLeft().onTrue(Commands.run(() -> climber.resetPosition()));
 
