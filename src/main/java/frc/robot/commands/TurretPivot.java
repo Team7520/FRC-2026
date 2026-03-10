@@ -12,6 +12,6 @@ public class TurretPivot extends Command {
 
   @Override
   public void execute() {
-    turret.moveToPosition(-26);
+    // turret.moveToPosition(-26);
   }
 }

@@ -5,6 +5,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimberSubsystem extends SubsystemBase {
@@ -49,5 +50,25 @@ public class ClimberSubsystem extends SubsystemBase {
   public void stop() {
     holdPosition = climberMotor.getPosition().getValueAsDouble();
     climberMotor.setControl(holdRequest.withPosition(holdPosition));
+  }
+
+  public void moveToPosition(double position) {
+    climberMotor.setControl(holdRequest.withPosition(position));
+    holdPosition = position;
+  }
+
+  public boolean atTarget(double position) {
+    double current = climberMotor.getPosition().getValueAsDouble();
+    double error = Math.abs(position - current);
+    return error < 0.1;
+  }
+
+  public void resetPosition() {
+    climberMotor.setPosition(30);
+  }
+
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("Climber pos", climberMotor.getPosition().getValueAsDouble());
   }
 }
