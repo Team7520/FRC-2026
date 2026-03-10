@@ -444,24 +444,23 @@ public class TurretSubsystem extends SubsystemBase {
           // Iterate to refine prediction
           Pose2d currentPose = robotPose;
           double currentDist = dist;
-          double odometryLatency = 0.15; // Estimated latency for odometry updates
-          for (int i = 0; i < 2; i++) {
-            InterpolatingDoubleTreeMap flightTimeMap;
-            if (currentDist <= 2.75) {
-              flightTimeMap = tofmap1;
-            } else if (currentDist <= 3.5) {
-              flightTimeMap = tofmap2;
-            } else if (currentDist <= 4.5) {
-              flightTimeMap = tofmap3;
-            } else {
-              flightTimeMap = tofmap4;
-            }
+          double odometryLatency = 0.125; // Estimated latency for odometry updates
+          // for (int i = 0; i < 2; i++) {
+          //   InterpolatingDoubleTreeMap flightTimeMap;
+          //   if (currentDist <= 2.75) {
+          //     flightTimeMap = tofmap1;
+          //   } else if (currentDist <= 3.5) {
+          //     flightTimeMap = tofmap2;
+          //   } else if (currentDist <= 4.5) {
+          //     flightTimeMap = tofmap3;
+          //   } else {
+          //     flightTimeMap = tofmap4;
+          //   }
 
-            double flightTime = flightTimeMap.get(currentDist);
-            currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
-            currentDist = getDistance(currentPose, goal);
-            odometryLatency = 0;
-          }
+          double flightTime = 0.0226 * currentDist + 0.947;
+          currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
+          currentDist = getDistance(currentPose, goal);
+          odometryLatency = 0;
 
           double hoodPos = getHoodFromDistance(currentDist);
           Rotation2d turretAngle = calculateTurretAzimuth(currentPose, goal);
@@ -528,29 +527,37 @@ public class TurretSubsystem extends SubsystemBase {
 
   public double getHoodFromDistance(double distance) {
     InterpolatingDoubleTreeMap selectedMap;
-    double flywheelRPS;
+    double scaleFactor = 0.54;
+    // double flywheelRPS;
 
-    // Determine speed zone
-    if (distance <= 2.75) { // Zone 1
-      selectedMap = map1;
-      flywheelRPS = RPS1;
-    } else if (distance <= 3.5) { // Zone 2
-      selectedMap = map2;
-      flywheelRPS = RPS2;
-    } else if (distance <= 4.5) { // Zone 3
-      selectedMap = map3;
-      flywheelRPS = RPS3;
-    } else { // Zone 4
-      selectedMap = map4;
-      flywheelRPS = RPS4;
-    }
+    // // Determine speed zone
+    // if (distance <= 2.75) { // Zone 1
+    //   selectedMap = map1;
+    //   flywheelRPS = RPS1;
+    // } else if (distance <= 3.5) { // Zone 2
+    //   selectedMap = map2;
+    //   flywheelRPS = RPS2;
+    // } else if (distance <= 4.5) { // Zone 3
+    //   selectedMap = map3;
+    //   flywheelRPS = RPS3;
+    // } else { // Zone 4
+    //   selectedMap = map4;
+    //   flywheelRPS = RPS4;
+    // }
     if (setWheels) {
-      setFlywheelVelocity(flywheelRPS);
+      setFlywheelVelocity(getSpeedFromDistance(distance));
     } else {
       stopFlywheels();
     }
-    double hoodPos = selectedMap.get(distance);
+    double hoodPos = distance * scaleFactor;
     return hoodPos;
+  }
+
+  public double getSpeedFromDistance(double distance) {
+    double b = 23.5;
+    double rpsPerDistance = 3.5;
+    double speed = rpsPerDistance * distance + b;
+    return speed;
   }
 
   @Override
