@@ -53,8 +53,8 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public void moveToPosition(double position) {
-    holdPosition = position;
     climberMotor.setControl(holdRequest.withPosition(position));
+    holdPosition = position;
   }
 
   public boolean atTarget(double position) {

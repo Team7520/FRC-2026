@@ -54,6 +54,10 @@ public class IntakeSubsystem extends SubsystemBase {
     extendMotor.setControl(pivotPosReq.withPosition(extendedPosition));
   }
 
+  public void retractWithSpeed() {
+    extendMotor.setControl(pivotPosReq.withPosition(retractedPosition).withVelocity(0.05));
+  }
+
   public void retract() {
     extendMotor.setControl(pivotPosReq.withPosition(retractedPosition));
   }
@@ -76,6 +80,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public Command retractIntake() {
     return Commands.runOnce(() -> retract(), this);
+  }
+
+  public Command slowRetract() {
+    return Commands.runOnce(() -> retractWithSpeed(), this);
   }
 
   public boolean atTarget(double position) {
