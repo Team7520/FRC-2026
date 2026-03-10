@@ -89,6 +89,9 @@ public class TurretSubsystem extends SubsystemBase {
   private double goalPoseX;
   private double goalPoseY;
 
+  /** True when the turret is taking the long-way-around path between targets. */
+  private boolean isWrapping = false;
+
   public TurretSubsystem(Drive drive) {
     this.drive = drive;
     azimuthMotor = new TalonFX(TurretConstants.TURN_MOTOR);
@@ -304,7 +307,15 @@ public class TurretSubsystem extends SubsystemBase {
       }
     }
 
+    // Consider it "wrapping" if we had to move by approximately one full rotation
+    isWrapping = Math.abs(bestPosition - clampedTarget) > 0.5;
+
     return bestPosition;
+  }
+
+  /** Returns true when it’s safe to shoot (not wrapping). */
+  public boolean canShoot() {
+    return !isWrapping;
   }
 
   public void setHoodAngle(double targetPosition) {
@@ -402,6 +413,11 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setFeeder(double speed) {
+    if (!canShoot()) {
+      // Block feeding while turret is wrapping to avoid spraying shots
+      feedMotor.setControl(duty.withOutput(0).withEnableFOC(true));
+      return;
+    }
     feedMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
   }
 
@@ -416,6 +432,11 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setIndexer(double speed) {
+    if (!canShoot()) {
+      // Block indexing while turret is wrapping to avoid spraying shots
+      indexMotor.setControl(duty.withOutput(0).withEnableFOC(true));
+      return;
+    }
     indexMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
   }
 
