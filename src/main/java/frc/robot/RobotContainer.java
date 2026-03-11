@@ -22,6 +22,7 @@ import frc.robot.commands.IndexSpin;
 import frc.robot.commands.IndexSpinReverse;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ManualHood;
+import frc.robot.commands.ManualIntakeExtend;
 import frc.robot.commands.ManualTurn;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -253,7 +254,7 @@ public class RobotContainer {
         .a()
         .onTrue(
             new InstantCommand(() -> turret.turretWheels(true))
-                .alongWith(new InstantCommand(() -> turret.setFeeder(1))));
+                .alongWith(new InstantCommand(() -> turret.setFeeder(0.8))));
 
     driver
         .b()
@@ -277,11 +278,8 @@ public class RobotContainer {
 
     // Manual Intake Controls
 
-    // new Trigger(() -> Math.abs(operator.getLeftY()) > 0.1)
-    //     .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftY()));
-
-    operator.a().onTrue(new InstantCommand(() -> turret.stopFlywheels()));
-    operator.b().onTrue(new InstantCommand(() -> turret.setToZero()));
+    new Trigger(() -> Math.abs(operator.getLeftX()) > 0.1)
+        .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftX()));
 
     // Manual Turret Controls
     new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
@@ -302,6 +300,9 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(Commands.run(() -> intake.runIntake(-0.8), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
+
+    operator.povDown().onTrue(new InstantCommand(() -> intake.resetPosition(0)));
+    operator.povUp().onTrue(new InstantCommand(() -> intake.resetPosition(-17.125)));
   }
 
   /**

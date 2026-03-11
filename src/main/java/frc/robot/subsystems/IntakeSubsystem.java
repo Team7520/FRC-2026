@@ -67,6 +67,10 @@ public class IntakeSubsystem extends SubsystemBase {
     extendMotor.setControl(duty.withOutput(0));
   }
 
+  public void resetPosition(double position) {
+    extendMotor.setPosition(position);
+  }
+
   // public Command extendIntake() {
   //   return Commands.run(() -> extend(), this).until(() -> atTarget(extendedPosition));
   // }

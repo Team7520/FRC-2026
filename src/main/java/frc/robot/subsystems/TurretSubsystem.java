@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -57,7 +58,9 @@ public class TurretSubsystem extends SubsystemBase {
   private final TalonFX leftMotor;
   private final TalonFX rightMotor;
   private final TalonFX feedMotor;
+  private final TalonFX secondFeed;
   private final TalonFX indexMotor;
+  private final StrictFollower follower;
 
   AprilTagSystem aprilTagSystem = new AprilTagSystem();
   Drive drive;
@@ -96,7 +99,9 @@ public class TurretSubsystem extends SubsystemBase {
     leftMotor = new TalonFX(TurretConstants.LEFT_MOTOR);
     rightMotor = new TalonFX(TurretConstants.RIGHT_MOTOR);
     feedMotor = new TalonFX(TurretConstants.FEEDER_MOTOR);
+    follower = new StrictFollower(feedMotor.getDeviceID());
     indexMotor = new TalonFX(TurretConstants.INDEXER_MOTOR);
+    secondFeed = new TalonFX(TurretConstants.SECOND_FEED);
     encoder = new CANcoder(53);
     lastAngle = Rotation2d.fromDegrees(encoder.getAbsolutePosition().getValueAsDouble() * 360);
     configHood();
@@ -232,8 +237,16 @@ public class TurretSubsystem extends SubsystemBase {
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    feedMotor.getConfigurator().apply(config);
     indexMotor.getConfigurator().apply(config);
+
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+    feedMotor.getConfigurator().apply(config);
+
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    secondFeed.getConfigurator().apply(config);
+    secondFeed.setControl(follower);
   }
 
   public void feed(double speed) {
