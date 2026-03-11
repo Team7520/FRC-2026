@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IndexSpin;
+import frc.robot.commands.IndexSpinReverse;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ManualHood;
 import frc.robot.commands.ManualTurn;
@@ -153,6 +154,7 @@ public class RobotContainer {
     // autoNames.put(drive.getAutonomousCommand("trench to outpost auto"), "central auto");
 
     autoChooser.addOption("testing command ending", drive.getAutonomousCommand("testing"));
+    autoChooser.addOption("depot side", drive.getAutonomousCommand("depot side trench auto"));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -168,9 +170,10 @@ public class RobotContainer {
     NamedCommands.registerCommand("intake off", new InstantCommand(() -> intake.runIntake(0)));
     NamedCommands.registerCommand(
         "Deploy Climber",
-        Commands.run(() -> climber.moveToPosition(-36)).until(() -> climber.atTarget(-36)));
+        Commands.run(() -> climber.moveToPosition(-80)).until(() -> climber.atTarget(-80)));
     NamedCommands.registerCommand(
-        "Climb", Commands.run(() -> climber.moveToPosition(36)).until(() -> climber.atTarget(36)));
+        "Climb",
+        Commands.run(() -> climber.moveToPosition(-20)).until(() -> climber.atTarget(-20)));
     NamedCommands.registerCommand("intake out", intake.extendIntake());
     NamedCommands.registerCommand("intake in", intake.retractIntake());
   }
@@ -211,7 +214,7 @@ public class RobotContainer {
             drive,
             () -> -driver.getLeftY() * speedCutoff,
             () -> -driver.getLeftX() * speedCutoff,
-            () -> -driver.getRightX() * (speedCutoff - 0.3)));
+            () -> -driver.getRightX() * (speedCutoff * 0.7)));
 
     /* DRIVER CONTROLS */
 
@@ -231,13 +234,7 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  TurretSubsystem.RobotZone zone = turret.getRobotZone();
-                  if (zone == TurretSubsystem.RobotZone.RED_SHOOTING
-                      || zone == TurretSubsystem.RobotZone.BLUE_SHOOTING) {
-                    speedCutoff = 0.4;
-                  } else {
-                    speedCutoff = 1;
-                  }
+                  speedCutoff = 0.4;
                 }))
         .onFalse(new InstantCommand(() -> speedCutoff = 1));
 
@@ -246,11 +243,11 @@ public class RobotContainer {
         .onTrue(Commands.run(() -> climber.moveToPosition(0)).until(() -> climber.atTarget(0)));
     driver
         .start()
-        .onTrue(Commands.run(() -> climber.moveToPosition(-66)).until(() -> climber.atTarget(-66)));
+        .onTrue(Commands.run(() -> climber.moveToPosition(-70)).until(() -> climber.atTarget(-70)));
 
     driver.leftBumper().whileTrue(intake.slowRetract()).onFalse(intake.extendIntake());
 
-    driver.y().whileTrue(new IndexSpin(turret, 1));
+    driver.y().whileTrue(new IndexSpinReverse(turret, 0.9));
 
     driver
         .a()
@@ -303,7 +300,7 @@ public class RobotContainer {
 
     operator
         .leftTrigger()
-        .whileTrue(Commands.run(() -> intake.runIntake(-0.5), intake))
+        .whileTrue(Commands.run(() -> intake.runIntake(-0.8), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
   }
 

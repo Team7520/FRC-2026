@@ -5,9 +5,41 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "start to outpost"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "start to outpost"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intake out"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intake spin"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
@@ -17,15 +49,65 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "start to outpost"
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.7
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Turret on"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "feed index"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "feed off"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "middle back to shoot"
+            "pathName": "2 start to outpost"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 middle back to shoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Turret on"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "feed index"
+                }
+              }
+            ]
           }
         }
       ]

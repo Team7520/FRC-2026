@@ -148,11 +148,6 @@ public class TurretSubsystem extends SubsystemBase {
   private void configHood() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 15;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 15;
-
     config.Feedback.RotorToSensorRatio = 75;
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -335,7 +330,6 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public Pose2d predictFuturePose(Pose2d robotPose, double timeOfFlight, double odometryLatency) {
-
     ChassisSpeeds currentSpeed = drive.getFieldRelativeSpeeds();
     SmartDashboard.putNumber("Current Speed VX", currentSpeed.vxMetersPerSecond);
     SmartDashboard.putNumber("Current Speed VY", currentSpeed.vyMetersPerSecond);
@@ -486,7 +480,7 @@ public class TurretSubsystem extends SubsystemBase {
                     new Rotation2d(
                         0 - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
                 setTurretAzimuth(turretAngle);
-                setHoodAngle(5.5);
+                setHoodAngle(3);
                 break;
               }
             case RED_SHOOTING:
@@ -527,7 +521,8 @@ public class TurretSubsystem extends SubsystemBase {
                     new Rotation2d(
                         Math.PI - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
                 setTurretAzimuth(turretAngle);
-                setHoodAngle(5.5);
+                setHoodAngle(3);
+
                 break;
               }
             case BLUE_SHOOTING:
@@ -634,7 +629,14 @@ public class TurretSubsystem extends SubsystemBase {
     //   selectedMap = map4;
     //   flywheelRPS = RPS4;
     // }
+
     if (setWheels) {
+      RobotZone zone = getRobotZone();
+      switch (zone) {
+        case RED_FEEDING:
+        case BLUE_FEEDING:
+          distance += 2;
+      }
       setFlywheelVelocity(getSpeedFromDistance(distance));
     } else {
       stopFlywheels();

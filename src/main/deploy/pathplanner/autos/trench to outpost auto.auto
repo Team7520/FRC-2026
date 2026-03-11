@@ -43,12 +43,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "intake off"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -65,7 +59,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 1.5
+                        "waitTime": 0.5
                       }
                     },
                     {
@@ -84,7 +78,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.5
+                        "waitTime": 3.0
                       }
                     },
                     {
@@ -102,13 +96,45 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.5
+            "waitTime": 2.0
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "outpost to climb"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "outpost to climb"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Deploy Climber"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intake in"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
@@ -120,13 +146,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Turret off"
+            "name": "feed off"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "feed off"
+            "name": "Climb"
           }
         }
       ]
