@@ -15,12 +15,8 @@ public class IndexSpin extends Command {
 
   @Override
   public void execute() {
-    // Only index when the turret is safe to shoot (not wrapping)
-    if (turret.canShoot()) {
-      turret.setIndexer(speed);
-    } else {
-      turret.setIndexer(0);
-    }
+    // turret.setFeeder(1);
+    turret.setIndexer(speed);
   }
 
   @Override
