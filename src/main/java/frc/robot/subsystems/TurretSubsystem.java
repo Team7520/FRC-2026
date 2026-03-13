@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -70,6 +71,7 @@ public class TurretSubsystem extends SubsystemBase {
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle positionRequest = new PositionDutyCycle(0);
   private final VelocityDutyCycle velocityRequest = new VelocityDutyCycle(0);
+  private final VelocityVoltage velocityVoltRequest = new VelocityVoltage(0);
 
   private InterpolatingDoubleTreeMap map1 = new InterpolatingDoubleTreeMap();
   private InterpolatingDoubleTreeMap map2 = new InterpolatingDoubleTreeMap();
@@ -219,10 +221,10 @@ public class TurretSubsystem extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     // TUNE PID
-    config.Slot0.kP = 0.045;
+    config.Slot0.kP = 0.045 * 12;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
-    config.Slot0.kV = 0.0115; // Tested at Dist 1.765576281608437
+    config.Slot0.kV = 0.0115 * 12; // Tested at Dist 1.765576281608437
 
     leftMotor.getConfigurator().apply(config);
 
@@ -404,8 +406,8 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setFlywheelVelocity(double rps) {
     SmartDashboard.putNumber("RPS target", rps);
-    leftMotor.setControl(velocityRequest.withVelocity(rps).withEnableFOC(true));
-    rightMotor.setControl(velocityRequest.withVelocity(rps).withEnableFOC(true));
+    leftMotor.setControl(velocityVoltRequest.withVelocity(rps).withEnableFOC(true));
+    rightMotor.setControl(velocityVoltRequest.withVelocity(rps).withEnableFOC(true));
   }
 
   public void setFeeder(double speed) {
@@ -660,7 +662,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public double getSpeedFromDistance(double distance) {
     double b = 23.5;
-    double rpsPerDistance = 3.5;
+    double rpsPerDistance = 3.6;
     double speed = rpsPerDistance * distance + b;
     return speed;
   }
@@ -683,7 +685,7 @@ public class TurretSubsystem extends SubsystemBase {
                 UniverseConstants.redGoalPose.getX(),
                 UniverseConstants.redGoalPose.getY(),
                 new Rotation2d()));
-    // SmartDashboard.putNumber("Distance to goal", dist);
+    SmartDashboard.putNumber("Distance to goal", dist);
 
     Rotation2d turretAngle =
         calculateTurretAzimuth(

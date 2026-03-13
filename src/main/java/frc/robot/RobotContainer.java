@@ -156,6 +156,8 @@ public class RobotContainer {
 
     autoChooser.addOption("testing command ending", drive.getAutonomousCommand("testing"));
     autoChooser.addOption("depot side", drive.getAutonomousCommand("depot side trench auto"));
+    autoChooser.addOption(
+        "outpost without climb", drive.getAutonomousCommand("climbless trench to outpost auto"));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -171,7 +173,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("intake off", new InstantCommand(() -> intake.runIntake(0)));
     NamedCommands.registerCommand(
         "Deploy Climber",
-        Commands.run(() -> climber.moveToPosition(-80)).until(() -> climber.atTarget(-80)));
+        Commands.run(() -> climber.moveToPosition(-85)).until(() -> climber.atTarget(-85)));
     NamedCommands.registerCommand(
         "Climb",
         Commands.run(() -> climber.moveToPosition(-20)).until(() -> climber.atTarget(-20)));
@@ -244,7 +246,7 @@ public class RobotContainer {
         .onTrue(Commands.run(() -> climber.moveToPosition(0)).until(() -> climber.atTarget(0)));
     driver
         .start()
-        .onTrue(Commands.run(() -> climber.moveToPosition(-70)).until(() -> climber.atTarget(-70)));
+        .onTrue(Commands.run(() -> climber.moveToPosition(-85)).until(() -> climber.atTarget(-85)));
 
     driver.leftBumper().whileTrue(intake.slowRetract()).onFalse(intake.extendIntake());
 
@@ -265,8 +267,6 @@ public class RobotContainer {
     driver.y().whileTrue(new IndexSpin(turret, 1));
 
     driver.rightBumper().whileTrue(new IntakeCommand(intake, -0.6));
-
-    driver.povUp().onTrue(Commands.runOnce(() -> drive.resetGyro(180))); // disable for competition
 
     driver.x().onTrue(Commands.runOnce(() -> drive.stopWithX()));
 
@@ -303,6 +303,8 @@ public class RobotContainer {
 
     operator.povDown().onTrue(new InstantCommand(() -> intake.resetPosition(0)));
     operator.povUp().onTrue(new InstantCommand(() -> intake.resetPosition(-17.125)));
+
+    operator.x().onTrue(Commands.runOnce(() -> drive.resetGyro(0))); // disable for competition
   }
 
   /**

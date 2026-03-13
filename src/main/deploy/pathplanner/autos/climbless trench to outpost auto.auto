@@ -110,12 +110,6 @@
                 }
               },
               {
-                "type": "named",
-                "data": {
-                  "name": "Deploy Climber"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -135,24 +129,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "climbing"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "feed off"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Climb"
           }
         }
       ]

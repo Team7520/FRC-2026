@@ -21,7 +21,7 @@ public class IndexSpinReverse extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    // turret.setFeeder(0);
+    turret.setFeeder(0);
     turret.setIndexer(0);
   }
 }
