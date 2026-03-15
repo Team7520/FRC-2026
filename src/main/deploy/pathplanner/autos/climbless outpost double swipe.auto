@@ -78,7 +78,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.3
+                        "waitTime": 2.5
                       }
                     },
                     {
@@ -96,7 +96,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 3.0
           }
         },
         {
@@ -106,7 +106,32 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "outpost to climb"
+                  "pathName": "2nd trench to center(outpost)"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Turret off"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "feed off"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "center to shoot wiggle(outpost)"
                 }
               },
               {
@@ -116,13 +141,32 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 1.0
+                        "waitTime": 5.0
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "intake in"
+                        "name": "Turret wheels"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 5.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "feed index"
                       }
                     }
                   ]
