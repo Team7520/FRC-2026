@@ -128,7 +128,7 @@ public class RobotContainer {
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
+    // MARK: - AUTOS
     // Set up SysId routines
     // autoChooser.addOption(
     //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
@@ -219,7 +219,7 @@ public class RobotContainer {
             () -> -driver.getLeftX() * speedCutoff,
             () -> -driver.getRightX() * (speedCutoff * 0.7)));
 
-    /* DRIVER CONTROLS */
+    // MARK: - DRIVER BUTTONS
 
     // driver
     //     .leftTrigger()
@@ -274,7 +274,7 @@ public class RobotContainer {
 
     // Reset gyro to 0° when B button is pressed
 
-    // OPERATOR CONTROLS
+    // MARK: - OPERATOR
 
     // Manual Intake Controls
 
