@@ -78,7 +78,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 2.5
+                        "waitTime": 2.0
                       }
                     },
                     {
@@ -141,13 +141,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 5.0
+                        "waitTime": 2.0
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "Turret wheels"
+                        "name": "Turret on"
                       }
                     }
                   ]
@@ -160,7 +160,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 5.5
+                        "waitTime": 2.8
                       }
                     },
                     {
