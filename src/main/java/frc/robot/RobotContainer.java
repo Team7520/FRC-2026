@@ -159,6 +159,9 @@ public class RobotContainer {
     autoChooser.addOption(
         "outpost without climb", drive.getAutonomousCommand("climbless trench to outpost auto"));
 
+    autoChooser.addOption(
+        "double swipe", drive.getAutonomousCommand("climbless outpost double swipe"));
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -302,7 +305,7 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(intake::stopAll, intake));
 
     operator.povDown().onTrue(new InstantCommand(() -> intake.resetPosition(0)));
-    operator.povUp().onTrue(new InstantCommand(() -> intake.resetPosition(-17.125)));
+    operator.povUp().onTrue(new InstantCommand(() -> intake.resetPosition(-16.5)));
 
     operator.x().onTrue(Commands.runOnce(() -> drive.resetGyro(0))); // disable for competition
   }
