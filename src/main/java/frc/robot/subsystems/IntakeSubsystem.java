@@ -15,8 +15,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFX extendMotor;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
-  double extendedPosition = -16;
-  double retractedPosition = 0;
+  double extendedPosition = -16.5;
+  double retractedPosition = -5;
 
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(57);
@@ -27,9 +27,9 @@ public class IntakeSubsystem extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 60;
+    config.CurrentLimits.StatorCurrentLimit = 80;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimit = 80;
 
     intakeMotor.getConfigurator().apply(config);
     intakeMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
@@ -65,6 +65,10 @@ public class IntakeSubsystem extends SubsystemBase {
   public void stopAll() {
     intakeMotor.setControl(duty.withOutput(0));
     extendMotor.setControl(duty.withOutput(0));
+  }
+
+  public void resetPosition(double position) {
+    extendMotor.setPosition(position);
   }
 
   // public Command extendIntake() {

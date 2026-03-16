@@ -78,7 +78,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.3
+                        "waitTime": 3.0
                       }
                     },
                     {
@@ -96,7 +96,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 4.0
           }
         },
         {
@@ -104,27 +104,9 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "outpost to climb"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Deploy Climber"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 1.0
-                      }
-                    },
                     {
                       "type": "named",
                       "data": {
@@ -135,24 +117,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "climbing"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "feed off"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Climb"
           }
         }
       ]

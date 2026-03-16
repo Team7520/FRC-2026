@@ -7,13 +7,19 @@
         {
           "type": "named",
           "data": {
-            "name": "Turret wheels"
+            "name": "intake out"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "middle shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake in"
           }
         }
       ]
