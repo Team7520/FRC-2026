@@ -166,6 +166,8 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
+  // MARK: - NAMED CMDS
+
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Turret on", new InstantCommand(() -> turret.turretWheels(true)));
     NamedCommands.registerCommand(
@@ -231,7 +233,13 @@ public class RobotContainer {
 
     driver
         .leftTrigger()
-        .whileTrue(intake.extendIntake().andThen(() -> intake.runIntake(0.6)))
+        .whileTrue(
+            intake
+                .extendIntake()
+                .andThen((() -> intake.runIntake(0.6)))
+                .alongWith(
+                    Commands.repeatingSequence(
+                        new InstantCommand(() -> intake.setNeutralforCurrent()))))
         .onFalse(new InstantCommand(() -> intake.stopAll()));
 
     driver
@@ -257,7 +265,16 @@ public class RobotContainer {
         .start()
         .onTrue(Commands.run(() -> climber.moveToPosition(-85)).until(() -> climber.atTarget(-85)));
 
-    driver.leftBumper().whileTrue(intake.slowRetract()).onFalse(intake.extendIntake());
+    driver
+        .leftBumper()
+        .whileTrue(intake.slowRetract())
+        .onFalse(intake.extendIntake())
+        .whileFalse(
+            intake
+                .extendIntake()
+                .andThen(
+                    Commands.repeatingSequence(
+                        new InstantCommand(() -> intake.setNeutralforCurrent()))));
 
     driver.y().whileTrue(new IndexSpinReverse(turret, 0.9));
 

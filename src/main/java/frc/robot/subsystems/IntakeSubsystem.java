@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -17,6 +18,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
   double extendedPosition = -16.5;
   double retractedPosition = -5;
+  private final double CURRENT_THRESHOLD = -20;
 
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(57);
@@ -38,6 +40,8 @@ public class IntakeSubsystem extends SubsystemBase {
     config.Slot0.kD = 0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 20;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = 40;
     extendMotor.getConfigurator().apply(config);
     extendMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
   }
@@ -51,6 +55,10 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void extend() {
+    // TalonFXConfiguration config = new TalonFXConfiguration();
+    // config.CurrentLimits.StatorCurrentLimitEnable = true;
+    // config.CurrentLimits.StatorCurrentLimit = 30;
+    // extendMotor.getConfigurator().apply(config);
     extendMotor.setControl(pivotPosReq.withPosition(extendedPosition));
   }
 
@@ -59,6 +67,10 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void retract() {
+    // TalonFXConfiguration config = new TalonFXConfiguration();
+    // config.CurrentLimits.StatorCurrentLimitEnable = true;
+    // config.CurrentLimits.StatorCurrentLimit = 30;
+    // extendMotor.getConfigurator().apply(config);
     extendMotor.setControl(pivotPosReq.withPosition(retractedPosition));
   }
 
@@ -71,16 +83,36 @@ public class IntakeSubsystem extends SubsystemBase {
     extendMotor.setPosition(position);
   }
 
-  // public Command extendIntake() {
-  //   return Commands.run(() -> extend(), this).until(() -> atTarget(extendedPosition));
-  // }
+  public double getExtendedPosition() {
+    return extendedPosition;
+  }
+
+  public void setCoast() {
+    // TalonFXConfiguration config = new TalonFXConfiguration();
+    // config.CurrentLimits.StatorCurrentLimitEnable = true;
+    // config.CurrentLimits.StatorCurrentLimit = 15;
+    // extendMotor.getConfigurator().apply(config);
+    extendMotor.setControl(new CoastOut());
+  }
+
+  public void setNeutralforCurrent() {
+    double currentDraw = extendMotor.getTorqueCurrent().getValueAsDouble();
+    if (currentDraw <= CURRENT_THRESHOLD) {
+      setCoast();
+    }
+  }
+
+  public Command extendIntake() {
+    return Commands.run(() -> extend(), this).until(() -> atTarget(extendedPosition));
+    // .finallyDo(() -> setNeutral());
+  }
 
   // public Command retractIntake() {
   //   return Commands.run(() -> retract(), this).until(() -> atTarget(retractedPosition));
   // }
-  public Command extendIntake() {
-    return Commands.runOnce(() -> extend(), this);
-  }
+  // public Command extendIntake() {
+  //   return Commands.runOnce(() -> extend(), this);
+  // }
 
   public Command retractIntake() {
     return Commands.runOnce(() -> retract(), this);
@@ -100,5 +132,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Intake Position", extendMotor.getPosition().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Intake deploy current", extendMotor.getTorqueCurrent().getValueAsDouble());
   }
 }
