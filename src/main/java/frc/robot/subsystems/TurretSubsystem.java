@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degree;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -21,7 +19,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -147,7 +144,6 @@ public class TurretSubsystem extends SubsystemBase {
     // map4.put(5.67, 3.20);
   }
 
-  
   // MARK: - HOOD CONFIG
   private void configHood() {
     TalonFXConfiguration config = new TalonFXConfiguration();
@@ -176,7 +172,6 @@ public class TurretSubsystem extends SubsystemBase {
   public void turretWheels(boolean set) {
     setWheels = set;
   }
-
 
   // MARK: - TURRET CONFIG
   private void configTurret() {
@@ -211,7 +206,6 @@ public class TurretSubsystem extends SubsystemBase {
     azimuthMotor.getConfigurator().apply(config);
   }
 
-
   // MARK: - FLYWHEEL CONFIG
   private void configFlywheels() {
     TalonFXConfiguration config = new TalonFXConfiguration();
@@ -232,7 +226,6 @@ public class TurretSubsystem extends SubsystemBase {
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     rightMotor.getConfigurator().apply(config);
   }
-
 
   // MARK: - FEEDER CONFIG
   private void configFeeders() {
@@ -421,10 +414,12 @@ public class TurretSubsystem extends SubsystemBase {
 
     if (alliance == Alliance.Red) {
       // RED ALLIANCE
-      if (xPosition <= 5 && xPosition >= 4.2 && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)){
+      if (xPosition <= 5
+          && xPosition >= 4.2
+          && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)) {
         return RobotZone.UNDER_FAR_TRENCH;
-      } else if (xPosition <= 11.5){
-        if (yPosition >= UniverseConstants.fieldWidthMidpoint){
+      } else if (xPosition <= 11.5) {
+        if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
           return RobotZone.RED_FEEDING_OUTPOST;
         } else {
           return RobotZone.RED_FEEDING_DEPOT;
@@ -434,10 +429,12 @@ public class TurretSubsystem extends SubsystemBase {
       }
     } else {
       // BLUE ALLIANCE
-      if (xPosition <= 12.5 && xPosition >= 11.2 && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)){
+      if (xPosition <= 12.5
+          && xPosition >= 11.2
+          && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)) {
         return RobotZone.UNDER_FAR_TRENCH;
-      } else if (xPosition >= 5){
-        if (yPosition >= UniverseConstants.fieldWidthMidpoint){
+      } else if (xPosition >= 5) {
+        if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
           return RobotZone.BLUE_FEEDING_OUTPOST;
         } else {
           return RobotZone.BLUE_FEEDING_DEPOT;
@@ -453,28 +450,37 @@ public class TurretSubsystem extends SubsystemBase {
         () -> {
           RobotZone zone = getRobotZone();
           SmartDashboard.putString("Robot Zone", zone.toString());
-          if(zone == RobotZone.NO_ALLIANCE){
+          if (zone == RobotZone.NO_ALLIANCE) {
             return;
           }
           switch (zone) {
-            case SHOOTING: 
-            case RED_FEEDING_DEPOT: case BLUE_FEEDING_DEPOT: 
-            case RED_FEEDING_OUTPOST: case BLUE_FEEDING_OUTPOST:
+            case SHOOTING:
+            case RED_FEEDING_DEPOT:
+            case BLUE_FEEDING_DEPOT:
+            case RED_FEEDING_OUTPOST:
+            case BLUE_FEEDING_OUTPOST:
               {
                 Pose2d robotPose = drive.getPose();
                 Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
-                Pose2d feedOutpostPose = new Pose2d(feedOutpostPoseX, feedOutpostPoseY, new Rotation2d());
+                Pose2d feedOutpostPose =
+                    new Pose2d(feedOutpostPoseX, feedOutpostPoseY, new Rotation2d());
                 Pose2d feedDepotPose = new Pose2d(feedDepotPoseX, feedDepotPoseY, new Rotation2d());
                 Pose2d targetPose;
                 switch (zone) {
                   case SHOOTING:
-                    targetPose = goal; break;
-                  case BLUE_FEEDING_DEPOT: case RED_FEEDING_DEPOT:
-                    targetPose = feedDepotPose; break;
-                  case BLUE_FEEDING_OUTPOST: case RED_FEEDING_OUTPOST:
-                    targetPose = feedOutpostPose; break;
+                    targetPose = goal;
+                    break;
+                  case BLUE_FEEDING_DEPOT:
+                  case RED_FEEDING_DEPOT:
+                    targetPose = feedDepotPose;
+                    break;
+                  case BLUE_FEEDING_OUTPOST:
+                  case RED_FEEDING_OUTPOST:
+                    targetPose = feedOutpostPose;
+                    break;
                   default:
-                    targetPose = goal; break;
+                    targetPose = goal;
+                    break;
                 }
                 double dist = getDistance(robotPose, targetPose);
                 Pose2d currentPose = robotPose;
@@ -622,34 +628,34 @@ public class TurretSubsystem extends SubsystemBase {
                 new Rotation2d()));
     SmartDashboard.putNumber("Distance to goal", dist);
 
-    Rotation2d turretAngle =
-        calculateTurretAzimuth(
-            drive.getPose(),
-            new Pose2d(
-                UniverseConstants.redGoalPose.getX(),
-                UniverseConstants.redGoalPose.getY(),
-                new Rotation2d()));
+    // Rotation2d turretAngle =
+    //     calculateTurretAzimuth(
+    //         drive.getPose(),
+    //         new Pose2d(
+    //             UniverseConstants.redGoalPose.getX(),
+    //             UniverseConstants.redGoalPose.getY(),
+    //             new Rotation2d()));
 
     // SmartDashboard.putNumber("Degree turret go to", turretAngle.getRotations());
 
-    double hoodPos = getHoodFromDistance(dist);
+    // double hoodPos = getHoodFromDistance(dist);
     // SmartDashboard.putNumber("Hood position go to", hoodPos);
 
     // double hoodDeg =
     //     Math.toDegrees(calculateHoodAngle(drive.getPose(), UniverseConstants.redGoalPose));
     // SmartDashboard.putNumber("Degree hood go to", hoodDeg);
 
-    Rotation2d currentAngle =
-        Rotation2d.fromDegrees(encoder.getAbsolutePosition().getValueAsDouble() * 360);
-    Rotation2d delta = currentAngle.minus(lastAngle);
+    // Rotation2d currentAngle =
+    //     Rotation2d.fromDegrees(encoder.getAbsolutePosition().getValueAsDouble() * 360);
+    // Rotation2d delta = currentAngle.minus(lastAngle);
 
-    continuousAngle = continuousAngle.plus(delta);
-    // Clamp continuous angle between -270 and 270 degrees
-    double continuousDegrees = continuousAngle.getDegrees();
-    continuousDegrees = MathUtil.clamp(continuousDegrees, -270, 270);
-    continuousAngle = Rotation2d.fromDegrees(continuousDegrees);
-    lastAngle = currentAngle;
-    SmartDashboard.putNumber("Turret angle", azimuthMotor.getPosition().getValue().abs(Degree));
+    // continuousAngle = continuousAngle.plus(delta);
+    // // Clamp continuous angle between -270 and 270 degrees
+    // double continuousDegrees = continuousAngle.getDegrees();
+    // continuousDegrees = MathUtil.clamp(continuousDegrees, -270, 270);
+    // continuousAngle = Rotation2d.fromDegrees(continuousDegrees);
+    // lastAngle = currentAngle;
+    // SmartDashboard.putNumber("Turret angle", azimuthMotor.getPosition().getValue().abs(Degree));
     if (!availableAlliance) {
       try {
         if (DriverStation.getAlliance().get() == Alliance.Red) {

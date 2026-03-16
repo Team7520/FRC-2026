@@ -236,13 +236,19 @@ public class RobotContainer {
 
     driver
         .rightTrigger()
-        .whileTrue(new IndexSpin(turret, -1))
+        .whileTrue(Commands.waitSeconds(0.2).andThen(new IndexSpin(turret, -1)))
+        .onTrue(
+            new InstantCommand(() -> turret.turretWheels(true))
+                .alongWith(new InstantCommand(() -> turret.setFeeder(0.8))))
         .onTrue(
             new InstantCommand(
                 () -> {
                   speedCutoff = 0.4;
                 }))
-        .onFalse(new InstantCommand(() -> speedCutoff = 1));
+        .onFalse(new InstantCommand(() -> speedCutoff = 1))
+        .onFalse(
+            new InstantCommand(() -> turret.turretWheels(false))
+                .alongWith(new InstantCommand(() -> turret.setFeeder(0))));
 
     driver
         .back()
