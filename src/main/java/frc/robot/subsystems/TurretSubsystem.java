@@ -107,7 +107,6 @@ public class TurretSubsystem extends SubsystemBase {
     secondFeed = new TalonFX(TurretConstants.SECOND_FEED);
     encoder = new CANcoder(53);
     lastAngle = Rotation2d.fromDegrees(encoder.getAbsolutePosition().getValueAsDouble() * 360);
-    hoodMotor.setPosition(0);
     configHood();
     configTurret();
     configFlywheels();
@@ -155,13 +154,13 @@ public class TurretSubsystem extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // TUNE PID
-    config.Slot0.kP = 2;
+    config.Slot0.kP = 1;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
     SoftwareLimitSwitchConfigs limits = new SoftwareLimitSwitchConfigs();
     limits.ForwardSoftLimitEnable = true;
-    limits.ForwardSoftLimitThreshold = 6;
+    limits.ForwardSoftLimitThreshold = 5.5;
     limits.ReverseSoftLimitEnable = true;
     limits.ReverseSoftLimitThreshold = 0;
 
@@ -315,6 +314,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setHoodAngle(double targetPosition) {
+    targetPosition = Math.min(targetPosition, 5.5);
     hoodMotor.setControl(positionRequest.withPosition(targetPosition));
   }
 
@@ -581,9 +581,6 @@ public class TurretSubsystem extends SubsystemBase {
       stopFlywheels();
     }
     double hoodPos = (distance - 2.0) * scaleFactor;
-    if (hoodPos > 5.0) {
-      hoodPos = 5.0;
-    }
     return hoodPos;
   }
 
@@ -603,6 +600,20 @@ public class TurretSubsystem extends SubsystemBase {
   // MARK: - PERIODIC
   @Override
   public void periodic() {
+    SmartDashboard.putNumber(
+        "Azimuth Stator Current", azimuthMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Hood Stator Current", hoodMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Left Motor Stator Current", leftMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Right Motor Stator Current", rightMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Feed Motor Stator Current", feedMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Index Motor Stator Current", indexMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Second Feed Stator Current", secondFeed.getStatorCurrent().getValueAsDouble());
     // if (pivotHolding) {
     //   hoodMotor.setControl(positionRequest.withPosition(holdPivotRot));
     // }
