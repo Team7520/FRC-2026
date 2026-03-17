@@ -21,7 +21,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 1.0
+                        "waitTime": 0.5
                       }
                     },
                     {
@@ -78,7 +78,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 2.5
+                        "waitTime": 2.0
                       }
                     },
                     {
@@ -96,7 +96,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.0
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake in"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
           }
         },
         {
@@ -120,6 +132,12 @@
                 "data": {
                   "name": "feed off"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake out"
+                }
               }
             ]
           }
@@ -141,13 +159,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 5.0
+                        "waitTime": 2.0
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "Turret wheels"
+                        "name": "Turret on"
                       }
                     }
                   ]
@@ -160,7 +178,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 5.5
+                        "waitTime": 2.8
                       }
                     },
                     {

@@ -418,7 +418,7 @@ public class TurretSubsystem extends SubsystemBase {
           && xPosition >= 4.2
           && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)) {
         return RobotZone.UNDER_FAR_TRENCH;
-      } else if (xPosition <= 11.5) {
+      } else if (xPosition <= 10.5) {
         if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
           return RobotZone.RED_FEEDING_OUTPOST;
         } else {
@@ -433,7 +433,7 @@ public class TurretSubsystem extends SubsystemBase {
           && xPosition >= 11.2
           && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)) {
         return RobotZone.UNDER_FAR_TRENCH;
-      } else if (xPosition >= 5) {
+      } else if (xPosition >= 6) {
         if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
           return RobotZone.BLUE_FEEDING_OUTPOST;
         } else {
@@ -615,6 +615,7 @@ public class TurretSubsystem extends SubsystemBase {
     // }
     SmartDashboard.putNumber(
         "Hood Angle Degrees", hoodPositionToDegrees(hoodMotor.getPosition().getValueAsDouble()));
+    SmartDashboard.putNumber("Hood rotations", hoodMotor.getPosition().getValueAsDouble());
     // SmartDashboard.putNumber("Turret Rotations", azimuthMotor.getPosition().getValueAsDouble());
     // SmartDashboard.putNumber(
     //     "Absolute Turret rotatations", encoder.getAbsolutePosition().getValueAsDouble());
