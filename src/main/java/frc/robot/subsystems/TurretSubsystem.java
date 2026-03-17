@@ -107,6 +107,7 @@ public class TurretSubsystem extends SubsystemBase {
     secondFeed = new TalonFX(TurretConstants.SECOND_FEED);
     encoder = new CANcoder(53);
     lastAngle = Rotation2d.fromDegrees(encoder.getAbsolutePosition().getValueAsDouble() * 360);
+    hoodMotor.setPosition(0);
     configHood();
     configTurret();
     configFlywheels();
@@ -485,9 +486,9 @@ public class TurretSubsystem extends SubsystemBase {
                 double dist = getDistance(robotPose, targetPose);
                 Pose2d currentPose = robotPose;
                 double currentDist = dist;
-                double odometryLatency = 0.125;
+                double odometryLatency = 0.13;
 
-                double flightTime = 0.0226 * currentDist + 0.947;
+                double flightTime = 0.125 * currentDist + 0.665;
                 currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
                 currentDist = getDistance(currentPose, targetPose);
 
@@ -573,38 +574,30 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public double getHoodFromDistance(double distance) {
-    // InterpolatingDoubleTreeMap selectedMap;
-    double scaleFactor = 0.54;
-    // double flywheelRPS;
-
-    // // Determine speed zone
-    // if (distance <= 2.75) { // Zone 1
-    //   selectedMap = map1;
-    //   flywheelRPS = RPS1;
-    // } else if (distance <= 3.5) { // Zone 2
-    //   selectedMap = map2;
-    //   flywheelRPS = RPS2;
-    // } else if (distance <= 4.5) { // Zone 3
-    //   selectedMap = map3;
-    //   flywheelRPS = RPS3;
-    // } else { // Zone 4
-    //   selectedMap = map4;
-    //   flywheelRPS = RPS4;
-    // }
-
+    double scaleFactor = 0.5833;
     if (setWheels) {
       setFlywheelVelocity(getSpeedFromDistance(distance));
     } else {
       stopFlywheels();
     }
-    double hoodPos = distance * scaleFactor;
+    double hoodPos = (distance - 2.0) * scaleFactor;
+    if (hoodPos > 5.0) {
+      hoodPos = 5.0;
+    }
     return hoodPos;
   }
 
   public double getSpeedFromDistance(double distance) {
-    double b = 23.5;
-    double rpsPerDistance = 3.6;
+    double b = 23.67;
+    double rpsPerDistance = 3.67;
     double speed = rpsPerDistance * distance + b;
+
+    // for testing
+    // double speed = 36.0;
+
+    if (speed > 75.0) {
+      speed = 75.0;
+    }
     return speed;
   }
   // MARK: - PERIODIC
