@@ -69,6 +69,25 @@
                 "data": {
                   "name": "feed index"
                 }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intake in"
+                      }
+                    }
+                  ]
+                }
               }
             ]
           }
@@ -77,6 +96,18 @@
           "type": "named",
           "data": {
             "name": "feed off"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Turret off"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake out"
           }
         },
         {
@@ -105,6 +136,12 @@
                 "type": "named",
                 "data": {
                   "name": "feed index"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "New New Path"
                 }
               }
             ]

@@ -154,7 +154,7 @@ public class TurretSubsystem extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // TUNE PID
-    config.Slot0.kP = 1;
+    config.Slot0.kP = 0.5;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
@@ -586,7 +586,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public double getSpeedFromDistance(double distance) {
     double b = 23.67;
-    double rpsPerDistance = 3.67;
+    double rpsPerDistance = 3.57;
     double speed = rpsPerDistance * distance + b;
 
     // for testing
@@ -674,10 +674,10 @@ public class TurretSubsystem extends SubsystemBase {
         } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
           goalPoseX = UniverseConstants.blueGoalPose.getX();
           goalPoseY = UniverseConstants.blueGoalPose.getY();
-          feedOutpostPoseX = UniverseConstants.blueOutpostFeedX;
-          feedOutpostPoseY = UniverseConstants.blueOutpostFeedY;
-          feedDepotPoseX = UniverseConstants.blueDepotFeedX;
-          feedDepotPoseY = UniverseConstants.blueDepotFeedY;
+          feedOutpostPoseX = UniverseConstants.blueDepotFeedX;
+          feedOutpostPoseY = UniverseConstants.blueDepotFeedY;
+          feedDepotPoseX = UniverseConstants.blueOutpostFeedX;
+          feedDepotPoseY = UniverseConstants.blueOutpostFeedX;
           availableAlliance = true;
         }
       } catch (NoSuchElementException nsee) {
