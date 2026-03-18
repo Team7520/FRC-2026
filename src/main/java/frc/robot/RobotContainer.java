@@ -60,6 +60,7 @@ public class RobotContainer {
   public final AprilTagSystem aprilTagSystem = new AprilTagSystem();
 
   private double speedCutoff = 1;
+  private double turnCutoff = 0.7;
 
   //   public Map<Command, String> autoNames = new HashMap<>();
 
@@ -222,7 +223,7 @@ public class RobotContainer {
             drive,
             () -> -driver.getLeftY() * speedCutoff,
             () -> -driver.getLeftX() * speedCutoff,
-            () -> -driver.getRightX() * (speedCutoff * 0.7)));
+            () -> -driver.getRightX() * turnCutoff));
 
     // MARK: - DRIVER BUTTONS
 
@@ -251,9 +252,15 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  speedCutoff = 0.4;
+                    turnCutoff = 0.4;
+                    speedCutoff = 0.4;
                 }))
-        .onFalse(new InstantCommand(() -> speedCutoff = 1))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                    turnCutoff = 0.7;
+                    speedCutoff = 1;
+                }))
         .onFalse(
             Commands.waitSeconds(0.2)
                 .andThen(new InstantCommand(() -> turret.turretWheels(false)))
