@@ -111,6 +111,7 @@ public class TurretSubsystem extends SubsystemBase {
     configTurret();
     configFlywheels();
     configFeeders();
+    hoodMotor.setPosition(0);
 
     // // (distance in meters, time in seconds)
     // tofmap1.put(2.00, 0.947);

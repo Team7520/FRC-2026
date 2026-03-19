@@ -104,13 +104,13 @@ public class AprilTagSystem extends SubsystemBase {
             new PhotonCamera("FrontRightCam"),
             false,
             new Transform3d(
-                0.283940504, // X forward
-                -0.188200919, // Y right
-                0.205,
+                -0.275093, // X forward
+                0.122363, // Y right
+                0.161672,
                 new Rotation3d(
                     0.0,
-                    Math.toRadians(15), // pitched up
-                    0.0 // facing forward
+                    Units.degreesToRadians(20), // pitched up
+                    Units.degreesToRadians(-90) // facing forward
                     ))));
 
     limes.add(
