@@ -100,17 +100,17 @@ public class AprilTagSystem extends SubsystemBase {
     // Initialize the cameras
     cameraList.add(
         new CameraInfo(
-            "Cam1",
-            new PhotonCamera("FrontRightCam"),
+            "piCam",
+            new PhotonCamera("Arducam_OV9281_USB_Camera"),
             false,
             new Transform3d(
-                -0.275093, // X forward
-                0.122363, // Y right
+                0.122363, // X forward
+                -0.275093, // Y right
                 0.161672,
                 new Rotation3d(
                     0.0,
                     Units.degreesToRadians(20), // pitched up
-                    Units.degreesToRadians(-90) // facing forward
+                    Units.degreesToRadians(90) // facing forward
                     ))));
 
     limes.add(
@@ -241,8 +241,7 @@ public class AprilTagSystem extends SubsystemBase {
     for (int i = 0; i < 5 && !aprilTagLayoutLoaded; i++) {
       try {
         aprilTagFieldLayout =
-            AprilTagFieldLayout.loadFromResource(
-                AprilTagFields.k2025ReefscapeAndyMark.m_resourceFile);
+            AprilTagFieldLayout.loadFromResource(AprilTagFields.k2026RebuiltWelded.m_resourceFile);
         apriltags = aprilTagFieldLayout.getTags();
         aprilTagLayoutLoaded = true;
       } catch (IOException e) {
