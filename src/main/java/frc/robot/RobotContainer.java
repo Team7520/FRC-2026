@@ -252,14 +252,14 @@ public class RobotContainer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                    turnCutoff = 0.4;
-                    speedCutoff = 0.4;
+                  turnCutoff = 0.4;
+                  speedCutoff = 0.4;
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                    turnCutoff = 0.7;
-                    speedCutoff = 1;
+                  turnCutoff = 0.7;
+                  speedCutoff = 1;
                 }))
         .onFalse(
             Commands.waitSeconds(0.2)

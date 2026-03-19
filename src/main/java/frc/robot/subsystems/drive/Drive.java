@@ -61,7 +61,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
-  Pigeon2 gyro = new Pigeon2(13, TunerConstants.kCANBus);
+  Pigeon2 gyro = new Pigeon2(14, TunerConstants.kCANBus);
   private int counter = 0;
   boolean notSet = true;
   private String gameData;
