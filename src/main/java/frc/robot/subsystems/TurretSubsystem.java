@@ -587,7 +587,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public double getSpeedFromDistance(double distance) {
     double b = 23.67;
-    double rpsPerDistance = 3.57;
+    double rpsPerDistance = 3.67;
     double speed = rpsPerDistance * distance + b;
 
     // for testing
