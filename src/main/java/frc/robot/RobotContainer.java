@@ -145,23 +145,22 @@ public class RobotContainer {
     //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     // autoChooser.addOption(
     //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    autoChooser.addOption("outpost", drive.getAutonomousCommand("Basic"));
     // autoNames.put(drive.getAutonomousCommand("Basic"), "outpost");
 
     autoChooser.addOption("mid auto", drive.getAutonomousCommand("middle"));
     // autoNames.put(drive.getAutonomousCommand("middle"), "mid auto");
 
-    autoChooser.addOption("central auto", drive.getAutonomousCommand("trench to outpost auto"));
+    autoChooser.addOption("outpost single swipe + climb", drive.getAutonomousCommand("trench to outpost auto"));
     // autoNames.put(drive.getAutonomousCommand("trench to outpost auto"), "central auto");
 
-    autoChooser.addOption("testing command ending", drive.getAutonomousCommand("testing"));
-    autoChooser.addOption("depot side", drive.getAutonomousCommand("depot side trench auto"));
+    autoChooser.addOption("depot double swipe + depot", drive.getAutonomousCommand("depot side trench auto"));
     autoChooser.addOption(
-        "outpost without climb", drive.getAutonomousCommand("climbless trench to outpost auto"));
+        "outpost single swipe + outpost climbless", drive.getAutonomousCommand("climbless trench to outpost auto"));
 
     autoChooser.addOption(
-        "double swipe", drive.getAutonomousCommand("climbless outpost double swipe"));
+        "outpost double swipe + outpost climbless", drive.getAutonomousCommand("climbless outpost double swipe"));
+
+    autoChooser.addOption("outpost double swipe + climb", drive.getAutonomousCommand("climb outpost double swipe"));
 
     // Configure the button bindings
     configureButtonBindings();
