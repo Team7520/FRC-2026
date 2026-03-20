@@ -147,12 +147,6 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "center to shoot wiggle(outpost)"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -185,6 +179,31 @@
                       "type": "named",
                       "data": {
                         "name": "feed index"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Copy of center to shoot wiggle(outpost)"
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "climbing"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Climb"
                       }
                     }
                   ]

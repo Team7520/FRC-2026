@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degree;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -21,7 +19,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -40,12 +37,12 @@ import java.util.NoSuchElementException;
 public class TurretSubsystem extends SubsystemBase {
 
   public enum RobotZone {
-    RED_SHOOTING,
-    RED_FEEDING,
-    RED_FAR_ZONE,
-    BLUE_SHOOTING,
-    BLUE_FEEDING,
-    BLUE_FAR_ZONE,
+    SHOOTING,
+    RED_FEEDING_OUTPOST,
+    BLUE_FEEDING_OUTPOST,
+    RED_FEEDING_DEPOT,
+    BLUE_FEEDING_DEPOT,
+    UNDER_FAR_TRENCH,
     NO_ALLIANCE
   }
 
@@ -73,26 +70,30 @@ public class TurretSubsystem extends SubsystemBase {
   private final VelocityDutyCycle velocityRequest = new VelocityDutyCycle(0);
   private final VelocityVoltage velocityVoltRequest = new VelocityVoltage(0);
 
-  private InterpolatingDoubleTreeMap map1 = new InterpolatingDoubleTreeMap();
-  private InterpolatingDoubleTreeMap map2 = new InterpolatingDoubleTreeMap();
-  private InterpolatingDoubleTreeMap map3 = new InterpolatingDoubleTreeMap();
-  private InterpolatingDoubleTreeMap map4 = new InterpolatingDoubleTreeMap();
+  // private InterpolatingDoubleTreeMap map1 = new InterpolatingDoubleTreeMap();
+  // private InterpolatingDoubleTreeMap map2 = new InterpolatingDoubleTreeMap();
+  // private InterpolatingDoubleTreeMap map3 = new InterpolatingDoubleTreeMap();
+  // private InterpolatingDoubleTreeMap map4 = new InterpolatingDoubleTreeMap();
 
-  private InterpolatingDoubleTreeMap tofmap1 = new InterpolatingDoubleTreeMap();
-  private InterpolatingDoubleTreeMap tofmap2 = new InterpolatingDoubleTreeMap();
-  private InterpolatingDoubleTreeMap tofmap3 = new InterpolatingDoubleTreeMap();
-  private InterpolatingDoubleTreeMap tofmap4 = new InterpolatingDoubleTreeMap();
+  // private InterpolatingDoubleTreeMap tofmap1 = new InterpolatingDoubleTreeMap();
+  // private InterpolatingDoubleTreeMap tofmap2 = new InterpolatingDoubleTreeMap();
+  // private InterpolatingDoubleTreeMap tofmap3 = new InterpolatingDoubleTreeMap();
+  // private InterpolatingDoubleTreeMap tofmap4 = new InterpolatingDoubleTreeMap();
 
-  private double RPS1 = 32.0;
-  private double RPS2 = 34.0;
-  private double RPS3 = 38.0;
-  private double RPS4 = 42.0;
+  // private double RPS1 = 32.0;
+  // private double RPS2 = 34.0;
+  // private double RPS3 = 38.0;
+  // private double RPS4 = 42.0;
 
   private boolean setWheels = false;
   private boolean feederToggle = false;
 
   private double goalPoseX;
   private double goalPoseY;
+  private double feedOutpostPoseX;
+  private double feedOutpostPoseY;
+  private double feedDepotPoseX;
+  private double feedDepotPoseY;
 
   public TurretSubsystem(Drive drive) {
     this.drive = drive;
@@ -110,48 +111,41 @@ public class TurretSubsystem extends SubsystemBase {
     configTurret();
     configFlywheels();
     configFeeders();
+    hoodMotor.setPosition(0);
 
-    // (distance in meters, time in seconds)
-    tofmap1.put(2.00, 0.947);
-    tofmap1.put(2.71, 0.807);
+    // // (distance in meters, time in seconds)
+    // tofmap1.put(2.00, 0.947);
+    // tofmap1.put(2.71, 0.807);
 
-    tofmap2.put(2.97, 1.067);
-    tofmap2.put(3.44, 0.900);
+    // tofmap2.put(2.97, 1.067);
+    // tofmap2.put(3.44, 0.900);
 
-    tofmap3.put(3.54, 1.297);
-    tofmap3.put(4.45, 1.101);
+    // tofmap3.put(3.54, 1.297);
+    // tofmap3.put(4.45, 1.101);
 
-    tofmap4.put(4.96, 1.333);
+    // tofmap4.put(4.96, 1.333);
 
-    // (distance in meters, hood in rotations)
-    map1.put(1.995, 0.05);
-    map1.put(2.213, 0.625);
-    map1.put(2.43, 0.95);
-    map1.put(2.75, 2.626);
+    // // (distance in meters, hood in rotations)
+    // map1.put(1.995, 0.05);
+    // map1.put(2.213, 0.625);
+    // map1.put(2.43, 0.95);
+    // map1.put(2.75, 2.626);
 
-    map2.put(2.751, 1.04);
-    map2.put(2.98, 1.25);
-    map2.put(3.27, 3.33);
+    // map2.put(2.751, 1.04);
+    // map2.put(2.98, 1.25);
+    // map2.put(3.27, 3.33);
 
-    map3.put(3.48, 0.43);
-    map3.put(4.18, 1.82);
-    map3.put(4.45, 2.748);
+    // map3.put(3.48, 0.43);
+    // map3.put(4.18, 1.82);
+    // map3.put(4.45, 2.748);
 
-    map4.put(4.55, 1.249);
-    map4.put(4.766, 1.453);
-    map4.put(5.0, 1.686);
-    map4.put(5.67, 3.20);
-    // if (DriverStation.getAlliance().get() == Alliance.Red) {
-    //   goalPoseX = UniverseConstants.redGoalPose.getX();
-    //   goalPoseY = UniverseConstants.redGoalPose.getY();
-    //   alliance = true;
-    // } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
-    //   goalPoseX = UniverseConstants.blueGoalPose.getX();
-    //   goalPoseY = UniverseConstants.blueGoalPose.getY();
-    //   alliance = true;
-    // }
+    // map4.put(4.55, 1.249);
+    // map4.put(4.766, 1.453);
+    // map4.put(5.0, 1.686);
+    // map4.put(5.67, 3.20);
   }
 
+  // MARK: - HOOD CONFIG
   private void configHood() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -161,13 +155,13 @@ public class TurretSubsystem extends SubsystemBase {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     // TUNE PID
-    config.Slot0.kP = 2;
+    config.Slot0.kP = 0.5;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
     SoftwareLimitSwitchConfigs limits = new SoftwareLimitSwitchConfigs();
     limits.ForwardSoftLimitEnable = true;
-    limits.ForwardSoftLimitThreshold = 6;
+    limits.ForwardSoftLimitThreshold = 5.5;
     limits.ReverseSoftLimitEnable = true;
     limits.ReverseSoftLimitThreshold = 0;
 
@@ -180,6 +174,7 @@ public class TurretSubsystem extends SubsystemBase {
     setWheels = set;
   }
 
+  // MARK: - TURRET CONFIG
   private void configTurret() {
     // Configure CANcoder
     CANcoderConfiguration cc_cfg = new CANcoderConfiguration();
@@ -212,6 +207,7 @@ public class TurretSubsystem extends SubsystemBase {
     azimuthMotor.getConfigurator().apply(config);
   }
 
+  // MARK: - FLYWHEEL CONFIG
   private void configFlywheels() {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -232,6 +228,7 @@ public class TurretSubsystem extends SubsystemBase {
     rightMotor.getConfigurator().apply(config);
   }
 
+  // MARK: - FEEDER CONFIG
   private void configFeeders() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -318,6 +315,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setHoodAngle(double targetPosition) {
+    targetPosition = Math.min(targetPosition, 5.5);
     hoodMotor.setControl(positionRequest.withPosition(targetPosition));
   }
 
@@ -355,45 +353,6 @@ public class TurretSubsystem extends SubsystemBase {
             .getRotation()
             .plus(new Rotation2d(currentSpeed.omegaRadiansPerSecond * odometryLatency)));
   }
-
-  // public double calculateHoodAngle(Pose2d robotPose, Pose3d goalPose) {
-  //   // Horizontal distance
-  //   double dx = goalPose.getX() - robotPose.getX();
-  //   double dy = goalPose.getY() - robotPose.getY();
-  //   double d = Math.sqrt(dx * dx + dy * dy);
-
-  //   // Vertical difference
-  //   double h = goalPose.getZ() - TurretConstants.launchHeight;
-
-  //   double v = TurretConstants.closeLaunchSpeed;
-  //   double v2 = v * v;
-
-  //   // Discriminant of ballistic equation
-  //   double discriminant =
-  //       v2 * v2 - UniverseConstants.g * (UniverseConstants.g * d * d + 2 * h * v2);
-
-  //   if (discriminant < 0) {
-  //     return Double.NaN; // No physical solution
-  //   }
-
-  //   double sqrtDisc = Math.sqrt(discriminant);
-
-  //   // Two possible launch angles
-  //   double tanTheta1 = (v2 + sqrtDisc) / (UniverseConstants.g * d);
-  //   double tanTheta2 = (v2 - sqrtDisc) / (UniverseConstants.g * d);
-
-  //   double theta1 = Math.atan(tanTheta1);
-  //   double theta2 = Math.atan(tanTheta2);
-
-  //   double minAngle = Math.toRadians(45);
-
-  //   // Choose the valid angle ≥ 45°
-  //   double chosen = Double.NaN;
-  //   if (theta1 >= minAngle) chosen = theta1;
-  //   if (theta2 >= minAngle && (Double.isNaN(chosen) || theta2 > chosen)) chosen = theta2;
-
-  //   return chosen; // radians
-  // }
 
   public void hood(double speed) {
     hoodMotor.setControl(duty.withOutput(-speed));
@@ -450,117 +409,101 @@ public class TurretSubsystem extends SubsystemBase {
     if (!availableAlliance) {
       return RobotZone.NO_ALLIANCE;
     }
-
-    double xPosition = drive.getPose().getX();
+    Pose2d turretPose = getTurretPose();
+    double xPosition = turretPose.getX();
+    double yPosition = turretPose.getY();
     Alliance alliance = DriverStation.getAlliance().get();
 
     if (alliance == Alliance.Red) {
-      if (xPosition <= 6) {
-        return RobotZone.RED_FAR_ZONE;
+      // RED ALLIANCE
+      if (xPosition <= 5
+          && xPosition >= 4.2
+          && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)) {
+        return RobotZone.UNDER_FAR_TRENCH;
       } else if (xPosition <= 10.5) {
-        return RobotZone.RED_FEEDING;
+        if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
+          return RobotZone.RED_FEEDING_OUTPOST;
+        } else {
+          return RobotZone.RED_FEEDING_DEPOT;
+        }
       } else {
-        return RobotZone.RED_SHOOTING;
+        return RobotZone.SHOOTING;
       }
     } else {
-      if (xPosition >= 10.5) {
-        return RobotZone.BLUE_FAR_ZONE;
+      // BLUE ALLIANCE
+      if (xPosition <= 12.5
+          && xPosition >= 11.2
+          && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)) {
+        return RobotZone.UNDER_FAR_TRENCH;
       } else if (xPosition >= 6) {
-        return RobotZone.BLUE_FEEDING;
+        if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
+          return RobotZone.BLUE_FEEDING_OUTPOST;
+        } else {
+          return RobotZone.BLUE_FEEDING_DEPOT;
+        }
       } else {
-        return RobotZone.BLUE_SHOOTING;
+        return RobotZone.SHOOTING;
       }
     }
   }
-
+  // MARK: - AUTO AIMING
   public Command aautoAim() {
     return Commands.run(
         () -> {
           RobotZone zone = getRobotZone();
           SmartDashboard.putString("Robot Zone", zone.toString());
-
+          if (zone == RobotZone.NO_ALLIANCE) {
+            return;
+          }
           switch (zone) {
-            case RED_FAR_ZONE:
-              {
-                Rotation2d turretAngle =
-                    new Rotation2d(
-                        0 - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
-                setTurretAzimuth(turretAngle);
-                setHoodAngle(0);
-                break;
-              }
-            case RED_FEEDING:
-              {
-                Rotation2d turretAngle =
-                    new Rotation2d(
-                        0 - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
-                setTurretAzimuth(turretAngle);
-                setHoodAngle(3);
-                break;
-              }
-            case RED_SHOOTING:
+            case SHOOTING:
+            case RED_FEEDING_DEPOT:
+            case BLUE_FEEDING_DEPOT:
+            case RED_FEEDING_OUTPOST:
+            case BLUE_FEEDING_OUTPOST:
               {
                 Pose2d robotPose = drive.getPose();
                 Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
-                double dist = getDistance(robotPose, goal);
-
+                Pose2d feedOutpostPose =
+                    new Pose2d(feedOutpostPoseX, feedOutpostPoseY, new Rotation2d());
+                Pose2d feedDepotPose = new Pose2d(feedDepotPoseX, feedDepotPoseY, new Rotation2d());
+                Pose2d targetPose;
+                switch (zone) {
+                  case SHOOTING:
+                    targetPose = goal;
+                    break;
+                  case BLUE_FEEDING_DEPOT:
+                  case RED_FEEDING_DEPOT:
+                    targetPose = feedDepotPose;
+                    break;
+                  case BLUE_FEEDING_OUTPOST:
+                  case RED_FEEDING_OUTPOST:
+                    targetPose = feedOutpostPose;
+                    break;
+                  default:
+                    targetPose = goal;
+                    break;
+                }
+                double dist = getDistance(robotPose, targetPose);
                 Pose2d currentPose = robotPose;
                 double currentDist = dist;
-                double odometryLatency = 0.125;
+                double odometryLatency = 0.13;
 
-                double flightTime = 0.0226 * currentDist + 0.947;
+                double flightTime = 0.125 * currentDist + 0.665;
                 currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
-                currentDist = getDistance(currentPose, goal);
+                currentDist = getDistance(currentPose, targetPose);
 
                 double hoodPos = getHoodFromDistance(currentDist);
-                Rotation2d turretAngle = calculateTurretAzimuth(currentPose, goal);
-
+                Rotation2d turretAngle = calculateTurretAzimuth(currentPose, targetPose);
                 setTurretAzimuth(turretAngle);
                 setHoodAngle(hoodPos);
                 SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
                 SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
                 break;
               }
-            case BLUE_FAR_ZONE:
+            case UNDER_FAR_TRENCH:
               {
-                Rotation2d turretAngle =
-                    new Rotation2d(
-                        Math.PI - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
-                setTurretAzimuth(turretAngle);
-                setHoodAngle(0);
-                break;
-              }
-            case BLUE_FEEDING:
-              {
-                Rotation2d turretAngle =
-                    new Rotation2d(
-                        Math.PI - drive.getPose().getRotation().getRadians() - Math.toRadians(-90));
-                setTurretAzimuth(turretAngle);
-                setHoodAngle(3);
-
-                break;
-              }
-            case BLUE_SHOOTING:
-              {
-                Pose2d robotPose = drive.getPose();
-                Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
-                double dist = getDistance(robotPose, goal);
-
-                Pose2d currentPose = robotPose;
-                double currentDist = dist;
-                double odometryLatency = 0.125;
-
-                double flightTime = 0.0226 * currentDist + 0.947;
-                currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
-                currentDist = getDistance(currentPose, goal);
-
-                double hoodPos = getHoodFromDistance(currentDist);
-                Rotation2d turretAngle = calculateTurretAzimuth(currentPose, goal);
-
-                setTurretAzimuth(turretAngle);
-                setHoodAngle(hoodPos);
-                SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
-                SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
+                setHoodAngle(1);
                 break;
               }
             case NO_ALLIANCE:
@@ -625,55 +568,59 @@ public class TurretSubsystem extends SubsystemBase {
     return turretPose.getTranslation().getDistance(goalPose.getTranslation());
   }
 
+  public Pose2d getTurretPose() {
+    Transform2d robotToTurret =
+        new Transform2d(new Translation2d(0.1397, 0.0), new Rotation2d()); // 5.5 inches in meters
+    return drive.getPose().transformBy(robotToTurret);
+  }
+
   public double getHoodFromDistance(double distance) {
-    InterpolatingDoubleTreeMap selectedMap;
-    double scaleFactor = 0.54;
-    // double flywheelRPS;
-
-    // // Determine speed zone
-    // if (distance <= 2.75) { // Zone 1
-    //   selectedMap = map1;
-    //   flywheelRPS = RPS1;
-    // } else if (distance <= 3.5) { // Zone 2
-    //   selectedMap = map2;
-    //   flywheelRPS = RPS2;
-    // } else if (distance <= 4.5) { // Zone 3
-    //   selectedMap = map3;
-    //   flywheelRPS = RPS3;
-    // } else { // Zone 4
-    //   selectedMap = map4;
-    //   flywheelRPS = RPS4;
-    // }
-
+    double scaleFactor = 0.5833;
     if (setWheels) {
-      RobotZone zone = getRobotZone();
-      switch (zone) {
-        case RED_FEEDING:
-        case BLUE_FEEDING:
-          distance += 2;
-      }
       setFlywheelVelocity(getSpeedFromDistance(distance));
     } else {
       stopFlywheels();
     }
-    double hoodPos = distance * scaleFactor;
+    double hoodPos = (distance - 2.0) * scaleFactor;
     return hoodPos;
   }
 
   public double getSpeedFromDistance(double distance) {
-    double b = 23.5;
-    double rpsPerDistance = 3.6;
+    double b = 23.67;
+    double rpsPerDistance = 3.67;
     double speed = rpsPerDistance * distance + b;
+
+    // for testing
+    // double speed = 36.0;
+
+    if (speed > 75.0) {
+      speed = 75.0;
+    }
     return speed;
   }
-
+  // MARK: - PERIODIC
   @Override
   public void periodic() {
+    SmartDashboard.putNumber(
+        "Azimuth Stator Current", azimuthMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Hood Stator Current", hoodMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Left Motor Stator Current", leftMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Right Motor Stator Current", rightMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Feed Motor Stator Current", feedMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Index Motor Stator Current", indexMotor.getStatorCurrent().getValueAsDouble());
+    SmartDashboard.putNumber(
+        "Second Feed Stator Current", secondFeed.getStatorCurrent().getValueAsDouble());
     // if (pivotHolding) {
     //   hoodMotor.setControl(positionRequest.withPosition(holdPivotRot));
     // }
     SmartDashboard.putNumber(
         "Hood Angle Degrees", hoodPositionToDegrees(hoodMotor.getPosition().getValueAsDouble()));
+    SmartDashboard.putNumber("Hood rotations", hoodMotor.getPosition().getValueAsDouble());
     // SmartDashboard.putNumber("Turret Rotations", azimuthMotor.getPosition().getValueAsDouble());
     // SmartDashboard.putNumber(
     //     "Absolute Turret rotatations", encoder.getAbsolutePosition().getValueAsDouble());
@@ -687,43 +634,51 @@ public class TurretSubsystem extends SubsystemBase {
                 new Rotation2d()));
     SmartDashboard.putNumber("Distance to goal", dist);
 
-    Rotation2d turretAngle =
-        calculateTurretAzimuth(
-            drive.getPose(),
-            new Pose2d(
-                UniverseConstants.redGoalPose.getX(),
-                UniverseConstants.redGoalPose.getY(),
-                new Rotation2d()));
+    // Rotation2d turretAngle =
+    //     calculateTurretAzimuth(
+    //         drive.getPose(),
+    //         new Pose2d(
+    //             UniverseConstants.redGoalPose.getX(),
+    //             UniverseConstants.redGoalPose.getY(),
+    //             new Rotation2d()));
 
     // SmartDashboard.putNumber("Degree turret go to", turretAngle.getRotations());
 
-    double hoodPos = getHoodFromDistance(dist);
+    // double hoodPos = getHoodFromDistance(dist);
     // SmartDashboard.putNumber("Hood position go to", hoodPos);
 
     // double hoodDeg =
     //     Math.toDegrees(calculateHoodAngle(drive.getPose(), UniverseConstants.redGoalPose));
     // SmartDashboard.putNumber("Degree hood go to", hoodDeg);
 
-    Rotation2d currentAngle =
-        Rotation2d.fromDegrees(encoder.getAbsolutePosition().getValueAsDouble() * 360);
-    Rotation2d delta = currentAngle.minus(lastAngle);
+    // Rotation2d currentAngle =
+    //     Rotation2d.fromDegrees(encoder.getAbsolutePosition().getValueAsDouble() * 360);
+    // Rotation2d delta = currentAngle.minus(lastAngle);
 
-    continuousAngle = continuousAngle.plus(delta);
-    // Clamp continuous angle between -270 and 270 degrees
-    double continuousDegrees = continuousAngle.getDegrees();
-    continuousDegrees = MathUtil.clamp(continuousDegrees, -270, 270);
-    continuousAngle = Rotation2d.fromDegrees(continuousDegrees);
-    lastAngle = currentAngle;
-    SmartDashboard.putNumber("Turret angle", azimuthMotor.getPosition().getValue().abs(Degree));
+    // continuousAngle = continuousAngle.plus(delta);
+    // // Clamp continuous angle between -270 and 270 degrees
+    // double continuousDegrees = continuousAngle.getDegrees();
+    // continuousDegrees = MathUtil.clamp(continuousDegrees, -270, 270);
+    // continuousAngle = Rotation2d.fromDegrees(continuousDegrees);
+    // lastAngle = currentAngle;
+    // SmartDashboard.putNumber("Turret angle", azimuthMotor.getPosition().getValue().abs(Degree));
     if (!availableAlliance) {
       try {
         if (DriverStation.getAlliance().get() == Alliance.Red) {
           goalPoseX = UniverseConstants.redGoalPose.getX();
           goalPoseY = UniverseConstants.redGoalPose.getY();
+          feedOutpostPoseX = UniverseConstants.redOutpostFeedX;
+          feedOutpostPoseY = UniverseConstants.redOutpostFeedY;
+          feedDepotPoseX = UniverseConstants.redDepotFeedX;
+          feedDepotPoseY = UniverseConstants.redDepotFeedY;
           availableAlliance = true;
         } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
           goalPoseX = UniverseConstants.blueGoalPose.getX();
           goalPoseY = UniverseConstants.blueGoalPose.getY();
+          feedOutpostPoseX = UniverseConstants.blueDepotFeedX;
+          feedOutpostPoseY = UniverseConstants.blueDepotFeedY;
+          feedDepotPoseX = UniverseConstants.blueOutpostFeedX;
+          feedDepotPoseY = UniverseConstants.blueOutpostFeedX;
           availableAlliance = true;
         }
       } catch (NoSuchElementException nsee) {

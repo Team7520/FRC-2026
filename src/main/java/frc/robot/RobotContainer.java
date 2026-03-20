@@ -60,6 +60,7 @@ public class RobotContainer {
   public final AprilTagSystem aprilTagSystem = new AprilTagSystem();
 
   private double speedCutoff = 1;
+  private double turnCutoff = 0.7;
 
   //   public Map<Command, String> autoNames = new HashMap<>();
 
@@ -128,7 +129,7 @@ public class RobotContainer {
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
+    // MARK: - AUTOS
     // Set up SysId routines
     // autoChooser.addOption(
     //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
@@ -144,27 +145,28 @@ public class RobotContainer {
     //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     // autoChooser.addOption(
     //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    autoChooser.addOption("outpost", drive.getAutonomousCommand("Basic"));
     // autoNames.put(drive.getAutonomousCommand("Basic"), "outpost");
 
     autoChooser.addOption("mid auto", drive.getAutonomousCommand("middle"));
     // autoNames.put(drive.getAutonomousCommand("middle"), "mid auto");
 
-    autoChooser.addOption("central auto", drive.getAutonomousCommand("trench to outpost auto"));
+    autoChooser.addOption("outpost single swipe + climb", drive.getAutonomousCommand("trench to outpost auto"));
     // autoNames.put(drive.getAutonomousCommand("trench to outpost auto"), "central auto");
 
-    autoChooser.addOption("testing command ending", drive.getAutonomousCommand("testing"));
-    autoChooser.addOption("depot side", drive.getAutonomousCommand("depot side trench auto"));
+    autoChooser.addOption("depot double swipe + depot", drive.getAutonomousCommand("depot side trench auto"));
     autoChooser.addOption(
-        "outpost without climb", drive.getAutonomousCommand("climbless trench to outpost auto"));
+        "outpost single swipe + outpost climbless", drive.getAutonomousCommand("climbless trench to outpost auto"));
 
     autoChooser.addOption(
-        "double swipe", drive.getAutonomousCommand("climbless outpost double swipe"));
+        "outpost double swipe + outpost climbless", drive.getAutonomousCommand("climbless outpost double swipe"));
+
+    autoChooser.addOption("outpost double swipe + climb", drive.getAutonomousCommand("climb outpost double swipe"));
 
     // Configure the button bindings
     configureButtonBindings();
   }
+
+  // MARK: - NAMED CMDS
 
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Turret on", new InstantCommand(() -> turret.turretWheels(true)));
@@ -220,9 +222,9 @@ public class RobotContainer {
             drive,
             () -> -driver.getLeftY() * speedCutoff,
             () -> -driver.getLeftX() * speedCutoff,
-            () -> -driver.getRightX() * (speedCutoff * 0.7)));
+            () -> -driver.getRightX() * turnCutoff));
 
-    /* DRIVER CONTROLS */
+    // MARK: - DRIVER BUTTONS
 
     // driver
     //     .leftTrigger()
@@ -231,18 +233,37 @@ public class RobotContainer {
 
     driver
         .leftTrigger()
-        .whileTrue(intake.extendIntake().andThen(() -> intake.runIntake(0.6)))
+        .whileTrue(
+            intake
+                .extendIntake()
+                .andThen((() -> intake.runIntake(0.6)))
+                .alongWith(
+                    Commands.repeatingSequence(
+                        new InstantCommand(() -> intake.setNeutralforCurrent()))))
         .onFalse(new InstantCommand(() -> intake.stopAll()));
 
     driver
         .rightTrigger()
-        .whileTrue(new IndexSpin(turret, -1))
+        .whileTrue(Commands.waitSeconds(0.2).andThen(new IndexSpin(turret, -1)))
+        .onTrue(
+            new InstantCommand(() -> turret.turretWheels(true))
+                .alongWith(new InstantCommand(() -> turret.setFeeder(0.7))))
         .onTrue(
             new InstantCommand(
                 () -> {
+                  turnCutoff = 0.4;
                   speedCutoff = 0.4;
                 }))
-        .onFalse(new InstantCommand(() -> speedCutoff = 1));
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  turnCutoff = 0.7;
+                  speedCutoff = 1;
+                }))
+        .onFalse(
+            Commands.waitSeconds(0.2)
+                .andThen(new InstantCommand(() -> turret.turretWheels(false)))
+                .alongWith(new InstantCommand(() -> turret.setFeeder(0))));
 
     driver
         .back()
@@ -251,7 +272,16 @@ public class RobotContainer {
         .start()
         .onTrue(Commands.run(() -> climber.moveToPosition(-85)).until(() -> climber.atTarget(-85)));
 
-    driver.leftBumper().whileTrue(intake.slowRetract()).onFalse(intake.extendIntake());
+    driver
+        .leftBumper()
+        .whileTrue(intake.slowRetract())
+        .onFalse(intake.extendIntake())
+        .whileFalse(
+            intake
+                .extendIntake()
+                .andThen(
+                    Commands.repeatingSequence(
+                        new InstantCommand(() -> intake.setNeutralforCurrent()))));
 
     driver.y().whileTrue(new IndexSpinReverse(turret, 0.9));
 
@@ -277,7 +307,7 @@ public class RobotContainer {
 
     // Reset gyro to 0° when B button is pressed
 
-    // OPERATOR CONTROLS
+    // MARK: - OPERATOR
 
     // Manual Intake Controls
 

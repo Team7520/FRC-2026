@@ -60,11 +60,23 @@ public final class Constants {
 
     public static Pose3d redGoalPose = new Pose3d(redHubX, redHubY, hubHeight, new Rotation3d());
 
+    public static double fieldLength = Units.inchesToMeters(651.22);
+    public static double fieldWidth = Units.inchesToMeters(317.69);
+    public static double blueDepotFeedX = 2.5;
+    public static double blueDepotFeedY = 6;
+
+    public static double redOutpostFeedX = fieldLength - blueDepotFeedX;
+    public static double redOutpostFeedY = blueDepotFeedY;
+
+    public static double blueOutpostFeedX = blueDepotFeedX;
+    public static double blueOutpostFeedY = fieldWidth - blueDepotFeedY;
+    public static double redDepotFeedX = fieldLength - blueOutpostFeedX;
+    public static double redDepotFeedY = blueOutpostFeedY;
+
+    public static double fieldWidthMidpoint = fieldWidth / 2;
+    public static double fieldLengthMidpoint = fieldLength / 2;
+
     public static double g = 9.81;
-    public static double redhubX = Units.inchesToMeters(651.22 - 182.11);
-    public static double redhubY = Units.inchesToMeters(158.84);
-    public static double bluehubX = Units.inchesToMeters(182.11);
-    public static double bluehubY = Units.inchesToMeters(158.84);
   }
 
   public static class ClimberConstants {

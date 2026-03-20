@@ -61,7 +61,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
-  Pigeon2 gyro = new Pigeon2(13, TunerConstants.kCANBus);
+  Pigeon2 gyro = new Pigeon2(14, TunerConstants.kCANBus);
   private int counter = 0;
   boolean notSet = true;
   private String gameData;
@@ -69,6 +69,7 @@ public class Drive extends SubsystemBase {
   private boolean timerStart = false;
   Timer countdown = new Timer();
   boolean prepare = false;
+  boolean layoutGood = false;
 
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 250.0 : 100.0;
 
@@ -203,10 +204,14 @@ public class Drive extends SubsystemBase {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+    layoutGood = aprilTagSystem.initiateAprilTagLayout();
   }
 
   @Override
   public void periodic() {
+    if (!layoutGood) {
+      layoutGood = aprilTagSystem.initiateAprilTagLayout();
+    }
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -272,13 +277,17 @@ public class Drive extends SubsystemBase {
 
     // Take vision from the 3 limelights (orangepi cam TBA) and feed it to pose estimator along with
     // timestamp
-    for (int j = 1; j < 4; j++) {
-      Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
-      double timestamp = aprilTagSystem.getCaptureTime(j);
-      if ((pose != null && pose.getX() != 0)) {
-        // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
-        poseEstimator.addVisionMeasurement(pose, timestamp);
-        // counter = 0;
+    for (int j = 0; j < 4; j++) {
+      if (j == 0 && !layoutGood) {
+        // skip everything
+      } else {
+        Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
+        double timestamp = aprilTagSystem.getCaptureTime(j);
+        if ((pose != null && pose.getX() != 0)) {
+          // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+          poseEstimator.addVisionMeasurement(pose, timestamp);
+          // counter = 0;
+        }
       }
     }
 

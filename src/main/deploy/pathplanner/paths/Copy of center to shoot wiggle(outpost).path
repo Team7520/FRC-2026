@@ -20,28 +20,44 @@
         "y": 1.2855349500713271
       },
       "prevControl": {
-        "x": 5.364239239947917,
-        "y": 3.1121901604794284
+        "x": 5.282710480385023,
+        "y": 3.075597577496729
       },
       "nextControl": {
-        "x": 6.730299572039942,
-        "y": -0.12477888730385178
+        "x": 6.652667617689016,
+        "y": 0.19868758915834528
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.53,
-        "y": 0.58
+        "x": 2.201768901569186,
+        "y": 0.6515406562054205
       },
       "prevControl": {
-        "x": 5.035397590361446,
-        "y": 0.6255542168674697
+        "x": 5.293593346972005,
+        "y": 0.586677206301865
+      },
+      "nextControl": {
+        "x": 0.35154065620542085,
+        "y": 0.6903566333808838
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.87,
+        "y": 2.95
+      },
+      "prevControl": {
+        "x": 0.8053067047075605,
+        "y": 1.6002282453637668
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "outpost"
+      "linkedName": "initla right climb"
     }
   ],
   "rotationTargets": [
@@ -54,15 +70,15 @@
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 1.3626556016597495,
+      "waypointRelativePos": 1.324675324675318,
       "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.4,
-      "maxWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 1.6763202725724011,
+      "maxWaypointRelativePos": 3.0,
       "constraints": {
         "maxVelocity": 1.75,
         "maxAcceleration": 1.0,
