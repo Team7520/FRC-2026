@@ -209,9 +209,9 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (!layoutGood) {
-      layoutGood = aprilTagSystem.initiateAprilTagLayout();
-    }
+    // if (!layoutGood) {
+    //   layoutGood = aprilTagSystem.initiateAprilTagLayout();
+    // }
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -277,18 +277,18 @@ public class Drive extends SubsystemBase {
 
     // Take vision from the 3 limelights (orangepi cam TBA) and feed it to pose estimator along with
     // timestamp
-    for (int j = 0; j < 4; j++) {
-      if (j == 0 && !layoutGood) {
-        // skip everything
-      } else {
-        Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
-        double timestamp = aprilTagSystem.getCaptureTime(j);
-        if ((pose != null && pose.getX() != 0)) {
-          // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
-          poseEstimator.addVisionMeasurement(pose, timestamp);
-          // counter = 0;
-        }
+    for (int j = 1; j < 4; j++) {
+      // if (j == 0 && !layoutGood) {
+      //   // skip everything
+      // } else {
+      Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);
+      double timestamp = aprilTagSystem.getCaptureTime(j);
+      if ((pose != null && pose.getX() != 0)) {
+        // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+        poseEstimator.addVisionMeasurement(pose, timestamp);
+        // counter = 0;
       }
+      // }
     }
 
     estimatorPublisher.set(poseEstimator.getEstimatedPosition());

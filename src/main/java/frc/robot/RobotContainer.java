@@ -150,17 +150,22 @@ public class RobotContainer {
     autoChooser.addOption("mid auto", drive.getAutonomousCommand("middle"));
     // autoNames.put(drive.getAutonomousCommand("middle"), "mid auto");
 
-    autoChooser.addOption("outpost single swipe + climb", drive.getAutonomousCommand("trench to outpost auto"));
+    autoChooser.addOption(
+        "outpost single swipe + climb", drive.getAutonomousCommand("trench to outpost auto"));
     // autoNames.put(drive.getAutonomousCommand("trench to outpost auto"), "central auto");
 
-    autoChooser.addOption("depot double swipe + depot", drive.getAutonomousCommand("depot side trench auto"));
     autoChooser.addOption(
-        "outpost single swipe + outpost climbless", drive.getAutonomousCommand("climbless trench to outpost auto"));
+        "depot double swipe + depot", drive.getAutonomousCommand("depot side trench auto"));
+    autoChooser.addOption(
+        "outpost single swipe + outpost climbless",
+        drive.getAutonomousCommand("climbless trench to outpost auto"));
 
     autoChooser.addOption(
-        "outpost double swipe + outpost climbless", drive.getAutonomousCommand("climbless outpost double swipe"));
+        "outpost double swipe + outpost climbless",
+        drive.getAutonomousCommand("climbless outpost double swipe"));
 
-    autoChooser.addOption("outpost double swipe + climb", drive.getAutonomousCommand("climb outpost double swipe"));
+    autoChooser.addOption(
+        "outpost double swipe + climb", drive.getAutonomousCommand("climb outpost double swipe"));
 
     // Configure the button bindings
     configureButtonBindings();
