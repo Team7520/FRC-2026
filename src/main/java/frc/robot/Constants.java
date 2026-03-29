@@ -44,8 +44,8 @@ public final class Constants {
     public static final int FEEDER_MOTOR = 40;
     public static final int INDEXER_MOTOR = 52;
     public static final int SECOND_FEED = 41;
-    public static final double TURRET_FORWARD_LIMIT = 0.75;
-    public static final double TURRET_REVERSE_LIMIT = -0.75;
+    public static final double TURRET_FORWARD_LIMIT = 0.625;
+    public static final double TURRET_REVERSE_LIMIT = -0.625;
   }
 
   public static class UniverseConstants {

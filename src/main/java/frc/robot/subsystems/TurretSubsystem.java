@@ -159,6 +159,9 @@ public class TurretSubsystem extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = 30;
+
     SoftwareLimitSwitchConfigs limits = new SoftwareLimitSwitchConfigs();
     limits.ForwardSoftLimitEnable = true;
     limits.ForwardSoftLimitThreshold = 5.5;
@@ -214,6 +217,9 @@ public class TurretSubsystem extends SubsystemBase {
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = 60;
 
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 40;
+
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     // TUNE PID
@@ -232,7 +238,10 @@ public class TurretSubsystem extends SubsystemBase {
   private void configFeeders() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 80;
+    config.CurrentLimits.StatorCurrentLimit = 60;
+
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 40;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -416,11 +425,9 @@ public class TurretSubsystem extends SubsystemBase {
 
     if (alliance == Alliance.Red) {
       // RED ALLIANCE
-      if (xPosition <= 5
-          && xPosition >= 4.2
-          && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)) {
+      if (xPosition <= 6 && xPosition >= 3.7) {
         return RobotZone.UNDER_FAR_TRENCH;
-      } else if (xPosition <= 10.5) {
+      } else if (xPosition <= 11) {
         if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
           return RobotZone.RED_FEEDING_OUTPOST;
         } else {
@@ -431,9 +438,7 @@ public class TurretSubsystem extends SubsystemBase {
       }
     } else {
       // BLUE ALLIANCE
-      if (xPosition <= 12.5
-          && xPosition >= 11.2
-          && (yPosition >= 6.6 || yPosition >= UniverseConstants.fieldWidth - 6.6)) {
+      if (xPosition <= 12.7 && xPosition >= 11) {
         return RobotZone.UNDER_FAR_TRENCH;
       } else if (xPosition >= 6) {
         if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
@@ -484,6 +489,19 @@ public class TurretSubsystem extends SubsystemBase {
                     targetPose = goal;
                     break;
                 }
+                boolean far = false;
+                if (availableAlliance) {
+                  if (DriverStation.getAlliance().get() == Alliance.Red) {
+                    if (robotPose.getX() <= 6) {
+                      far = true;
+                    }
+
+                  } else {
+                    if (robotPose.getX() >= 11) {
+                      far = true;
+                    }
+                  }
+                }
                 double dist = getDistance(robotPose, targetPose);
                 Pose2d currentPose = robotPose;
                 double currentDist = dist;
@@ -493,7 +511,7 @@ public class TurretSubsystem extends SubsystemBase {
                 currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
                 currentDist = getDistance(currentPose, targetPose);
 
-                double hoodPos = getHoodFromDistance(currentDist);
+                double hoodPos = getHoodFromDistance(currentDist, far);
                 Rotation2d turretAngle = calculateTurretAzimuth(currentPose, targetPose);
                 setTurretAzimuth(turretAngle);
                 setHoodAngle(hoodPos);
@@ -529,7 +547,7 @@ public class TurretSubsystem extends SubsystemBase {
 
           Rotation2d turretAngle = calculateTurretAzimuth(futurePose, goal);
 
-          double hoodPos = getHoodFromDistance(dist);
+          double hoodPos = getHoodFromDistance(dist, false);
 
           setTurretAzimuth(turretAngle);
           setHoodAngle(hoodPos);
@@ -574,7 +592,10 @@ public class TurretSubsystem extends SubsystemBase {
     return drive.getPose().transformBy(robotToTurret);
   }
 
-  public double getHoodFromDistance(double distance) {
+  public double getHoodFromDistance(double distance, boolean far) {
+    if (far) {
+      distance += 3;
+    }
     double scaleFactor = 0.5833;
     if (setWheels) {
       setFlywheelVelocity(getSpeedFromDistance(distance));
@@ -587,7 +608,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public double getSpeedFromDistance(double distance) {
     double b = 23.67;
-    double rpsPerDistance = 3.67;
+    double rpsPerDistance = 3.5;
     double speed = rpsPerDistance * distance + b;
 
     // for testing

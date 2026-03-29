@@ -150,17 +150,22 @@ public class RobotContainer {
     autoChooser.addOption("mid auto", drive.getAutonomousCommand("middle"));
     // autoNames.put(drive.getAutonomousCommand("middle"), "mid auto");
 
-    autoChooser.addOption("outpost single swipe + climb", drive.getAutonomousCommand("trench to outpost auto"));
+    autoChooser.addOption(
+        "outpost single swipe + climb", drive.getAutonomousCommand("trench to outpost auto"));
     // autoNames.put(drive.getAutonomousCommand("trench to outpost auto"), "central auto");
 
-    autoChooser.addOption("depot double swipe + depot", drive.getAutonomousCommand("depot side trench auto"));
     autoChooser.addOption(
-        "outpost single swipe + outpost climbless", drive.getAutonomousCommand("climbless trench to outpost auto"));
+        "depot double swipe + depot", drive.getAutonomousCommand("depot side trench auto"));
+    autoChooser.addOption(
+        "outpost single swipe + outpost climbless",
+        drive.getAutonomousCommand("climbless trench to outpost auto"));
 
     autoChooser.addOption(
-        "outpost double swipe + outpost climbless", drive.getAutonomousCommand("climbless outpost double swipe"));
+        "outpost double swipe + outpost climbless",
+        drive.getAutonomousCommand("climbless outpost double swipe"));
 
-    autoChooser.addOption("outpost double swipe + climb", drive.getAutonomousCommand("climb outpost double swipe"));
+    autoChooser.addOption(
+        "outpost double swipe + climb", drive.getAutonomousCommand("climb outpost double swipe"));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -244,10 +249,7 @@ public class RobotContainer {
 
     driver
         .rightTrigger()
-        .whileTrue(Commands.waitSeconds(0.2).andThen(new IndexSpin(turret, -1)))
-        .onTrue(
-            new InstantCommand(() -> turret.turretWheels(true))
-                .alongWith(new InstantCommand(() -> turret.setFeeder(0.7))))
+        .whileTrue(new IndexSpin(turret, -0.6))
         .onTrue(
             new InstantCommand(
                 () -> {
@@ -259,11 +261,7 @@ public class RobotContainer {
                 () -> {
                   turnCutoff = 0.7;
                   speedCutoff = 1;
-                }))
-        .onFalse(
-            Commands.waitSeconds(0.2)
-                .andThen(new InstantCommand(() -> turret.turretWheels(false)))
-                .alongWith(new InstantCommand(() -> turret.setFeeder(0))));
+                }));
 
     driver
         .back()

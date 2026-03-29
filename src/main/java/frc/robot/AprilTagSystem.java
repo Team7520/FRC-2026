@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -80,7 +79,6 @@ public class AprilTagSystem extends SubsystemBase {
   private List<AprilTag> apriltags;
   public boolean aprilTagLayoutLoaded = false;
   private final double MAX_RANGE = 20; // In meters, anything beyond 2 meters should not be used
-  private Pigeon2 gyro;
 
   private Pose2d robotPose;
   private AprilTag closestTag;
