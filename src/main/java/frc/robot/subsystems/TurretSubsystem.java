@@ -598,11 +598,12 @@ public class TurretSubsystem extends SubsystemBase {
     }
     double scaleFactor = 0.5833;
     if (setWheels) {
-      setFlywheelVelocity(getSpeedFromDistance(distance));
+      setFlywheelVelocity(15);
+      // setFlywheelVelocity(getSpeedFromDistance(distance));
     } else {
       stopFlywheels();
     }
-    double hoodPos = (distance - 2.0) * scaleFactor;
+    double hoodPos = 1; // = (distance - 2.0) * scaleFactor;
     return hoodPos;
   }
 
