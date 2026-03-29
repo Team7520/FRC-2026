@@ -249,7 +249,7 @@ public class RobotContainer {
 
     driver
         .rightTrigger()
-        .whileTrue(new IndexSpin(turret, -0.9))
+        .whileTrue(new IndexSpin(turret, -0.6))
         .onTrue(
             new InstantCommand(
                 () -> {
