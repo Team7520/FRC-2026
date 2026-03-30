@@ -94,6 +94,9 @@ public class TurretSubsystem extends SubsystemBase {
   private double feedOutpostPoseY;
   private double feedDepotPoseX;
   private double feedDepotPoseY;
+  private double updatingHoodPos = 0;
+  private boolean far = false;
+  private double updatingCurrentDist = 0;
 
   public TurretSubsystem(Drive drive) {
     this.drive = drive;
@@ -234,7 +237,7 @@ public class TurretSubsystem extends SubsystemBase {
     rightMotor.getConfigurator().apply(config);
   }
 
-  // MARK: - FEEDER CONFIG
+  // MARK: - INDEXER CONFIG
   private void configFeeders() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -248,7 +251,7 @@ public class TurretSubsystem extends SubsystemBase {
     indexMotor.getConfigurator().apply(config);
 
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
+    // MARK: - FEEDER CONFIG
     feedMotor.getConfigurator().apply(config);
 
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -489,7 +492,7 @@ public class TurretSubsystem extends SubsystemBase {
                     targetPose = goal;
                     break;
                 }
-                boolean far = false;
+                far = false;
                 if (availableAlliance) {
                   if (DriverStation.getAlliance().get() == Alliance.Red) {
                     if (robotPose.getX() <= 6) {
@@ -509,12 +512,12 @@ public class TurretSubsystem extends SubsystemBase {
 
                 double flightTime = 0.125 * currentDist + 0.665;
                 currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
-                currentDist = getDistance(currentPose, targetPose);
+                updatingCurrentDist = getDistance(currentPose, targetPose);
 
-                double hoodPos = getHoodFromDistance(currentDist, far);
+                // updatingHoodPos = getHoodFromDistance(currentDist, far);
                 Rotation2d turretAngle = calculateTurretAzimuth(currentPose, targetPose);
                 setTurretAzimuth(turretAngle);
-                setHoodAngle(hoodPos);
+                // setHoodAngle(updatingHoodPos);
                 SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
                 SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
                 break;
@@ -618,6 +621,25 @@ public class TurretSubsystem extends SubsystemBase {
       speed = 75.0;
     }
     return speed;
+  }
+
+  public Command shootCommand() {
+    return Commands.parallel(
+            Commands.run(
+                () -> {
+                  setWheels = true;
+                  updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
+                  setHoodAngle(updatingHoodPos);
+                  setFeeder(0.8);
+                }),
+            Commands.sequence(Commands.waitSeconds(0.25), Commands.run(() -> setIndexer(-0.9))))
+        .finallyDo(
+            () -> {
+              setIndexer(0);
+              setWheels = false;
+              setFeeder(0);
+              stopFlywheels();
+            });
   }
   // MARK: - PERIODIC
   @Override

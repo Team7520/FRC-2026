@@ -247,22 +247,23 @@ public class RobotContainer {
                         new InstantCommand(() -> intake.setNeutralforCurrent()))))
         .onFalse(new InstantCommand(() -> intake.stopAll()));
 
-    driver
-        .rightTrigger()
-        .whileTrue(new IndexSpin(turret, -0.6))
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  turnCutoff = 0.4;
-                  speedCutoff = 0.4;
-                }))
-        .onFalse(
-            new InstantCommand(
-                () -> {
-                  turnCutoff = 0.7;
-                  speedCutoff = 1;
-                }));
+    // driver
+    // .rightTrigger()
+    // .whileTrue(new IndexSpin(turret, -0.6))
+    // .onTrue(
+    //     new InstantCommand(
+    //         () -> {
+    //           turnCutoff = 0.4;
+    //           speedCutoff = 0.4;
+    //         }))
+    // .onFalse(
+    //     new InstantCommand(
+    //         () -> {
+    //           turnCutoff = 0.7;
+    //           speedCutoff = 1;
+    //         }));
 
+    driver.rightTrigger().whileTrue(turret.shootCommand());
     driver
         .back()
         .onTrue(Commands.run(() -> climber.moveToPosition(0)).until(() -> climber.atTarget(0)));
@@ -283,17 +284,17 @@ public class RobotContainer {
 
     driver.y().whileTrue(new IndexSpinReverse(turret, 0.9));
 
-    driver
-        .a()
-        .onTrue(
-            new InstantCommand(() -> turret.turretWheels(true))
-                .alongWith(new InstantCommand(() -> turret.setFeeder(0.8))));
+    // driver
+    //     .a()
+    //     .onTrue(
+    //         new InstantCommand(() -> turret.turretWheels(true))
+    //             .alongWith(new InstantCommand(() -> turret.setFeeder(0.8))));
 
-    driver
-        .b()
-        .onTrue(
-            new InstantCommand(() -> turret.turretWheels(false))
-                .alongWith(new InstantCommand(() -> turret.setFeeder(0))));
+    // driver
+    //     .b()
+    //     .onTrue(
+    //         new InstantCommand(() -> turret.turretWheels(false))
+    //             .alongWith(new InstantCommand(() -> turret.setFeeder(0))));
 
     driver.y().whileTrue(new IndexSpin(turret, 1));
 
