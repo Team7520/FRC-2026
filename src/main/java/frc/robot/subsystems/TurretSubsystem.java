@@ -639,6 +639,7 @@ public class TurretSubsystem extends SubsystemBase {
               setWheels = false;
               setFeeder(0);
               stopFlywheels();
+              setHoodAngle(1);
             });
   }
   // MARK: - PERIODIC
