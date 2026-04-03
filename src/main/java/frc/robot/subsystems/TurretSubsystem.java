@@ -624,23 +624,38 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public Command shootCommand() {
-    return Commands.parallel(
-            Commands.run(
-                () -> {
-                  setWheels = true;
-                  updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
-                  setHoodAngle(updatingHoodPos);
-                  setFeeder(0.8);
-                }),
-            Commands.sequence(Commands.waitSeconds(0.25), Commands.run(() -> setIndexer(-0.9))))
-        .finallyDo(
-            () -> {
-              setIndexer(0);
-              setWheels = false;
-              setFeeder(0);
-              stopFlywheels();
-              setHoodAngle(1);
-            });
+    RobotZone zone = getRobotZone();
+    if (zone == RobotZone.UNDER_FAR_TRENCH) {
+      return Commands.startEnd(
+          () -> {
+            setWheels = false;
+            setHoodAngle(1);
+            setFeeder(0);
+            setIndexer(0);
+            stopFlywheels();
+          },
+          () -> {});
+    } else {
+      return Commands.parallel(
+              Commands.run(
+                  () -> {
+                    setWheels = true;
+                    updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
+                    setHoodAngle(updatingHoodPos);
+                    setFeeder(0.8);
+                  }),
+              Commands.sequence(
+                  Commands.waitSeconds(0.25),
+                  Commands.startEnd(() -> setIndexer(-0.9), () -> setIndexer(0))))
+          .finallyDo(
+              () -> {
+                setIndexer(0);
+                setWheels = false;
+                setFeeder(0);
+                stopFlywheels();
+                setHoodAngle(1);
+              });
+    }
   }
   // MARK: - PERIODIC
   @Override
