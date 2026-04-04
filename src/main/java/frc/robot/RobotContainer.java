@@ -27,6 +27,7 @@ import frc.robot.commands.ManualTurn;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LedSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -49,6 +50,7 @@ public class RobotContainer {
   private final TurretSubsystem turret;
   private final IntakeSubsystem intake;
   private final ClimberSubsystem climber;
+  private final LedSubsystem leds;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -123,6 +125,7 @@ public class RobotContainer {
     turret = new TurretSubsystem(drive);
     intake = new IntakeSubsystem();
     climber = new ClimberSubsystem();
+    leds = new LedSubsystem();
 
     NamedCommands.registerCommand("test", Commands.print("WHAHHAHH"));
     registerNamedCommands();

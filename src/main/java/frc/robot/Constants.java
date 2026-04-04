@@ -85,4 +85,12 @@ public final class Constants {
     public static final double KP = 0.5;
     public static final double MAX_MOTOR_OUTPUT = 1;
   }
+
+  public static class LEDConstants {
+    public static final int candleID = 17;
+    public static final int onboardStartIdx = 0;
+    public static final int onboardEndIdx = 7;
+    public static final int kSlot1StartIdx = 8;
+    public static final int kSlot1EndIdx = 46;
+  }
 }
