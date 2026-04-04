@@ -167,6 +167,9 @@ public class RobotContainer {
     autoChooser.addOption(
         "outpost double swipe + climb", drive.getAutonomousCommand("climb outpost double swipe"));
 
+    autoChooser.addOption(
+        "outpost with bump", drive.getAutonomousCommand("bump climb outpost double swipe"));
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -174,9 +177,8 @@ public class RobotContainer {
   // MARK: - NAMED CMDS
 
   private void registerNamedCommands() {
-    NamedCommands.registerCommand("Turret on", new InstantCommand(() -> turret.turretWheels(true)));
-    NamedCommands.registerCommand(
-        "Turret off", new InstantCommand(() -> turret.turretWheels(false)));
+    NamedCommands.registerCommand("Turret on", turret.shootAuto(true));
+    NamedCommands.registerCommand("Turret off", turret.shootAuto(false));
     NamedCommands.registerCommand("feed index", new InstantCommand(() -> turret.feed(0.8)));
     NamedCommands.registerCommand("feed off", new InstantCommand(() -> turret.feed(0)));
     NamedCommands.registerCommand("intake spin", new InstantCommand(() -> intake.runIntake(0.5)));
@@ -247,23 +249,23 @@ public class RobotContainer {
                         new InstantCommand(() -> intake.setNeutralforCurrent()))))
         .onFalse(new InstantCommand(() -> intake.stopAll()));
 
-    // driver
-    // .rightTrigger()
-    // .whileTrue(new IndexSpin(turret, -0.6))
-    // .onTrue(
-    //     new InstantCommand(
-    //         () -> {
-    //           turnCutoff = 0.4;
-    //           speedCutoff = 0.4;
-    //         }))
-    // .onFalse(
-    //     new InstantCommand(
-    //         () -> {
-    //           turnCutoff = 0.7;
-    //           speedCutoff = 1;
-    //         }));
+    driver
+        .rightTrigger()
+        .whileTrue(turret.shootCommand())
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  turnCutoff = turret.turnCutOff();
+                  speedCutoff = turret.speedCutoff();
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  turnCutoff = 0.7;
+                  speedCutoff = 1;
+                }));
 
-    driver.rightTrigger().whileTrue(turret.shootCommand());
+    // driver.rightTrigger().whileTrue(turret.shootCommand());
     driver
         .back()
         .onTrue(Commands.run(() -> climber.moveToPosition(0)).until(() -> climber.atTarget(0)));
@@ -330,7 +332,7 @@ public class RobotContainer {
 
     operator
         .leftTrigger()
-        .whileTrue(Commands.run(() -> intake.runIntake(-0.8), intake))
+        .whileTrue(Commands.run(() -> intake.runIntake(-0.916), intake))
         .onFalse(Commands.runOnce(intake::stopAll, intake));
 
     operator.povDown().onTrue(new InstantCommand(() -> intake.resetPosition(0)));

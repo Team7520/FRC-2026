@@ -86,6 +86,7 @@ public class TurretSubsystem extends SubsystemBase {
   // private double RPS4 = 42.0;
 
   private boolean setWheels = false;
+  private boolean hoodAdjust = false;
   private boolean feederToggle = false;
 
   private double goalPoseX;
@@ -454,6 +455,25 @@ public class TurretSubsystem extends SubsystemBase {
       }
     }
   }
+
+  public double speedCutoff() {
+    RobotZone zone = getRobotZone();
+    if (zone == RobotZone.SHOOTING) {
+      return 0.4;
+    } else {
+      return 1;
+    }
+  }
+
+  public double turnCutOff() {
+    RobotZone zone = getRobotZone();
+    if (zone == RobotZone.SHOOTING) {
+      return 0.4;
+    } else {
+      return 0.7;
+    }
+  }
+
   // MARK: - AUTO AIMING
   public Command aautoAim() {
     return Commands.run(
@@ -611,7 +631,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public double getSpeedFromDistance(double distance) {
     double b = 23.67;
-    double rpsPerDistance = 3.5;
+    double rpsPerDistance = 3.35;
     double speed = rpsPerDistance * distance + b;
 
     // for testing
@@ -623,13 +643,29 @@ public class TurretSubsystem extends SubsystemBase {
     return speed;
   }
 
+  public Command shootAuto(boolean state) {
+    if (state) {
+      return Commands.run(
+          () -> {
+            setWheels = true;
+            hoodAdjust = true;
+          });
+    } else {
+      return Commands.run(
+          () -> {
+            setWheels = false;
+            hoodAdjust = false;
+          });
+    }
+  }
+
   public Command shootCommand() {
     RobotZone zone = getRobotZone();
     if (zone == RobotZone.UNDER_FAR_TRENCH) {
       return Commands.startEnd(
           () -> {
             setWheels = false;
-            setHoodAngle(1);
+            hoodAdjust = false;
             setFeeder(0);
             setIndexer(0);
             stopFlywheels();
@@ -640,8 +676,7 @@ public class TurretSubsystem extends SubsystemBase {
               Commands.run(
                   () -> {
                     setWheels = true;
-                    updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
-                    setHoodAngle(updatingHoodPos);
+                    hoodAdjust = true;
                     setFeeder(0.91);
                   }),
               Commands.sequence(
@@ -653,7 +688,7 @@ public class TurretSubsystem extends SubsystemBase {
                 setWheels = false;
                 setFeeder(0);
                 stopFlywheels();
-                setHoodAngle(1);
+                hoodAdjust = false;
               });
     }
   }
@@ -692,6 +727,12 @@ public class TurretSubsystem extends SubsystemBase {
                 UniverseConstants.redGoalPose.getY(),
                 new Rotation2d()));
     SmartDashboard.putNumber("Distance to goal", dist);
+    updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
+    if (hoodAdjust) {
+      setHoodAngle(updatingHoodPos);
+    } else {
+      setHoodAngle(1);
+    }
 
     // Rotation2d turretAngle =
     //     calculateTurretAzimuth(
