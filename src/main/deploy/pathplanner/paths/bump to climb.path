@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.5732667617689007,
-        "y": 2.462952924393724
+        "y": 2.6
       },
       "prevControl": null,
       "nextControl": {
         "x": 1.309001426533523,
-        "y": 1.725449358059914
+        "y": 1.8624964336661902
       },
       "isLocked": false,
       "linkedName": "bump outpost"
@@ -29,25 +29,23 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
     {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.46185010128290804,
-      "maxWaypointRelativePos": 1.0,
-      "constraints": {
-        "maxVelocity": 0.8,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
+      "name": "climb deploy",
+      "waypointRelativePos": 0.1134368669817689,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Deploy Climber"
+        }
       }
     }
   ],
-  "pointTowardsZones": [],
-  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.5,
+    "maxVelocity": 1.0,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,

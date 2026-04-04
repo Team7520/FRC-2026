@@ -170,6 +170,9 @@ public class RobotContainer {
     autoChooser.addOption(
         "outpost with bump", drive.getAutonomousCommand("bump climb outpost double swipe"));
 
+    autoChooser.addOption(
+        "depot bump auto", drive.getAutonomousCommand("bump depot side trench auto"));
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -185,10 +188,10 @@ public class RobotContainer {
     NamedCommands.registerCommand("intake off", new InstantCommand(() -> intake.runIntake(0)));
     NamedCommands.registerCommand(
         "Deploy Climber",
-        Commands.run(() -> climber.moveToPosition(-85)).until(() -> climber.atTarget(-85)));
+        Commands.run(() -> climber.moveToPosition(-55)).until(() -> climber.atTarget(-55)));
     NamedCommands.registerCommand(
         "Climb",
-        Commands.run(() -> climber.moveToPosition(-20)).until(() -> climber.atTarget(-20)));
+        Commands.run(() -> climber.moveToPosition(-11.5)).until(() -> climber.atTarget(-11.5)));
     NamedCommands.registerCommand("intake out", intake.extendIntake());
     NamedCommands.registerCommand("intake in", intake.retractIntake());
   }
@@ -271,7 +274,7 @@ public class RobotContainer {
         .onTrue(Commands.run(() -> climber.moveToPosition(0)).until(() -> climber.atTarget(0)));
     driver
         .start()
-        .onTrue(Commands.run(() -> climber.moveToPosition(-85)).until(() -> climber.atTarget(-85)));
+        .onTrue(Commands.run(() -> climber.moveToPosition(-55)).until(() -> climber.atTarget(-55)));
 
     driver
         .leftBumper()

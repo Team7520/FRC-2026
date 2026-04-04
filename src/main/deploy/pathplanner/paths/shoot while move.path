@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5732667617689007,
-        "y": 2.6
+        "x": 3.636650602409638,
+        "y": 5.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.852425106990014,
-        "y": 1.9195292439372322
+        "x": 2.2664621968616254,
+        "y": 6.92679029957204
       },
       "isLocked": false,
-      "linkedName": "bump outpost"
+      "linkedName": "after bump"
     },
     {
       "anchor": {
-        "x": 4.440156918687589,
-        "y": 0.6127246790299581
+        "x": 4.434373493975903,
+        "y": 7.466301204819277
       },
       "prevControl": {
-        "x": 2.9392724679029953,
-        "y": 0.2504422253922972
+        "x": 3.27567760342368,
+        "y": 7.936005706134095
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,16 +30,27 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.7100213219616169,
-      "rotationDegrees": -90.0
+      "waypointRelativePos": 0.5159914712153506,
+      "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "intake in",
-      "waypointRelativePos": 0.5050641458474017,
+      "name": "feed",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "feed index"
+        }
+      }
+    },
+    {
+      "name": "intake",
+      "waypointRelativePos": 0.6698176907494897,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -51,7 +62,7 @@
   ],
   "globalConstraints": {
     "maxVelocity": 0.7,
-    "maxAcceleration": 2.0,
+    "maxAcceleration": 0.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -59,7 +70,7 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
