@@ -19,7 +19,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "shoot while move 🤔🤔"
+            "pathName": "shoot while move"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 start to outpost"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 middle back bump shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "bump to depot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.7
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake in"
           }
         }
       ]
