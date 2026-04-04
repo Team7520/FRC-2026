@@ -642,11 +642,11 @@ public class TurretSubsystem extends SubsystemBase {
                     setWheels = true;
                     updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
                     setHoodAngle(updatingHoodPos);
-                    setFeeder(0.8);
+                    setFeeder(0.91);
                   }),
               Commands.sequence(
                   Commands.waitSeconds(0.25),
-                  Commands.startEnd(() -> setIndexer(-0.9), () -> setIndexer(0))))
+                  Commands.startEnd(() -> setIndexer(-0.916), () -> setIndexer(0))))
           .finallyDo(
               () -> {
                 setIndexer(0);
