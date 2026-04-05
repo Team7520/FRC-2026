@@ -147,8 +147,10 @@ public class RobotContainer {
     //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     // autoNames.put(drive.getAutonomousCommand("Basic"), "outpost");
 
-    autoChooser.addOption("mid auto", drive.getAutonomousCommand("middle"));
+    autoChooser.addOption("pure climb auto", drive.getAutonomousCommand("middle"));
     // autoNames.put(drive.getAutonomousCommand("middle"), "mid auto");
+
+    autoChooser.addOption("middle depot and climb", drive.getAutonomousCommand("middle outpost climb"));
 
     autoChooser.addOption(
         "depot double swipe + depot", drive.getAutonomousCommand("depot side trench auto"));

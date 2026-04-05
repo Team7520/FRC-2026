@@ -11,78 +11,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Turret wheels"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "middle to depot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake out"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 7.5
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intake spin"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Turret on"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "feed index"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
+            "pathName": "middle to depot"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 2.0
           }
         },
         {
