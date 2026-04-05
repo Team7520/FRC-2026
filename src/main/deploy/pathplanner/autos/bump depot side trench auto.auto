@@ -7,43 +7,49 @@
         {
           "type": "path",
           "data": {
-            "pathName": "start to depot"
+            "pathName": "start to outpost bump"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "depot to outpost"
+            "pathName": "middle back bump shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "outpost to ramp"
+            "pathName": "shoot while move"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ramp to middle field bottom"
+            "pathName": "2 start to outpost bump"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "middle field bottom to middle field top"
+            "pathName": "2 middle back bump shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "middle field top to start"
+            "pathName": "bump to depot"
           }
         },
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": "start to climb"
+            "waitTime": 0.7
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake in"
           }
         }
       ]

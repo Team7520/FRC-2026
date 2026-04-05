@@ -3,40 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.53,
-        "y": 0.58
+        "x": 8.0,
+        "y": 2.489
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.8822402532703986,
-        "y": 2.679946166309345
+        "x": 8.051754636233952,
+        "y": 3.16181027104137
       },
       "isLocked": false,
-      "linkedName": "outpost"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.87,
-        "y": 2.95
+        "x": 3.5732667617689007,
+        "y": 2.6
       },
       "prevControl": {
-        "x": 0.5365708777618312,
-        "y": 0.9367762710758587
+        "x": 6.62679029957204,
+        "y": 2.6829101283880177
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "initla right climb"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.7157326130992459,
+      "minWaypointRelativePos": 0.25,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 1.0,
+        "maxVelocity": 2.75,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -45,24 +50,36 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "flywheels on",
+      "waypointRelativePos": 0.55,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Turret on"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 1.5,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.0,
     "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 2.0,
+    "rotation": -90.0
   },
   "useDefaultConstraints": false
 }
