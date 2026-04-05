@@ -1,0 +1,117 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.5,
+        "y": 4.8
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.002011412268189,
+        "y": 4.300242510699002
+      },
+      "isLocked": false,
+      "linkedName": "2nd swipe depot"
+    },
+    {
+      "anchor": {
+        "x": 6.406833095577745,
+        "y": 4.675463623395149
+      },
+      "prevControl": {
+        "x": 6.5974603794209425,
+        "y": 4.513719261346374
+      },
+      "nextControl": {
+        "x": 5.979857346647646,
+        "y": 5.0377460770328115
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.4834337349397595,
+        "y": 5.5
+      },
+      "prevControl": {
+        "x": 6.445072289156626,
+        "y": 5.485084337349398
+      },
+      "nextControl": {
+        "x": 4.357831430333163,
+        "y": 5.517458851021136
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.636650602409638,
+        "y": 5.5
+      },
+      "prevControl": {
+        "x": 5.708176993279823,
+        "y": 5.509029957203994
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "after bump"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.8248962655601684,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.9384615384615267,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "turret on",
+      "waypointRelativePos": 1.8311951384199843,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Turret on"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.9,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 1.5,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": false
+}

@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "start to outpost bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "middle back bump shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shoot while move"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 start to outpost bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 middle back bump shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "bump to depot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.7
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intake in"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

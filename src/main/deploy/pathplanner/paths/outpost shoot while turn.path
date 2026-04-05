@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.3,
-        "y": 0.669265060240964
+        "x": 3.5732667617689007,
+        "y": 2.6
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.363,
-        "y": 0.49442168674698794
+        "x": 1.852425106990014,
+        "y": 1.9195292439372322
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "bump outpost"
     },
     {
       "anchor": {
-        "x": 7.3,
-        "y": 2.7
+        "x": 4.440156918687589,
+        "y": 0.6127246790299581
       },
       "prevControl": {
-        "x": 7.3,
-        "y": 0.6893012048192761
+        "x": 2.9392724679029953,
+        "y": 0.2504422253922972
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,16 +30,28 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.6481327800829865,
+      "waypointRelativePos": 0.7100213219616169,
       "rotationDegrees": -90.0
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "intake in",
+      "waypointRelativePos": 0.5050641458474017,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "intake in"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 4.0,
-    "maxAcceleration": 5.0,
+    "maxVelocity": 0.7,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -52,8 +64,8 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 1.0,
-    "rotation": 180.0
+    "velocity": 0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }
