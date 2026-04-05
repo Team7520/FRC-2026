@@ -1,0 +1,68 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.4956348074179737,
+        "y": 2.566462196861627
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.8478750606883723,
+        "y": 4.666408363170972
+      },
+      "isLocked": false,
+      "linkedName": "outpost"
+    },
+    {
+      "anchor": {
+        "x": 0.87,
+        "y": 2.95
+      },
+      "prevControl": {
+        "x": 0.5365708777618312,
+        "y": 0.9367762710758587
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "initla right climb"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.7157326130992459,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 1.5,
+    "maxAcceleration": 1.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": false
+}

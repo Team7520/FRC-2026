@@ -5,21 +5,21 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "start to outpost"
+            "name": "intake out"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "middle back bump shoot"
+            "pathName": "middle shoot"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "shoot while move 🤔🤔"
+            "name": "intake in"
           }
         }
       ]

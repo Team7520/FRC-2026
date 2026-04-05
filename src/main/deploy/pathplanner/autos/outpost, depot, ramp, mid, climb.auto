@@ -7,19 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "start to outpost"
+            "pathName": "start to depot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "middle back bump shoot"
+            "pathName": "depot to outpost"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "shoot while move 🤔🤔"
+            "pathName": "outpost to middle field bottom"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "middle field bottom to middle field top"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "middle field top to climb"
           }
         }
       ]

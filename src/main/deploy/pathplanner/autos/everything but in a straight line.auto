@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "start to depot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "depot to outpost"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "outpost to ramp"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ramp to middle field bottom"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "middle field bottom to middle field top"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "middle field top to start"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "start to climb"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
