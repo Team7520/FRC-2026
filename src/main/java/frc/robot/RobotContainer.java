@@ -315,6 +315,8 @@ public class RobotContainer {
 
     // Manual Intake Controls
 
+    operator.a().onTrue(new InstantCommand(() -> turret.override()));
+
     new Trigger(() -> Math.abs(operator.getLeftX()) > 0.1)
         .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftX()));
 
