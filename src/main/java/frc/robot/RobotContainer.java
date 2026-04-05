@@ -27,6 +27,7 @@ import frc.robot.commands.ManualTurn;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LedSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -49,6 +50,7 @@ public class RobotContainer {
   private final TurretSubsystem turret;
   private final IntakeSubsystem intake;
   private final ClimberSubsystem climber;
+  private final LedSubsystem leds;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -123,6 +125,7 @@ public class RobotContainer {
     turret = new TurretSubsystem(drive);
     intake = new IntakeSubsystem();
     climber = new ClimberSubsystem();
+    leds = new LedSubsystem();
 
     NamedCommands.registerCommand("test", Commands.print("WHAHHAHH"));
     registerNamedCommands();
@@ -170,6 +173,9 @@ public class RobotContainer {
     autoChooser.addOption(
         "outpost with bump", drive.getAutonomousCommand("bump climb outpost double swipe"));
 
+    autoChooser.addOption(
+        "depot bump auto", drive.getAutonomousCommand("bump depot side trench auto"));
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -185,10 +191,10 @@ public class RobotContainer {
     NamedCommands.registerCommand("intake off", new InstantCommand(() -> intake.runIntake(0)));
     NamedCommands.registerCommand(
         "Deploy Climber",
-        Commands.run(() -> climber.moveToPosition(-85)).until(() -> climber.atTarget(-85)));
+        Commands.run(() -> climber.moveToPosition(-55)).until(() -> climber.atTarget(-55)));
     NamedCommands.registerCommand(
         "Climb",
-        Commands.run(() -> climber.moveToPosition(-20)).until(() -> climber.atTarget(-20)));
+        Commands.run(() -> climber.moveToPosition(-11.5)).until(() -> climber.atTarget(-11.5)));
     NamedCommands.registerCommand("intake out", intake.extendIntake());
     NamedCommands.registerCommand("intake in", intake.retractIntake());
   }
@@ -271,7 +277,7 @@ public class RobotContainer {
         .onTrue(Commands.run(() -> climber.moveToPosition(0)).until(() -> climber.atTarget(0)));
     driver
         .start()
-        .onTrue(Commands.run(() -> climber.moveToPosition(-85)).until(() -> climber.atTarget(-85)));
+        .onTrue(Commands.run(() -> climber.moveToPosition(-55)).until(() -> climber.atTarget(-55)));
 
     driver
         .leftBumper()
@@ -311,6 +317,8 @@ public class RobotContainer {
     // MARK: - OPERATOR
 
     // Manual Intake Controls
+
+    operator.a().onTrue(new InstantCommand(() -> turret.override()));
 
     new Trigger(() -> Math.abs(operator.getLeftX()) > 0.1)
         .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftX()));
