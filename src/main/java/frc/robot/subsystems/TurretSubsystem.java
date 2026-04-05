@@ -268,24 +268,6 @@ public class TurretSubsystem extends SubsystemBase {
     setIndexer(-speed);
   }
 
-  public Command moveToPosition(Rotation2d targetAngle) {
-    return Commands.run(() -> setTurretAzimuth(targetAngle), this)
-        .until(() -> atTarget(targetAngle));
-  }
-
-  public boolean atTarget(Rotation2d targetAngle) {
-    double currentPosition = azimuthMotor.getPosition().getValueAsDouble();
-    double targetPosition = targetAngle.getRotations();
-    double error = Math.abs(targetPosition - currentPosition);
-    return error < 0.1;
-  }
-
-  public boolean hoodAtTarget(double position) {
-    double current = hoodMotor.getPosition().getValueAsDouble();
-    double error = Math.abs(position - current);
-    return error < 0.1;
-  }
-
   public void turn(double speed) {
     azimuthMotor.setControl(duty.withOutput(speed));
   }
@@ -334,15 +316,10 @@ public class TurretSubsystem extends SubsystemBase {
     hoodMotor.setControl(positionRequest.withPosition(targetPosition));
   }
 
-  public Command setTurretAngleCommand(double hoodPosition) {
-    return Commands.run(() -> setHoodAngle(hoodPosition), this)
-        .until(() -> hoodAtTarget(hoodPosition));
-  }
-
   /**
    * @param robotPose
    * @param goalPose
-   * @return an Roation2D from −180°, 180°
+   * @return an Rotation2D from −180°, 180°
    */
   public Rotation2d calculateTurretAzimuth(Pose2d robotPose, Pose2d goalPose) {
     Transform2d robotToTurret =
@@ -373,11 +350,6 @@ public class TurretSubsystem extends SubsystemBase {
     hoodMotor.setControl(duty.withOutput(-speed));
   }
 
-  public void startHoldPivot() {
-    double holdPivotRot = hoodMotor.getPosition().getValueAsDouble();
-    hoodMotor.setControl(positionRequest.withPosition(holdPivotRot));
-  }
-
   public void setFlywheelVelocity(double rps) {
     SmartDashboard.putNumber("RPS target", rps);
     leftMotor.setControl(velocityVoltRequest.withVelocity(rps).withEnableFOC(true));
@@ -386,17 +358,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setFeeder(double speed) {
     feedMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
-  }
-
-  public void toggleFeeder() {
-    if (feederToggle) {
-      feederToggle = false;
-      setFeeder(0);
-    } else {
-      feederToggle = true;
-      setFeeder(1);
-    }
-  }
+  }  
 
   public void setIndexer(double speed) {
     indexMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
@@ -570,47 +532,8 @@ public class TurretSubsystem extends SubsystemBase {
         this);
   }
 
-  public Command autoAim() {
-    return Commands.run(
-        () -> {
-          Pose2d robotPose = drive.getPose();
-
-          Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
-
-          Pose2d futurePose = predictFuturePose(robotPose, 0.9, 0.15);
-
-          double dist = getDistance(futurePose, goal);
-
-          Rotation2d turretAngle = calculateTurretAzimuth(futurePose, goal);
-
-          double hoodPos = getHoodFromDistance(dist, false);
-
-          setTurretAzimuth(turretAngle);
-          setHoodAngle(hoodPos);
-        },
-        this);
-  }
-
-  public Command aimTest() {
-    return Commands.run(
-        () -> {
-          Pose2d robotPose = drive.getPose();
-
-          Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
-
-          Rotation2d turretAngle = calculateTurretAzimuth(robotPose, goal);
-
-          setTurretAzimuth(turretAngle);
-        },
-        this);
-  }
-
   public double hoodPositionToDegrees(double position) {
     return 5.0 * position + 20.0;
-  }
-
-  public double hoodDegreesToPosition(double degrees) {
-    return (degrees - 20.0) / 5.0;
   }
 
   public double getDistance(Pose2d robotPose, Pose2d goalPose) {
