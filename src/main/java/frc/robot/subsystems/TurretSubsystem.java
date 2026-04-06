@@ -99,7 +99,11 @@ public class TurretSubsystem extends SubsystemBase {
   private double feedDepotPoseY;
   private double updatingHoodPos = 0;
   private boolean far = false;
-  private double updatingCurrentDist = 0;
+  double updatingCurrentDist = 0;
+  private Alliance alliance = null;
+  private Pose2d goal;
+  private Pose2d feedOutpostPose;
+  private Pose2d feedDepotPose;
 
   public TurretSubsystem(Drive drive) {
     this.drive = drive;
@@ -280,8 +284,13 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   private double optimizeTurretPosition(double targetPosition) {
-    final double FORWARD_LIMIT = TurretConstants.TURRET_FORWARD_LIMIT;
-    final double REVERSE_LIMIT = TurretConstants.TURRET_REVERSE_LIMIT;
+    double forwardLimit = 0.5;
+    double reverseLimit = -0.5;
+
+    if (getRobotZone() == RobotZone.SHOOTING) {
+      forwardLimit = TurretConstants.TURRET_FORWARD_LIMIT;
+      reverseLimit = TurretConstants.TURRET_REVERSE_LIMIT;
+    }
 
     // Get current position
     double currentPosition = azimuthMotor.getPosition().getValueAsDouble();
@@ -292,13 +301,13 @@ public class TurretSubsystem extends SubsystemBase {
     // Try the target position as-is and with ±1 rotation offset
     double[] candidates = {clampedTarget, clampedTarget + 1.0, clampedTarget - 1.0};
 
-    // Find the candidate that is within hardware limits and requires shortest distance
+    // Find the candidate that is within bounds and requires shortest distance
     double bestPosition = clampedTarget;
     double shortestDistance = Double.MAX_VALUE;
 
     for (double candidate : candidates) {
-      // Check if within hardware limits
-      if (candidate >= REVERSE_LIMIT && candidate <= FORWARD_LIMIT) {
+      // Check if within dynamic limits
+      if (candidate >= reverseLimit && candidate <= forwardLimit) {
         // Calculate distance from current position
         double distance = Math.abs(candidate - currentPosition);
         if (distance < shortestDistance) {
@@ -396,7 +405,6 @@ public class TurretSubsystem extends SubsystemBase {
     Pose2d turretPose = getTurretPose();
     double xPosition = turretPose.getX();
     double yPosition = turretPose.getY();
-    Alliance alliance = DriverStation.getAlliance().get();
 
     if (alliance == Alliance.Red) {
       // RED ALLIANCE
@@ -471,11 +479,6 @@ public class TurretSubsystem extends SubsystemBase {
               case BLUE_FEEDING_OUTPOST:
                 {
                   Pose2d robotPose = drive.getPose();
-                  Pose2d goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
-                  Pose2d feedOutpostPose =
-                      new Pose2d(feedOutpostPoseX, feedOutpostPoseY, new Rotation2d());
-                  Pose2d feedDepotPose =
-                      new Pose2d(feedDepotPoseX, feedDepotPoseY, new Rotation2d());
                   Pose2d targetPose;
                   switch (zone) {
                     case SHOOTING:
@@ -495,7 +498,7 @@ public class TurretSubsystem extends SubsystemBase {
                   }
                   far = false;
                   if (availableAlliance) {
-                    if (DriverStation.getAlliance().get() == Alliance.Red) {
+                    if (alliance == Alliance.Red) {
                       if (robotPose.getX() <= 6) {
                         far = true;
                       }
@@ -515,10 +518,23 @@ public class TurretSubsystem extends SubsystemBase {
                   currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
                   updatingCurrentDist = getDistance(currentPose, targetPose);
 
-                  // updatingHoodPos = getHoodFromDistance(currentDist, far);
+                  updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
                   Rotation2d turretAngle = calculateTurretAzimuth(currentPose, targetPose);
                   setTurretAzimuth(turretAngle);
-                  // setHoodAngle(updatingHoodPos);
+
+                  if (setWheels) {
+                    setFlywheelVelocity(getSpeedFromDistance(updatingCurrentDist, far));
+                  } else {
+                    stopFlywheels();
+                  }
+
+                  if (hoodAdjust && !override) {
+                    setHoodAngle(updatingHoodPos);
+                  } else {
+                    setHoodAngle(1);
+                  }
+
+                  SmartDashboard.putNumber("Distance to target", currentDist);
                   SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
                   SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
                   break;
@@ -563,16 +579,15 @@ public class TurretSubsystem extends SubsystemBase {
       distance += 3;
     }
     double scaleFactor = 0.5833;
-    if (setWheels) {
-      setFlywheelVelocity(getSpeedFromDistance(distance));
-    } else {
-      stopFlywheels();
-    }
+
     double hoodPos = (distance - 2.0) * scaleFactor;
     return hoodPos;
   }
 
-  public double getSpeedFromDistance(double distance) {
+  public double getSpeedFromDistance(double distance, boolean far) {
+    if (far) {
+      distance += 3;
+    }
     double b = 23.67;
     double rpsPerDistance = 3.35;
     double speed = rpsPerDistance * distance + b;
@@ -588,13 +603,13 @@ public class TurretSubsystem extends SubsystemBase {
 
   public Command shootAuto(boolean state) {
     if (state) {
-      return Commands.run(
+      return Commands.runOnce(
           () -> {
             setWheels = true;
             hoodAdjust = true;
           });
     } else {
-      return Commands.run(
+      return Commands.runOnce(
           () -> {
             setWheels = false;
             hoodAdjust = false;
@@ -602,57 +617,59 @@ public class TurretSubsystem extends SubsystemBase {
     }
   }
 
+  // MARK: - SHOOT COMMAND
   public Command shootCommand() {
-    if (override) {
-      return Commands.parallel(
-              Commands.run(
-                  () -> {
-                    setWheels = true;
-                    hoodAdjust = false;
-                    setFeeder(0.91);
-                  }),
-              Commands.sequence(
-                  Commands.waitSeconds(0.25),
-                  Commands.startEnd(() -> setIndexer(-0.916), () -> setIndexer(0))))
-          .finallyDo(
-              () -> {
-                setIndexer(0);
-                setWheels = false;
-                setFeeder(0);
-                stopFlywheels();
-              });
-    }
-    RobotZone zone = getRobotZone();
-    if (zone == RobotZone.UNDER_FAR_TRENCH) {
-      return Commands.startEnd(
-          () -> {
-            setWheels = false;
-            hoodAdjust = false;
-            setFeeder(0);
-            setIndexer(0);
-            stopFlywheels();
-          },
-          () -> {});
-    } else {
-      return Commands.parallel(
-              Commands.run(
-                  () -> {
-                    setWheels = true;
-                    hoodAdjust = true;
-                    setFeeder(0.91);
-                  }),
-              Commands.sequence(
-                  Commands.waitSeconds(0.25),
-                  Commands.startEnd(() -> setIndexer(-0.916), () -> setIndexer(0))))
-          .finallyDo(
-              () -> {
-                setIndexer(0);
-                setWheels = false;
-                setFeeder(0);
-                stopFlywheels();
-                hoodAdjust = false;
-              });
-    }
+    return Commands.defer(
+        () -> {
+          if (override) {
+            return Commands.parallel(
+                    Commands.run(
+                        () -> {
+                          setWheels = true;
+                          hoodAdjust = false;
+                          setFeeder(0.91);
+                        }),
+                    Commands.sequence(
+                        Commands.waitSeconds(0.25),
+                        Commands.startEnd(() -> setIndexer(-0.916), () -> setIndexer(0))))
+                .finallyDo(
+                    () -> {
+                      setIndexer(0);
+                      setWheels = false;
+                      setFeeder(0);
+                      stopFlywheels();
+                    });
+          }
+          RobotZone zone = getRobotZone();
+          if (zone == RobotZone.UNDER_FAR_TRENCH) {
+            return Commands.startEnd(
+                () -> {
+                  hoodAdjust = false;
+                  setFeeder(0);
+                  setIndexer(0);
+                },
+                () -> {});
+          } else {
+            return Commands.parallel(
+                    Commands.run(
+                        () -> {
+                          setWheels = true;
+                          hoodAdjust = true;
+                          setFeeder(0.91);
+                        }),
+                    Commands.sequence(
+                        Commands.waitSeconds(0.25),
+                        Commands.startEnd(() -> setIndexer(-0.916), () -> setIndexer(0))))
+                .finallyDo(
+                    () -> {
+                      setIndexer(0);
+                      setFeeder(0);
+                      setWheels = false;
+                      hoodAdjust = false;
+                    });
+          }
+        },
+        java.util.Set.of());
   }
   // MARK: - PERIODIC
   @Override
@@ -681,20 +698,13 @@ public class TurretSubsystem extends SubsystemBase {
     // SmartDashboard.putNumber(
     //     "Absolute Turret rotatations", encoder.getAbsolutePosition().getValueAsDouble());
 
-    double dist =
-        getDistance(
-            drive.getPose(),
-            new Pose2d(
-                UniverseConstants.redGoalPose.getX(),
-                UniverseConstants.redGoalPose.getY(),
-                new Rotation2d()));
-    SmartDashboard.putNumber("Distance to goal", dist);
-    updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
-    if (hoodAdjust && !override) {
-      setHoodAngle(updatingHoodPos);
-    } else {
-      setHoodAngle(1);
-    }
+    // moved to aautoAim
+    // updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
+    // if (hoodAdjust && !override) {
+    //   setHoodAngle(updatingHoodPos);
+    // } else {
+    //   setHoodAngle(1);
+    // }
 
     // Rotation2d turretAngle =
     //     calculateTurretAzimuth(
@@ -734,6 +744,7 @@ public class TurretSubsystem extends SubsystemBase {
           feedDepotPoseX = UniverseConstants.redDepotFeedX;
           feedDepotPoseY = UniverseConstants.redDepotFeedY;
           availableAlliance = true;
+          alliance = Alliance.Red;
         } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
           goalPoseX = UniverseConstants.blueGoalPose.getX();
           goalPoseY = UniverseConstants.blueGoalPose.getY();
@@ -742,7 +753,11 @@ public class TurretSubsystem extends SubsystemBase {
           feedDepotPoseX = UniverseConstants.blueOutpostFeedX;
           feedDepotPoseY = UniverseConstants.blueOutpostFeedX;
           availableAlliance = true;
+          alliance = Alliance.Blue;
         }
+        goal = new Pose2d(goalPoseX, goalPoseY, new Rotation2d());
+        feedOutpostPose = new Pose2d(feedOutpostPoseX, feedOutpostPoseY, new Rotation2d());
+        feedDepotPose = new Pose2d(feedDepotPoseX, feedDepotPoseY, new Rotation2d());
       } catch (NoSuchElementException nsee) {
         System.out.println("No available alliance!");
       }

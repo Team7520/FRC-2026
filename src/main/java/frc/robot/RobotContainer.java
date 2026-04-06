@@ -181,7 +181,7 @@ public class RobotContainer {
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Turret on", turret.shootAuto(true));
     NamedCommands.registerCommand("Turret off", turret.shootAuto(false));
-    NamedCommands.registerCommand("feed index", new InstantCommand(() -> turret.feed(0.8)));
+    NamedCommands.registerCommand("feed index", new InstantCommand(() -> turret.feed(0.916)));
     NamedCommands.registerCommand("feed off", new InstantCommand(() -> turret.feed(0)));
     NamedCommands.registerCommand("intake spin", new InstantCommand(() -> intake.runIntake(0.5)));
     NamedCommands.registerCommand("intake off", new InstantCommand(() -> intake.runIntake(0)));
