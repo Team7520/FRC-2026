@@ -3,52 +3,50 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.53,
-        "y": 0.58
+        "x": 3.5217302573203195,
+        "y": 4.039
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.8822402532703986,
-        "y": 2.679946166309345
+        "x": 2.7491304344111627,
+        "y": 4.039
       },
       "isLocked": false,
-      "linkedName": "outpost"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.87,
-        "y": 2.95
+        "x": 2.765,
+        "y": 4.039
       },
       "prevControl": {
-        "x": 0.5365708777618312,
-        "y": 0.9367762710758587
+        "x": 3.553962720521597,
+        "y": 4.039
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "initla right climb"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
     {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.7157326130992459,
-      "maxWaypointRelativePos": 1.0,
-      "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 1.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
+      "name": "turret on",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "turret on"
+        }
       }
     }
   ],
-  "pointTowardsZones": [],
-  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 1.5,
-    "maxAcceleration": 1.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

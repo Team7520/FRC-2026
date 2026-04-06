@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.StrictFollower;
@@ -65,6 +64,7 @@ public class TurretSubsystem extends SubsystemBase {
   Drive drive;
   Alliance currentAlliance = null;
   boolean availableAlliance = false;
+  private double holding = 0;
   private final CANcoder encoder;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle positionRequest = new PositionDutyCycle(0);
@@ -348,6 +348,13 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void hood(double speed) {
     hoodMotor.setControl(duty.withOutput(-speed));
+    holding = hoodMotor.getPosition().getValueAsDouble();
+  }
+
+  public void holdPosition() {
+    if (override) {
+      hoodMotor.setControl(positionRequest.withPosition(holding));
+    }
   }
 
   public void setFlywheelVelocity(double rps) {
@@ -358,7 +365,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setFeeder(double speed) {
     feedMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
-  }  
+  }
 
   public void setIndexer(double speed) {
     indexMotor.setControl(duty.withOutput(speed).withEnableFOC(true));
@@ -683,9 +690,7 @@ public class TurretSubsystem extends SubsystemBase {
                 new Rotation2d()));
     SmartDashboard.putNumber("Distance to goal", dist);
     updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
-    if (override) {
-      hoodMotor.setControl(new CoastOut());
-    } else if (hoodAdjust) {
+    if (hoodAdjust && !override) {
       setHoodAngle(updatingHoodPos);
     } else {
       setHoodAngle(1);
