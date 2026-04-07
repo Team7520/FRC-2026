@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1374889086069206,
-        "y": 5.970523513753327
+        "x": 1.6324679029957196,
+        "y": 6.034022824536376
       },
       "isLocked": false,
       "linkedName": null
@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 1.429,
-        "y": 4.707
+        "y": 4.56
       },
       "prevControl": {
-        "x": 2.3786539485359355,
-        "y": 4.876006211180124
+        "x": 1.3995720399429386,
+        "y": 5.713495007132666
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "depot climb begin"
     }
   ],
   "rotationTargets": [
@@ -34,7 +34,7 @@
       "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 0.5,
+      "waypointRelativePos": 0.8775510204081611,
       "rotationDegrees": 180.0
     }
   ],

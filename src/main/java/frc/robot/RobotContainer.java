@@ -300,9 +300,12 @@ public class RobotContainer {
     //         new InstantCommand(() -> turret.turretWheels(false))
     //             .alongWith(new InstantCommand(() -> turret.setFeeder(0))));
 
-    driver.y().whileTrue(new IndexSpin(turret, 0.916));
+    driver.y().whileTrue(new IndexSpin(turret, 0.5));
 
-    driver.rightBumper().whileTrue(new IntakeCommand(intake, -0.6));
+    driver
+        .rightBumper()
+        .whileTrue(new IntakeCommand(intake, -0.916))
+        .whileTrue(new IndexSpin(turret, 0.5));
 
     driver.x().onTrue(Commands.runOnce(() -> drive.stopWithX()));
 

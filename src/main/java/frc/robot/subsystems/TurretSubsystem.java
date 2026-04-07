@@ -512,7 +512,8 @@ public class TurretSubsystem extends SubsystemBase {
                   double dist = getDistance(robotPose, targetPose);
                   Pose2d currentPose = robotPose;
                   double currentDist = dist;
-                  double odometryLatency = 0.13;
+                  // 0.13
+                  double odometryLatency = 0.1;
 
                   double flightTime = 0.125 * currentDist + 0.665;
                   currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
@@ -589,7 +590,8 @@ public class TurretSubsystem extends SubsystemBase {
       distance += 3;
     }
     double b = 23.67;
-    double rpsPerDistance = 3.35;
+    // 3.35
+    double rpsPerDistance = 3.3;
     double speed = rpsPerDistance * distance + b;
 
     // for testing
