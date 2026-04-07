@@ -153,7 +153,8 @@ public class RobotContainer {
     autoChooser.addOption("pure climb auto", drive.getAutonomousCommand("middle"));
     // autoNames.put(drive.getAutonomousCommand("middle"), "mid auto");
 
-    autoChooser.addOption("middle depot and climb", drive.getAutonomousCommand("middle outpost climb"));
+    autoChooser.addOption(
+        "middle depot and climb", drive.getAutonomousCommand("middle outpost climb"));
 
     autoChooser.addOption(
         "depot double swipe + depot", drive.getAutonomousCommand("depot side trench auto"));
@@ -180,7 +181,7 @@ public class RobotContainer {
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Turret on", turret.shootAuto(true));
     NamedCommands.registerCommand("Turret off", turret.shootAuto(false));
-    NamedCommands.registerCommand("feed index", new InstantCommand(() -> turret.feed(0.8)));
+    NamedCommands.registerCommand("feed index", new InstantCommand(() -> turret.feed(0.916)));
     NamedCommands.registerCommand("feed off", new InstantCommand(() -> turret.feed(0)));
     NamedCommands.registerCommand("intake spin", new InstantCommand(() -> intake.runIntake(0.5)));
     NamedCommands.registerCommand("intake off", new InstantCommand(() -> intake.runIntake(0)));
@@ -299,9 +300,12 @@ public class RobotContainer {
     //         new InstantCommand(() -> turret.turretWheels(false))
     //             .alongWith(new InstantCommand(() -> turret.setFeeder(0))));
 
-    driver.y().whileTrue(new IndexSpin(turret, 0.916));
+    driver.y().whileTrue(new IndexSpin(turret, 0.5));
 
-    driver.rightBumper().whileTrue(new IntakeCommand(intake, -0.6));
+    driver
+        .rightBumper()
+        .whileTrue(new IntakeCommand(intake, -0.916))
+        .whileTrue(new IndexSpin(turret, 0.5));
 
     driver.x().onTrue(Commands.runOnce(() -> drive.stopWithX()));
 
@@ -323,7 +327,8 @@ public class RobotContainer {
         .whileTrue(new ManualTurn(turret, () -> operator.getRightX()));
 
     new Trigger(() -> Math.abs(operator.getRightY()) > 0.1)
-        .whileTrue(new ManualHood(turret, () -> operator.getRightY()));
+        .whileTrue(new ManualHood(turret, () -> operator.getRightY()))
+        .onFalse(new InstantCommand(() -> turret.holdPosition()));
 
     // operator.a().onTrue(intake.extendIntake());
     // operator.b().onTrue(intake.retractIntake());

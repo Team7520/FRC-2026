@@ -4,24 +4,24 @@
     {
       "anchor": {
         "x": 1.429,
-        "y": 4.707
+        "y": 4.56
       },
       "prevControl": null,
       "nextControl": {
         "x": 0.9634002299844209,
-        "y": 4.707649750686897
+        "y": 4.560649750686896
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "depot climb begin"
     },
     {
       "anchor": {
-        "x": 0.9383496007098486,
-        "y": 4.707
+        "x": 1.1,
+        "y": 4.56
       },
       "prevControl": {
-        "x": 1.4939129630289791,
-        "y": 4.707077908747026
+        "x": 1.6555633623191306,
+        "y": 4.560077908747026
       },
       "nextControl": null,
       "isLocked": false,

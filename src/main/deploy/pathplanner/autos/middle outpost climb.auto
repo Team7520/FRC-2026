@@ -11,15 +11,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "middle to depot"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "middle to depot"
+                }
+              }
+            ]
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 3.0
           }
         },
         {
@@ -31,20 +38,39 @@
                 "data": {
                   "pathName": "depot to climb"
                 }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "depot climb"
+                }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Deploy Climber"
+                  "name": "intake in"
                 }
               }
             ]
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "depot climb"
+            "name": "Turret off"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "feed off"
           }
         },
         {

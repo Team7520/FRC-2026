@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.5,
-        "y": 4.8
+        "x": 5.8892867332382295,
+        "y": 4.7919115549215405
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.002011412268189,
-        "y": 4.300242510699002
+        "x": 6.122182596291013,
+        "y": 4.209671897289586
       },
       "isLocked": false,
       "linkedName": "2nd swipe depot"
     },
     {
       "anchor": {
-        "x": 6.406833095577745,
-        "y": 4.675463623395149
+        "x": 6.989072753209699,
+        "y": 4.157917261055635
       },
       "prevControl": {
-        "x": 6.5974603794209425,
-        "y": 4.513719261346374
+        "x": 6.753207718296915,
+        "y": 4.075045762302496
       },
       "nextControl": {
-        "x": 5.979857346647646,
-        "y": 5.0377460770328115
+        "x": 7.4678031383737515,
+        "y": 4.326119828815976
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.4834337349397595,
+        "x": 6.510342368045648,
         "y": 5.5
       },
       "prevControl": {
-        "x": 6.445072289156626,
-        "y": 5.485084337349398
+        "x": 7.8736561366722215,
+        "y": 5.412967189728959
       },
       "nextControl": {
-        "x": 4.357831430333163,
-        "y": 5.517458851021136
+        "x": 5.386891621954083,
+        "y": 5.571720155611683
       },
       "isLocked": false,
       "linkedName": null
@@ -62,18 +62,26 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.8248962655601684,
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.4749536178107578,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 2.04267161410018,
       "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.9384615384615267,
+      "minWaypointRelativePos": 2.1533219761499147,
       "maxWaypointRelativePos": 3.0,
       "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 1.0,
+        "maxVelocity": 2.25,
+        "maxAcceleration": 5.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -85,7 +93,7 @@
   "eventMarkers": [
     {
       "name": "turret on",
-      "waypointRelativePos": 1.8311951384199843,
+      "waypointRelativePos": 2.7189097103918094,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",

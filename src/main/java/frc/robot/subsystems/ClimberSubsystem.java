@@ -28,6 +28,11 @@ public class ClimberSubsystem extends SubsystemBase {
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
+    // config.CurrentLimits.StatorCurrentLimitEnable = true;
+    // config.CurrentLimits.StatorCurrentLimit = 60;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
+
     config.MotorOutput.NeutralMode = com.ctre.phoenix6.signals.NeutralModeValue.Brake;
 
     climberMotor.getConfigurator().apply(config);
@@ -40,20 +45,20 @@ public class ClimberSubsystem extends SubsystemBase {
     double output = MathUtil.applyDeadband(joystickInput, deadband);
 
     if (Math.abs(output) > 0) {
-      climberMotor.setControl(dutyRequest.withOutput(output));
+      climberMotor.setControl(dutyRequest.withOutput(output).withEnableFOC(true));
       holdPosition = climberMotor.getPosition().getValueAsDouble();
     } else {
-      climberMotor.setControl(holdRequest.withPosition(holdPosition));
+      climberMotor.setControl(holdRequest.withPosition(holdPosition).withEnableFOC(true));
     }
   }
 
   public void stop() {
     holdPosition = climberMotor.getPosition().getValueAsDouble();
-    climberMotor.setControl(holdRequest.withPosition(holdPosition));
+    climberMotor.setControl(holdRequest.withPosition(holdPosition).withEnableFOC(true));
   }
 
   public void moveToPosition(double position) {
-    climberMotor.setControl(holdRequest.withPosition(position));
+    climberMotor.setControl(holdRequest.withPosition(position).withEnableFOC(true));
     holdPosition = position;
   }
 

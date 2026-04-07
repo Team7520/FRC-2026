@@ -39,7 +39,18 @@
       "command": {
         "type": "named",
         "data": {
-          "name": "turret on"
+          "name": "Turret on"
+        }
+      }
+    },
+    {
+      "name": "climber up",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Deploy Climber"
         }
       }
     }
