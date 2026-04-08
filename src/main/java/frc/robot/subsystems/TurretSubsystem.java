@@ -589,11 +589,13 @@ public class TurretSubsystem extends SubsystemBase {
     if (far) {
       distance += 3;
     }
-    double b = 23.67;
-    // 3.35
-    double rpsPerDistance = 3.3;
+    // double b = 23.67;
+    // // 3.35
+    // double rpsPerDistance = 3.3;
+    double b = 21;
+    double rpsPerDistance = 4;
     double speed = rpsPerDistance * distance + b;
-
+    // double speed = SmartDashboard.getNumber("RPS", 0);
     // for testing
     // double speed = 36.0;
 
@@ -737,6 +739,8 @@ public class TurretSubsystem extends SubsystemBase {
     // lastAngle = currentAngle;
     // SmartDashboard.putNumber("Turret angle", azimuthMotor.getPosition().getValue().abs(Degree));
     if (!availableAlliance) {
+      SmartDashboard.putNumber("RPS", 0);
+
       try {
         if (DriverStation.getAlliance().get() == Alliance.Red) {
           goalPoseX = UniverseConstants.redGoalPose.getX();
