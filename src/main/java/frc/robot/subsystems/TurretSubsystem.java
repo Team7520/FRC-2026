@@ -487,57 +487,96 @@ public class TurretSubsystem extends SubsystemBase {
                     case BLUE_FEEDING_DEPOT:
                     case RED_FEEDING_DEPOT:
                       targetPose = feedDepotPose;
+                      // for testing only
+                      // targetPose = new Pose2d(8.270494, 4.034663, new Rotation2d());
                       break;
                     case BLUE_FEEDING_OUTPOST:
                     case RED_FEEDING_OUTPOST:
                       targetPose = feedOutpostPose;
+                      // for testing only
+                      // targetPose = new Pose2d(8.270494, 4.034663, new Rotation2d());
                       break;
                     default:
                       targetPose = goal;
                       break;
                   }
-                  far = false;
-                  if (availableAlliance) {
-                    if (alliance == Alliance.Red) {
-                      if (robotPose.getX() <= 6) {
-                        far = true;
-                      }
+                  if (zone == RobotZone.SHOOTING) {
+                    System.out.println("test");
+                    far = false;
+                    if (availableAlliance) {
+                      if (alliance == Alliance.Red) {
+                        if (robotPose.getX() <= 6) {
+                          far = true;
+                        }
 
-                    } else {
-                      if (robotPose.getX() >= 11) {
-                        far = true;
+                      } else {
+                        if (robotPose.getX() >= 11) {
+                          far = true;
+                        }
                       }
                     }
-                  }
-                  double dist = getDistance(robotPose, targetPose);
-                  Pose2d currentPose = robotPose;
-                  double currentDist = dist;
-                  // 0.13
-                  double odometryLatency = 0.1;
+                    // shooting maps
+                    double dist = getDistance(robotPose, targetPose);
+                    Pose2d currentPose = robotPose;
+                    double currentDist = dist;
+                    // 0.13
+                    double odometryLatency = 0.1;
 
-                  double flightTime = 0.125 * currentDist + 0.665;
-                  currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
-                  updatingCurrentDist = getDistance(currentPose, targetPose);
+                    double flightTime = 0.125 * currentDist + 0.665;
+                    currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
+                    updatingCurrentDist = getDistance(currentPose, targetPose);
 
-                  updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
-                  Rotation2d turretAngle = calculateTurretAzimuth(currentPose, targetPose);
-                  setTurretAzimuth(turretAngle);
+                    updatingHoodPos = getHoodFromDistance(updatingCurrentDist, far);
+                    Rotation2d turretAngle = calculateTurretAzimuth(currentPose, targetPose);
+                    setTurretAzimuth(turretAngle);
 
-                  if (setWheels) {
-                    setFlywheelVelocity(getSpeedFromDistance(updatingCurrentDist, far));
+                    if (setWheels) {
+                      setFlywheelVelocity(getSpeedFromDistance(updatingCurrentDist, far));
+                    } else {
+                      stopFlywheels();
+                    }
+
+                    if (hoodAdjust && !override) {
+                      setHoodAngle(updatingHoodPos);
+                    } else {
+                      setHoodAngle(1);
+                    }
+
+                    SmartDashboard.putNumber("Distance to target", currentDist);
+                    SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
+                    SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
                   } else {
-                    stopFlywheels();
-                  }
+                    // passing map
+                    double dist = getDistance(robotPose, targetPose);
+                    Pose2d currentPose = robotPose;
+                    double currentDist = dist;
+                    // 0.13
+                    double odometryLatency = 0.1;
 
-                  if (hoodAdjust && !override) {
-                    setHoodAngle(updatingHoodPos);
-                  } else {
-                    setHoodAngle(1);
-                  }
+                    double flightTime = 0.114 * currentDist + 0.638;
+                    currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
+                    updatingCurrentDist = getDistance(currentPose, targetPose);
 
-                  SmartDashboard.putNumber("Distance to target", currentDist);
-                  SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
-                  SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
+                    updatingHoodPos = 3.5;
+                    Rotation2d turretAngle = calculateTurretAzimuth(currentPose, targetPose);
+                    setTurretAzimuth(turretAngle);
+
+                    if (setWheels) {
+                      setFlywheelVelocity(getPassingSpeed(updatingCurrentDist));
+                    } else {
+                      stopFlywheels();
+                    }
+
+                    if (hoodAdjust && !override) {
+                      setHoodAngle(updatingHoodPos);
+                    } else {
+                      setHoodAngle(1);
+                    }
+
+                    SmartDashboard.putNumber("Distance to target", currentDist);
+                    SmartDashboard.putNumber("TURRET ROT", turretAngle.getRotations());
+                    SmartDashboard.putNumber("TURRET DEG", turretAngle.getDegrees());
+                  }
                   break;
                 }
               case UNDER_FAR_TRENCH:
@@ -598,6 +637,19 @@ public class TurretSubsystem extends SubsystemBase {
     // double speed = SmartDashboard.getNumber("RPS", 0);
     // for testing
     // double speed = 36.0;
+
+    if (speed > 75.0) {
+      speed = 75.0;
+    }
+    return speed;
+  }
+
+  public double getPassingSpeed(double distance) {
+    // double speed = 30.0;
+    // double speed = SmartDashboard.getNumber("RPS", 0);
+    double b = 13.4;
+    double rpsPerDistance = 4.2;
+    double speed = rpsPerDistance * distance + b;
 
     if (speed > 75.0) {
       speed = 75.0;
