@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -79,6 +80,7 @@ public class AprilTagSystem extends SubsystemBase {
   private List<AprilTag> apriltags;
   public boolean aprilTagLayoutLoaded = false;
   private final double MAX_RANGE = 20; // In meters, anything beyond 2 meters should not be used
+  private Pigeon2 gyro;
 
   private Pose2d robotPose;
   private AprilTag closestTag;
@@ -98,17 +100,17 @@ public class AprilTagSystem extends SubsystemBase {
     // Initialize the cameras
     cameraList.add(
         new CameraInfo(
-            "piCam",
-            new PhotonCamera("Arducam_OV9281_USB_Camera"),
+            "Cam1",
+            new PhotonCamera("FrontRightCam"),
             false,
             new Transform3d(
-                0.122363, // X forward
-                0.275093, // Y right
-                0.161672,
+                0.283940504, // X forward
+                -0.188200919, // Y right
+                0.205,
                 new Rotation3d(
                     0.0,
-                    Units.degreesToRadians(20), // pitched up
-                    Units.degreesToRadians(90) // facing forward
+                    Math.toRadians(15), // pitched up
+                    0.0 // facing forward
                     ))));
 
     limes.add(
@@ -146,9 +148,9 @@ public class AprilTagSystem extends SubsystemBase {
                 0.221779,
                 0.287592,
                 new Rotation3d(
-                    Units.degreesToRadians(-15), // 14.028, 35
-                    Units.degreesToRadians(20.25), // 65, 25, 42.063 20.25                 25
-                    Units.degreesToRadians(-137))))); // -148))))); // 145, -121.321, 137.937
+                    Units.degreesToRadians(35), // 14.028, 35
+                    Units.degreesToRadians(42.063), // 65, 25, 42.063
+                    Units.degreesToRadians(-121.131))))); // 145, -121.321, 137.937
   }
 
   public String getLimeName(int index) {
@@ -239,7 +241,8 @@ public class AprilTagSystem extends SubsystemBase {
     for (int i = 0; i < 5 && !aprilTagLayoutLoaded; i++) {
       try {
         aprilTagFieldLayout =
-            AprilTagFieldLayout.loadFromResource(AprilTagFields.k2026RebuiltWelded.m_resourceFile);
+            AprilTagFieldLayout.loadFromResource(
+                AprilTagFields.k2025ReefscapeAndyMark.m_resourceFile);
         apriltags = aprilTagFieldLayout.getTags();
         aprilTagLayoutLoaded = true;
       } catch (IOException e) {
