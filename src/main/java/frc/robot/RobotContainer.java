@@ -172,6 +172,9 @@ public class RobotContainer {
     autoChooser.addOption(
         "depot bump auto", drive.getAutonomousCommand("bump depot side trench auto"));
 
+    autoChooser.addOption(
+        "2.5 outpost", drive.getAutonomousCommand("2.5 bump climb outpost double swipe"));
+
     // Configure the button bindings
     configureButtonBindings();
   }
