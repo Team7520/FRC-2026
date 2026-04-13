@@ -90,6 +90,8 @@ public class TurretSubsystem extends SubsystemBase {
   private boolean hoodAdjust = false;
   private boolean feederToggle = false;
   private boolean override = false;
+  private boolean unwrap = false;
+  private boolean startIndexer = false;
 
   private double goalPoseX;
   private double goalPoseY;
@@ -279,24 +281,19 @@ public class TurretSubsystem extends SubsystemBase {
   public void setTurretAzimuth(Rotation2d targetAngle) {
     double target = targetAngle.getRotations();
     double clampedTarget = optimizeTurretPosition(target);
-    SmartDashboard.putNumber("Clamped Tartget", clampedTarget);
+    // SmartDashboard.putNumber("Clamped Tartget", clampedTarget);
     azimuthMotor.setControl(positionRequest.withPosition(clampedTarget));
   }
 
   private double optimizeTurretPosition(double targetPosition) {
-    double forwardLimit = 0.5;
-    double reverseLimit = -0.5;
-
-    if (getRobotZone() == RobotZone.SHOOTING) {
-      forwardLimit = TurretConstants.TURRET_FORWARD_LIMIT;
-      reverseLimit = TurretConstants.TURRET_REVERSE_LIMIT;
-    }
+    double forwardLimit = TurretConstants.TURRET_FORWARD_LIMIT;
+    double reverseLimit = TurretConstants.TURRET_REVERSE_LIMIT;
 
     // Get current position
     double currentPosition = azimuthMotor.getPosition().getValueAsDouble();
 
-    // Clamp target to the valid range [-0.5, 0.5]
-    double clampedTarget = MathUtil.clamp(targetPosition, -0.5, 0.5);
+    // Clamp target to the valid range [-0.75, 0.75] (±270°)
+    double clampedTarget = MathUtil.clamp(targetPosition, -0.75, 0.75);
 
     // Try the target position as-is and with ±1 rotation offset
     double[] candidates = {clampedTarget, clampedTarget + 1.0, clampedTarget - 1.0};
@@ -304,18 +301,38 @@ public class TurretSubsystem extends SubsystemBase {
     // Find the candidate that is within bounds and requires shortest distance
     double bestPosition = clampedTarget;
     double shortestDistance = Double.MAX_VALUE;
+    boolean isUnwrapping = false;
+    double temp = 0;
+    // clampedTarget = -0.24
+    // Current = 0.75
+    // Candidates = -0.24, 0.24
 
+    // clampedTarget = -0.5
+    // Current = 0.5
+    // Candidates: -0.5, 0.5
     for (double candidate : candidates) {
-      // Check if within dynamic limits
+      // Check if within hardware limits (±0.75 rotations = ±270°)
       if (candidate >= reverseLimit && candidate <= forwardLimit) {
         // Calculate distance from current position
         double distance = Math.abs(candidate - currentPosition);
         if (distance < shortestDistance) {
           shortestDistance = distance;
           bestPosition = candidate;
+          // Check if we're using an unwrapped position (±1.0 offset)
+          // This happens when turret needs to go beyond ±270° limits
+          isUnwrapping = Math.abs(currentPosition - candidate) > 0.4;
+          temp = Math.abs(candidate - clampedTarget);
+          // System.out.println("Clamped target: " + clampedTarget + "\nCandidate: " + candidate);
         }
       }
     }
+
+    SmartDashboard.putNumber("difference", temp);
+    SmartDashboard.putNumber("Target:", clampedTarget);
+    SmartDashboard.putNumber("Current", currentPosition);
+    SmartDashboard.putNumber("Unclamped", targetPosition);
+    // Update unwrap state - true when motor position is outside normal ±0.75 range
+    unwrap = isUnwrapping;
 
     return bestPosition;
   }
@@ -408,7 +425,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     if (alliance == Alliance.Red) {
       // RED ALLIANCE
-      if (xPosition <= 6 && xPosition >= 3.7) {
+      if (xPosition <= 6 && xPosition >= 3.7 && (yPosition >= 6.7 || yPosition <= 1.3)) {
         return RobotZone.UNDER_FAR_TRENCH;
       } else if (xPosition <= 11) {
         if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
@@ -421,7 +438,7 @@ public class TurretSubsystem extends SubsystemBase {
       }
     } else {
       // BLUE ALLIANCE
-      if (xPosition <= 12.7 && xPosition >= 11) {
+      if (xPosition <= 12.7 && xPosition >= 11 && (yPosition <= 1.3 || yPosition >= 6.7)) {
         return RobotZone.UNDER_FAR_TRENCH;
       } else if (xPosition >= 6) {
         if (yPosition >= UniverseConstants.fieldWidthMidpoint) {
@@ -501,7 +518,7 @@ public class TurretSubsystem extends SubsystemBase {
                       break;
                   }
                   if (zone == RobotZone.SHOOTING) {
-                    System.out.println("test");
+                    // System.out.println("test");
                     far = false;
                     if (availableAlliance) {
                       if (alliance == Alliance.Red) {
@@ -557,7 +574,7 @@ public class TurretSubsystem extends SubsystemBase {
                     currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
                     updatingCurrentDist = getDistance(currentPose, targetPose);
 
-                    updatingHoodPos = 3.5;
+                    updatingHoodPos = 4.0;
                     Rotation2d turretAngle = calculateTurretAzimuth(currentPose, targetPose);
                     setTurretAzimuth(turretAngle);
 
@@ -631,7 +648,7 @@ public class TurretSubsystem extends SubsystemBase {
     // double b = 23.67;
     // // 3.35
     // double rpsPerDistance = 3.3;
-    double b = 21;
+    double b = 22.5;
     double rpsPerDistance = 4;
     double speed = rpsPerDistance * distance + b;
     // double speed = SmartDashboard.getNumber("RPS", 0);
@@ -647,10 +664,12 @@ public class TurretSubsystem extends SubsystemBase {
   public double getPassingSpeed(double distance) {
     // double speed = 30.0;
     // double speed = SmartDashboard.getNumber("RPS", 0);
-    double b = 13.4;
-    double rpsPerDistance = 4.2;
+    double b = 13.2;
+    double rpsPerDistance = 4.7;
     double speed = rpsPerDistance * distance + b;
-
+    if (distance > 7) {
+      speed += speed + (distance * 3);
+    }
     if (speed > 75.0) {
       speed = 75.0;
     }
@@ -730,6 +749,7 @@ public class TurretSubsystem extends SubsystemBase {
   // MARK: - PERIODIC
   @Override
   public void periodic() {
+    SmartDashboard.putBoolean("Is unwrapping?", isUnwrapping());
     SmartDashboard.putNumber(
         "Azimuth Stator Current", azimuthMotor.getStatorCurrent().getValueAsDouble());
     SmartDashboard.putNumber(
@@ -750,6 +770,8 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber(
         "Hood Angle Degrees", hoodPositionToDegrees(hoodMotor.getPosition().getValueAsDouble()));
     SmartDashboard.putNumber("Hood rotations", hoodMotor.getPosition().getValueAsDouble());
+    SmartDashboard.putBoolean("Turret Unwrapping", unwrap);
+    SmartDashboard.putNumber("Turret Position", azimuthMotor.getPosition().getValueAsDouble());
     // SmartDashboard.putNumber("Turret Rotations", azimuthMotor.getPosition().getValueAsDouble());
     // SmartDashboard.putNumber(
     //     "Absolute Turret rotatations", encoder.getAbsolutePosition().getValueAsDouble());
@@ -820,5 +842,9 @@ public class TurretSubsystem extends SubsystemBase {
         System.out.println("No available alliance!");
       }
     }
+  }
+
+  public boolean isUnwrapping() {
+    return unwrap;
   }
 }

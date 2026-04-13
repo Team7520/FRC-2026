@@ -84,6 +84,12 @@
           "data": {
             "pathName": "climbing"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Climb"
+          }
         }
       ]
     }

@@ -358,7 +358,7 @@ public class AprilTagSystem extends SubsystemBase {
               aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
               robotToCamera.inverse());
       return robotPose.toPose2d();
-    } else if (cam2Use != -1) {
+    } else if (cam2Use != -1 && cam2Use != 3) {
       if (LimelightHelpers.getTV(limes.get(cam2Use - 1).name)) {
         return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limes.get(cam2Use - 1).name)
             .pose;
