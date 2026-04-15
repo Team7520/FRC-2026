@@ -574,7 +574,7 @@ public class TurretSubsystem extends SubsystemBase {
                     currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
                     updatingCurrentDist = getDistance(currentPose, targetPose);
 
-                    updatingHoodPos = 4.0;
+                    updatingHoodPos = getHoodFromDistancePassing(updatingCurrentDist);
                     Rotation2d turretAngle = calculateTurretAzimuth(currentPose, targetPose);
                     setTurretAzimuth(turretAngle);
 
@@ -641,6 +641,12 @@ public class TurretSubsystem extends SubsystemBase {
     return hoodPos;
   }
 
+  public double getHoodFromDistancePassing(double distance) {
+    double scaleFactor = 0.15;
+    double hoodPos = (distance - 3) * scaleFactor + 4;
+    return hoodPos;
+  }
+
   public double getSpeedFromDistance(double distance, boolean far) {
     if (far) {
       distance += 3;
@@ -662,17 +668,17 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public double getPassingSpeed(double distance) {
-    // double speed = 30.0;
-    // double speed = SmartDashboard.getNumber("RPS", 0);
-    double b = 13.2;
-    double rpsPerDistance = 4.7;
-    double speed = rpsPerDistance * distance + b;
-    if (distance > 7) {
-      speed += speed + (distance * 3);
-    }
-    if (speed > 75.0) {
-      speed = 75.0;
-    }
+    double speed = 0.964286 * distance * distance - 6.60714 * distance + 41.0;
+    // double speed = 6.97297 * distance - 1.13514;
+    speed = Math.max(0, Math.min(speed, 120));
+    // double rpsPerDistance = 4.7;
+    // double speed = rpsPerDistance * distance + b;
+    // if (distance > 7) {
+    //   speed += speed + (distance * 3);
+    // }
+    // if (speed > 75.0) {
+    //   speed = 75.0;
+    // }
     return speed;
   }
 
