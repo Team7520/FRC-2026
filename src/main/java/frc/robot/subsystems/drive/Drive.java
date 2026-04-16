@@ -277,7 +277,7 @@ public class Drive extends SubsystemBase {
 
     // Take vision from the 3 limelights (orangepi cam TBA) and feed it to pose estimator along with
     // timestamp
-    for (int j = 1; j < 4; j++) {
+    for (int j = 0; j < 4; j++) {
       // if (j == 0 && !layoutGood) {
       //   // skip everything
       // } else {

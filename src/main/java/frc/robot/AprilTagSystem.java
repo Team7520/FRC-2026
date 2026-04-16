@@ -99,12 +99,12 @@ public class AprilTagSystem extends SubsystemBase {
     cameraList.add(
         new CameraInfo(
             "piCam",
-            new PhotonCamera("Arducam_OV9281_USB_Camera"),
+            new PhotonCamera("piCam"),
             false,
             new Transform3d(
-                0.122363, // X forward
-                0.275093, // Y right
-                0.161672,
+                0.1223625, // X forward
+                0.5, // 275093, // Y right
+                0.161671826,
                 new Rotation3d(
                     0.0,
                     Units.degreesToRadians(20), // pitched up
