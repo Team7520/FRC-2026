@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.979857346647646,
-        "y": 4.041469329529244
+        "x": 6.355078459343795,
+        "y": 4.132039942938659
       },
       "isLocked": false,
       "linkedName": "depot-2nd-end"
     },
     {
       "anchor": {
-        "x": 6.976134094151213,
-        "y": 3.7050641940085596
+        "x": 7.403109843081312,
+        "y": 3.4333523537803137
       },
       "prevControl": {
-        "x": 6.717360912981454,
-        "y": 4.1191012838801715
+        "x": 7.244177414199379,
+        "y": 3.8950132186278332
       },
       "nextControl": {
-        "x": 7.420602208764396,
-        "y": 2.993915210627472
+        "x": 7.674821683309556,
+        "y": 2.6440941512125535
       },
       "isLocked": false,
       "linkedName": null
@@ -70,7 +70,7 @@
       "rotationDegrees": 89.88062317831005
     },
     {
-      "waypointRelativePos": 2.2196162046908325,
+      "waypointRelativePos": 1.9509594882729209,
       "rotationDegrees": 0.0
     }
   ],
@@ -112,7 +112,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 1.75,
+    "velocity": 0.0,
     "rotation": 0.0
   },
   "reversed": false,

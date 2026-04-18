@@ -202,7 +202,7 @@ public class TurretSubsystem extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 30;
+    config.CurrentLimits.StatorCurrentLimit = 45;
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     config.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
     config.Feedback.RotorToSensorRatio = 50; // Adjust based on your gear ratio
@@ -215,7 +215,7 @@ public class TurretSubsystem extends SubsystemBase {
     config.SoftwareLimitSwitch = limits;
 
     // TUNE PID
-    config.Slot0.kP = 9;
+    config.Slot0.kP = 9.5;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
 
@@ -227,7 +227,7 @@ public class TurretSubsystem extends SubsystemBase {
     TalonFXConfiguration config = new TalonFXConfiguration();
 
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 60;
+    config.CurrentLimits.StatorCurrentLimit = 55;
 
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40;
@@ -250,7 +250,7 @@ public class TurretSubsystem extends SubsystemBase {
   private void configFeeders() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 60;
+    config.CurrentLimits.StatorCurrentLimit = 55;
 
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 40;
@@ -539,7 +539,7 @@ public class TurretSubsystem extends SubsystemBase {
                     // 0.13
                     double odometryLatency = 0.1;
 
-                    double flightTime = 0.125 * currentDist + 0.665;
+                    double flightTime = 0.118 * currentDist + 0.665;
                     currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
                     updatingCurrentDist = getDistance(currentPose, targetPose);
 
@@ -655,7 +655,7 @@ public class TurretSubsystem extends SubsystemBase {
     // // 3.35
     // double rpsPerDistance = 3.3;
     double b = 22.5;
-    double rpsPerDistance = 4;
+    double rpsPerDistance = 3.77; // 3.82 3.87
     double speed = rpsPerDistance * distance + b;
     // double speed = SmartDashboard.getNumber("RPS", 0);
     // for testing
