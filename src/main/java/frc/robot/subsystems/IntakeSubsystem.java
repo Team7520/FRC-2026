@@ -18,7 +18,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
   double extendedPosition = -16.5;
   double retractedPosition = -5;
-  private final double CURRENT_THRESHOLD = -20;
+  private final double CURRENT_THRESHOLD = -25;
 
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(57);
@@ -96,14 +96,19 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setNeutralforCurrent() {
+    System.out.println("running neutral current");
     double currentDraw = extendMotor.getTorqueCurrent().getValueAsDouble();
     if (currentDraw <= CURRENT_THRESHOLD) {
       setCoast();
     }
   }
 
+  public Command backDrive() {
+    return Commands.run(() -> setNeutralforCurrent(), this);
+  }
+
   public Command extendIntake() {
-    return Commands.run(() -> extend(), this).until(() -> atTarget(extendedPosition));
+    return Commands.run(() -> extend()).until(() -> atTarget(extendedPosition));
     // .finallyDo(() -> setNeutral());
   }
 
@@ -115,7 +120,7 @@ public class IntakeSubsystem extends SubsystemBase {
   // }
 
   public Command retractIntake() {
-    return Commands.runOnce(() -> retract(), this);
+    return Commands.runOnce(() -> retract());
   }
 
   public Command slowRetract() {
@@ -134,5 +139,10 @@ public class IntakeSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Intake Position", extendMotor.getPosition().getValueAsDouble());
     SmartDashboard.putNumber(
         "Intake deploy current", extendMotor.getTorqueCurrent().getValueAsDouble());
+    if (this.getCurrentCommand() != null) {
+      SmartDashboard.putString("current intake commaned", this.getCurrentCommand().getName());
+    } else {
+      SmartDashboard.putString("current intake commaned", "null");
+    }
   }
 }

@@ -539,7 +539,7 @@ public class TurretSubsystem extends SubsystemBase {
                     // 0.13
                     double odometryLatency = 0.1;
 
-                    double flightTime = 0.118 * currentDist + 0.665;
+                    double flightTime = 0.123 * currentDist + 0.665;
                     currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
                     updatingCurrentDist = getDistance(currentPose, targetPose);
 
@@ -570,7 +570,7 @@ public class TurretSubsystem extends SubsystemBase {
                     // 0.13
                     double odometryLatency = 0.1;
 
-                    double flightTime = 0.114 * currentDist + 0.638;
+                    double flightTime = 0.125 * currentDist + 0.638;
                     currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
                     updatingCurrentDist = getDistance(currentPose, targetPose);
 
@@ -643,7 +643,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public double getHoodFromDistancePassing(double distance) {
     double scaleFactor = 0.15;
-    double hoodPos = (distance - 3) * scaleFactor + 4;
+    double hoodPos = (distance - 3) * scaleFactor + 3.5;
     return hoodPos;
   }
 
@@ -655,7 +655,7 @@ public class TurretSubsystem extends SubsystemBase {
     // // 3.35
     // double rpsPerDistance = 3.3;
     double b = 22.5;
-    double rpsPerDistance = 3.77; // 3.82 3.87
+    double rpsPerDistance = 3.8; // 3.82 3.87
     double speed = rpsPerDistance * distance + b;
     // double speed = SmartDashboard.getNumber("RPS", 0);
     // for testing
