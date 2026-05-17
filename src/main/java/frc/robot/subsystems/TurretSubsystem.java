@@ -752,6 +752,20 @@ public class TurretSubsystem extends SubsystemBase {
         },
         java.util.Set.of());
   }
+
+  public Command shootWeak() {
+    return Commands.defer(
+      () -> {
+        return Commands.run(
+          () -> {
+            setFeeder(0.91);
+            setIndexer(-0.916);
+            setFlywheelVelocity(30);
+          }
+        );
+      },
+      java.util.Set.of());
+  }
   // MARK: - PERIODIC
   @Override
   public void periodic() {

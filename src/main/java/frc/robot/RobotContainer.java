@@ -264,7 +264,7 @@ public class RobotContainer {
 
     driver
         .rightTrigger()
-        .whileTrue(turret.shootCommand())
+        .whileTrue(turret.shootWeak())
         .onTrue(
             new InstantCommand(
                 () -> {
