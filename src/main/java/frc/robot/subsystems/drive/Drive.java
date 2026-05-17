@@ -279,6 +279,7 @@ public class Drive extends SubsystemBase {
     // timestamp
     for (int j = 1; j < 4; j++) {
       // if (j == 0 && !layoutGood) {
+
       //   // skip everything
       // } else {
       Pose2d pose = aprilTagSystem.getCurrentRobotFieldPose(j);

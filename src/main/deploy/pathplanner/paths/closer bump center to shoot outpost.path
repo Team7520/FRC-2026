@@ -3,85 +3,61 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.75,
-        "y": 4.7919115549215405
+        "x": 7.7,
+        "y": 2.489
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.982895863052783,
-        "y": 4.209671897289586
-      },
-      "isLocked": false,
-      "linkedName": "2nd swipe depot"
-    },
-    {
-      "anchor": {
-        "x": 7.341144578313252,
-        "y": 4.308192771084338
-      },
-      "prevControl": {
-        "x": 7.105279543400468,
-        "y": 4.225321272331199
-      },
-      "nextControl": {
-        "x": 7.819874963477305,
-        "y": 4.476395338844679
+        "x": 7.543024251069899,
+        "y": 2.993437945791726
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.678544935805991,
-        "y": 5.7
+        "x": 6.691483594864478,
+        "y": 2.592339514978602
       },
       "prevControl": {
-        "x": 8.044570135618839,
-        "y": 5.7132020932710095
+        "x": 7.098251706939329,
+        "y": 2.8748173705861357
       },
       "nextControl": {
-        "x": 5.476792929206127,
-        "y": 5.688385542168675
+        "x": 6.225691868758913,
+        "y": 2.268873038516405
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.636650602409638,
-        "y": 5.7
+        "x": 3.5732667617689007,
+        "y": 2.37
       },
       "prevControl": {
-        "x": 5.708176993279823,
-        "y": 5.709029957203994
+        "x": 6.62679029957204,
+        "y": 2.4529101283880177
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "after bump"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 180.0
-    },
-    {
-      "waypointRelativePos": 1.3369294605809188,
-      "rotationDegrees": -90.0
-    },
-    {
-      "waypointRelativePos": 1.9593360995850693,
+      "waypointRelativePos": 1.0,
       "rotationDegrees": 0.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 2.1533219761499147,
-      "maxWaypointRelativePos": 3.0,
+      "minWaypointRelativePos": 1.35,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 3.0,
-        "maxAcceleration": 5.0,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -92,8 +68,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "turret on",
-      "waypointRelativePos": 2.7189097103918094,
+      "name": "flywheels on",
+      "waypointRelativePos": 1.1,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -118,8 +94,8 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 2.0,
-    "rotation": 90.0
+    "velocity": 2.5,
+    "rotation": -90.0
   },
   "useDefaultConstraints": false
 }

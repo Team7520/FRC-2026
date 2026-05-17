@@ -250,10 +250,10 @@ public class TurretSubsystem extends SubsystemBase {
   private void configFeeders() {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 55;
+    config.CurrentLimits.StatorCurrentLimit = 60;
 
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 40;
+    config.CurrentLimits.SupplyCurrentLimit = 45;
 
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
@@ -539,7 +539,7 @@ public class TurretSubsystem extends SubsystemBase {
                     // 0.13
                     double odometryLatency = 0.1;
 
-                    double flightTime = 0.123 * currentDist + 0.665;
+                    double flightTime = 0.13 * currentDist + 0.665;
                     currentPose = predictFuturePose(robotPose, flightTime, odometryLatency);
                     updatingCurrentDist = getDistance(currentPose, targetPose);
 
@@ -635,7 +635,7 @@ public class TurretSubsystem extends SubsystemBase {
     if (far) {
       distance += 3;
     }
-    double scaleFactor = 0.5833;
+    double scaleFactor = 0.5833; // 0.5833
 
     double hoodPos = (distance - 2.0) * scaleFactor;
     return hoodPos;
@@ -654,8 +654,8 @@ public class TurretSubsystem extends SubsystemBase {
     // double b = 23.67;
     // // 3.35
     // double rpsPerDistance = 3.3;
-    double b = 22.5;
-    double rpsPerDistance = 3.8; // 3.82 3.87
+    double b = 22.5; // 22.5
+    double rpsPerDistance = 4; // 3.82 3.87 3.8 4.3
     double speed = rpsPerDistance * distance + b;
     // double speed = SmartDashboard.getNumber("RPS", 0);
     // for testing
@@ -668,9 +668,9 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public double getPassingSpeed(double distance) {
-    double speed = 0.964286 * distance * distance - 6.60714 * distance + 41.0;
+    double speed = /*0.964286 */ 1 * distance * distance - 6.60714 * distance + 41.0;
     // double speed = 6.97297 * distance - 1.13514;
-    speed = Math.max(0, Math.min(speed, 120));
+    speed = Math.max(0, Math.min(speed, 160));
     // double rpsPerDistance = 4.7;
     // double speed = rpsPerDistance * distance + b;
     // if (distance > 7) {

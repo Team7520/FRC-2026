@@ -18,7 +18,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
   double extendedPosition = -16.5;
   double retractedPosition = -5;
-  private final double CURRENT_THRESHOLD = -25;
+  private final double CURRENT_THRESHOLD = -27;
 
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(57);

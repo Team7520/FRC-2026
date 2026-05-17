@@ -180,6 +180,13 @@ public class RobotContainer {
 
     autoChooser.addOption("no one will know", drive.getAutonomousCommand("h"));
 
+    autoChooser.addOption(
+        "closer 2.5 outpost",
+        drive.getAutonomousCommand("closer 2.5 bump climb outpost double swipe"));
+
+    autoChooser.addOption(
+        "closer 2.5 depot", drive.getAutonomousCommand("closer 2.5 bump depot side trench auto"));
+
     // Configure the button bindings
     configureButtonBindings();
   }
