@@ -14,14 +14,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.DriveCommands;
-import frc.robot.commands.IndexSpin;
-import frc.robot.commands.IndexSpinReverse;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.ManualHood;
 import frc.robot.commands.ManualIntakeExtend;
 import frc.robot.commands.ManualTurn;
 import frc.robot.generated.TunerConstants;
@@ -236,19 +230,7 @@ public class RobotContainer {
 
     /* DEFAULT COMMANDS */
 
-    climber.setDefaultCommand(
-        new RunCommand(() -> climber.runClimber(operator.getLeftY() * 0.8), climber));
-
-    turret.setDefaultCommand(turret.aautoAim());
-
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -driver.getLeftY() * speedCutoff,
-            () -> -driver.getLeftX() * speedCutoff,
-            () -> -driver.getRightX() * turnCutoff));
-
-    intake.setDefaultCommand(intake.backDrive());
+    // turret.setDefaultCommand(turret.aautoAim());
 
     // MARK: - DRIVER BUTTONS
 
@@ -259,61 +241,13 @@ public class RobotContainer {
 
     driver
         .leftTrigger()
-        .whileTrue(intake.extendIntake().andThen((() -> intake.runIntake(0.6))))
+        .whileTrue(new InstantCommand(() -> intake.runIntake(0.45)))
         .onFalse(new InstantCommand(() -> intake.stopAll()));
 
     driver
         .rightTrigger()
         .whileTrue(turret.shootWeak())
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  turnCutoff = turret.turnCutOff();
-                  speedCutoff = turret.speedCutoff();
-                }))
-        .onFalse(
-            new InstantCommand(
-                () -> {
-                  turnCutoff = 0.7;
-                  speedCutoff = 1;
-                }));
-
-    // driver.rightTrigger().whileTrue(turret.shootCommand());
-    driver
-        .back()
-        .onTrue(Commands.run(() -> climber.moveToPosition(0)).until(() -> climber.atTarget(0)));
-    driver
-        .start()
-        .onTrue(Commands.run(() -> climber.moveToPosition(-55)).until(() -> climber.atTarget(-55)));
-
-    driver
-        .leftBumper()
-        .whileTrue(intake.slowRetract())
-        .onFalse(intake.extendIntake())
-        .whileFalse(intake.extendIntake());
-
-    driver.y().whileTrue(new IndexSpinReverse(turret, 0.9));
-
-    // driver
-    //     .a()
-    //     .onTrue(
-    //         new InstantCommand(() -> turret.turretWheels(true))
-    //             .alongWith(new InstantCommand(() -> turret.setFeeder(0.8))));
-
-    // driver
-    //     .b()
-    //     .onTrue(
-    //         new InstantCommand(() -> turret.turretWheels(false))
-    //             .alongWith(new InstantCommand(() -> turret.setFeeder(0))));
-
-    driver.y().whileTrue(new IndexSpin(turret, 0.5));
-
-    driver
-        .rightBumper()
-        .whileTrue(new IntakeCommand(intake, -0.916))
-        .whileTrue(new IndexSpin(turret, 0.5));
-
-    driver.x().onTrue(Commands.runOnce(() -> drive.stopWithX()));
+        .onFalse(new InstantCommand(() -> turret.stopAll()));
 
     // driver.povLeft().onTrue(Commands.run(() -> climber.resetPosition()));
 
@@ -325,16 +259,12 @@ public class RobotContainer {
 
     operator.a().onTrue(new InstantCommand(() -> turret.override()));
 
-    new Trigger(() -> Math.abs(operator.getLeftX()) > 0.1)
-        .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftX()));
-
     // Manual Turret Controls
-    new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
-        .whileTrue(new ManualTurn(turret, () -> operator.getRightX()));
+    new Trigger(() -> Math.abs(driver.getLeftX()) > 0.1)
+        .whileTrue(new ManualTurn(turret, () -> driver.getLeftX()));
 
-    new Trigger(() -> Math.abs(operator.getRightY()) > 0.1)
-        .whileTrue(new ManualHood(turret, () -> operator.getRightY()))
-        .onFalse(new InstantCommand(() -> turret.holdPosition()));
+    new Trigger(() -> Math.abs(driver.getRightX()) > 0.1)
+        .whileTrue(new ManualIntakeExtend(intake, () -> driver.getRightX()));
 
     // operator.a().onTrue(intake.extendIntake());
     // operator.b().onTrue(intake.retractIntake());

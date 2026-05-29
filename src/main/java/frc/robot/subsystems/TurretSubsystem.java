@@ -106,6 +106,7 @@ public class TurretSubsystem extends SubsystemBase {
   private Pose2d goal;
   private Pose2d feedOutpostPose;
   private Pose2d feedDepotPose;
+  private double shooterSpeed;
 
   public TurretSubsystem(Drive drive) {
     this.drive = drive;
@@ -124,7 +125,7 @@ public class TurretSubsystem extends SubsystemBase {
     configFlywheels();
     configFeeders();
     hoodMotor.setPosition(0);
-
+    SmartDashboard.putNumber("Shooter Speed", 30);
     // // (distance in meters, time in seconds)
     // tofmap1.put(2.00, 0.947);
     // tofmap1.put(2.71, 0.807);
@@ -403,6 +404,7 @@ public class TurretSubsystem extends SubsystemBase {
     leftMotor.stopMotor();
     rightMotor.stopMotor();
     feedMotor.stopMotor();
+    indexMotor.stopMotor();
   }
 
   public void stopFlywheels() {
@@ -754,17 +756,12 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public Command shootWeak() {
-    return Commands.defer(
-      () -> {
-        return Commands.run(
-          () -> {
-            setFeeder(0.91);
-            setIndexer(-0.916);
-            setFlywheelVelocity(30);
-          }
-        );
-      },
-      java.util.Set.of());
+    return Commands.run(
+        () -> {
+          setFeeder(0.4);
+          setIndexer(-0.4);
+          setFlywheelVelocity(shooterSpeed);
+        });
   }
   // MARK: - PERIODIC
   @Override
@@ -792,6 +789,7 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Hood rotations", hoodMotor.getPosition().getValueAsDouble());
     SmartDashboard.putBoolean("Turret Unwrapping", unwrap);
     SmartDashboard.putNumber("Turret Position", azimuthMotor.getPosition().getValueAsDouble());
+    shooterSpeed = SmartDashboard.getNumber("Shooter Speed", 30);
     // SmartDashboard.putNumber("Turret Rotations", azimuthMotor.getPosition().getValueAsDouble());
     // SmartDashboard.putNumber(
     //     "Absolute Turret rotatations", encoder.getAbsolutePosition().getValueAsDouble());
