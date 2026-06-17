@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ManualHood;
-import frc.robot.commands.ManualIntakeExtend;
 import frc.robot.commands.ManualTurn;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -233,10 +232,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -driver.getLeftY() * speedCutoff,
-            () -> -driver.getLeftX() * speedCutoff,
-            () -> -driver.getRightX() * turnCutoff));
-
+            () -> -driver.getLeftY() * 0.6,
+            () -> -driver.getLeftX() * 0.6,
+            () -> -driver.getRightX() * 0.6));
 
     /* DEFAULT COMMANDS */
 
@@ -277,8 +275,8 @@ public class RobotContainer {
     new Trigger(() -> Math.abs(operator.getLeftX()) > 0.1)
         .whileTrue(new ManualTurn(turret, () -> operator.getLeftX()));
 
-    new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
-        .whileTrue(new ManualHood(turret, () -> operator.getRightX()));
+    new Trigger(() -> Math.abs(operator.getRightY()) > 0.1)
+        .whileTrue(new ManualHood(turret, () -> operator.getRightY()));
 
     // operator.a().onTrue(intake.extendIntake());
     // operator.b().onTrue(intake.retractIntake());
