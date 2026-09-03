@@ -3,26 +3,31 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
 
   private final TalonFX intakeMotor;
+  private final TalonFX intakeFollowerMotor;
   private final TalonFX extendMotor;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
-  double extendedPosition = -16.5;
+  double extendedPosition = -16;
   double retractedPosition = -5;
   private final double CURRENT_THRESHOLD = -27;
 
   public IntakeSubsystem() {
-    intakeMotor = new TalonFX(57);
-    extendMotor = new TalonFX(58);
+    intakeMotor = new TalonFX(IntakeConstants.INTAKE_MOTOR);
+    intakeFollowerMotor = new TalonFX(IntakeConstants.FOLLOWER_MOTOR);
+    extendMotor = new TalonFX(IntakeConstants.EXTEND_MOTOR);
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.Slot0.kP = 2;
@@ -35,6 +40,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
     intakeMotor.getConfigurator().apply(config);
     intakeMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+
+    // Both intake rollers use the same 70 A stator and 45 A supply limits.
+    intakeFollowerMotor.getConfigurator().apply(config);
+    intakeFollowerMotor.setNeutralMode(com.ctre.phoenix6.signals.NeutralModeValue.Brake);
+    // Follower output updates depend on the leader's duty-cycle status signal.
+    intakeMotor.getDutyCycle().setUpdateFrequency(50.0);
+    intakeFollowerMotor.setControl(
+        new Follower(intakeMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+
     config.Slot0.kP = 0.5;
     config.Slot0.kI = 0;
     config.Slot0.kD = 0;
@@ -75,6 +89,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void stopAll() {
+    // Keep the second roller in follower mode; zeroing the leader stops both rollers.
     intakeMotor.setControl(duty.withOutput(0));
     extendMotor.setControl(duty.withOutput(0));
   }
@@ -96,7 +111,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setNeutralforCurrent() {
-    System.out.println("running neutral current");
+    //System.out.println("running neutral current");
     double currentDraw = extendMotor.getTorqueCurrent().getValueAsDouble();
     if (currentDraw <= CURRENT_THRESHOLD) {
       setCoast();

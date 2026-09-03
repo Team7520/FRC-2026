@@ -14,18 +14,14 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IndexSpin;
 import frc.robot.commands.IndexSpinReverse;
 import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.ManualHood;
 import frc.robot.commands.ManualIntakeExtend;
-import frc.robot.commands.ManualTurn;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LedSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -49,7 +45,6 @@ public class RobotContainer {
 
   private final TurretSubsystem turret;
   private final IntakeSubsystem intake;
-  private final ClimberSubsystem climber;
   private final LedSubsystem leds;
 
   // Controller
@@ -124,7 +119,6 @@ public class RobotContainer {
     }
     turret = new TurretSubsystem(drive);
     intake = new IntakeSubsystem();
-    climber = new ClimberSubsystem();
     leds = new LedSubsystem();
 
     NamedCommands.registerCommand("test", Commands.print("WHAHHAHH"));
@@ -200,12 +194,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("feed off", new InstantCommand(() -> turret.feed(0)));
     NamedCommands.registerCommand("intake spin", new InstantCommand(() -> intake.runIntake(0.5)));
     NamedCommands.registerCommand("intake off", new InstantCommand(() -> intake.runIntake(0)));
-    NamedCommands.registerCommand(
-        "Deploy Climber",
-        Commands.run(() -> climber.moveToPosition(-55)).until(() -> climber.atTarget(-55)));
-    NamedCommands.registerCommand(
-        "Climb",
-        Commands.run(() -> climber.moveToPosition(-11.5)).until(() -> climber.atTarget(-11.5)));
+    // Preserve compatibility with season paths; CAN ID 20 now belongs only to the intake.
+    NamedCommands.registerCommand("Deploy Climber", Commands.none());
+    NamedCommands.registerCommand("Climb", Commands.none());
     NamedCommands.registerCommand("intake out", intake.extendIntake());
     NamedCommands.registerCommand("intake in", intake.retractIntake());
   }
@@ -220,8 +211,6 @@ public class RobotContainer {
     /*
         intake wheels, also intake fully out - left trigger
         indexer  - right trigger
-        climber up = start
-        climber down = back
         intake retract = hold left bumper, let go = intake extend
         wheels x formation = x button
         reverse index = y
@@ -236,10 +225,7 @@ public class RobotContainer {
 
     /* DEFAULT COMMANDS */
 
-    climber.setDefaultCommand(
-        new RunCommand(() -> climber.runClimber(operator.getLeftY() * 0.8), climber));
-
-    turret.setDefaultCommand(turret.aautoAim());
+    turret.setDefaultCommand(turret.aautoAim(operator::getRightX, operator::getRightY));
 
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -280,13 +266,6 @@ public class RobotContainer {
 
     // driver.rightTrigger().whileTrue(turret.shootCommand());
     driver
-        .back()
-        .onTrue(Commands.run(() -> climber.moveToPosition(0)).until(() -> climber.atTarget(0)));
-    driver
-        .start()
-        .onTrue(Commands.run(() -> climber.moveToPosition(-55)).until(() -> climber.atTarget(-55)));
-
-    driver
         .leftBumper()
         .whileTrue(intake.slowRetract())
         .onFalse(intake.extendIntake())
@@ -315,29 +294,19 @@ public class RobotContainer {
 
     driver.x().onTrue(Commands.runOnce(() -> drive.stopWithX()));
 
-    // driver.povLeft().onTrue(Commands.run(() -> climber.resetPosition()));
-
     // Reset gyro to 0° when B button is pressed
 
     // MARK: - OPERATOR
 
-    // Manual Intake Controls
+    // One small shot adjustment per press; offsets persist while the target/distance changes.
+    operator.y().onTrue(turret.increaseShotPower());
+    operator.a().onTrue(turret.decreaseShotPower());
+    operator.x().onTrue(turret.aimLeft());
+    operator.b().onTrue(turret.aimRight());
 
-    operator.a().onTrue(new InstantCommand(() -> turret.override()));
-
-    new Trigger(() -> Math.abs(operator.getLeftX()) > 0.1)
+    // Manual intake extension. The right stick is handled per axis by the turret default command.
+    new Trigger(() -> Math.abs(operator.getLeftX()) > 0.2)
         .whileTrue(new ManualIntakeExtend(intake, () -> operator.getLeftX()));
-
-    // Manual Turret Controls
-    new Trigger(() -> Math.abs(operator.getRightX()) > 0.1)
-        .whileTrue(new ManualTurn(turret, () -> operator.getRightX()));
-
-    new Trigger(() -> Math.abs(operator.getRightY()) > 0.1)
-        .whileTrue(new ManualHood(turret, () -> operator.getRightY()))
-        .onFalse(new InstantCommand(() -> turret.holdPosition()));
-
-    // operator.a().onTrue(intake.extendIntake());
-    // operator.b().onTrue(intake.retractIntake());
 
     operator
         .rightTrigger()
@@ -350,9 +319,7 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(intake::stopAll, intake));
 
     operator.povDown().onTrue(new InstantCommand(() -> intake.resetPosition(0)));
-    operator.povUp().onTrue(new InstantCommand(() -> intake.resetPosition(-16.5)));
-
-    operator.x().onTrue(Commands.runOnce(() -> drive.resetGyro(0))); // disable for competition
+    operator.povUp().onTrue(new InstantCommand(() -> intake.resetPosition(-16)));
   }
 
   /**

@@ -32,7 +32,10 @@ import frc.robot.AprilTagSystem;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.UniverseConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.ShotTuning;
 import java.util.NoSuchElementException;
+import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class TurretSubsystem extends SubsystemBase {
 
@@ -92,6 +95,11 @@ public class TurretSubsystem extends SubsystemBase {
   private boolean override = false;
   private boolean unwrap = false;
   private boolean startIndexer = false;
+
+  private final ShotTuning shotTuning = new ShotTuning();
+  private boolean manualTurnActive = false;
+  private boolean manualHoodActive = false;
+  private static final double MANUAL_DEADBAND = 0.2;
 
   private double goalPoseX;
   private double goalPoseY;
@@ -279,6 +287,9 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setTurretAzimuth(Rotation2d targetAngle) {
+    if (manualTurnActive) {
+      return;
+    }
     double target = targetAngle.getRotations();
     double clampedTarget = optimizeTurretPosition(target);
     // SmartDashboard.putNumber("Clamped Tartget", clampedTarget);
@@ -338,6 +349,9 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setHoodAngle(double targetPosition) {
+    if (manualHoodActive) {
+      return;
+    }
     targetPosition = Math.min(targetPosition, 5.5);
     hoodMotor.setControl(positionRequest.withPosition(targetPosition));
   }
@@ -355,9 +369,10 @@ public class TurretSubsystem extends SubsystemBase {
     Rotation2d fieldAngle = turretToGoal.getAngle();
     turretPosePublisher.set(turretPose);
 
-    return fieldAngle
-        .minus(robotPose.getRotation())
-        .plus(new Rotation2d(Math.PI / 2)); // Adjust for turret 90 degree offset angle
+    return shotTuning.applyAim(
+        fieldAngle
+            .minus(robotPose.getRotation())
+            .plus(new Rotation2d(Math.PI / 2))); // Adjust for turret 90 degree offset angle
   }
 
   public Pose2d predictFuturePose(Pose2d robotPose, double timeOfFlight, double odometryLatency) {
@@ -478,10 +493,43 @@ public class TurretSubsystem extends SubsystemBase {
     }
   }
 
+  // These commands adjust state without interrupting the aiming command that consumes it.
+  public Command increaseShotPower() {
+    return Commands.runOnce(shotTuning::increasePower);
+  }
+
+  public Command decreaseShotPower() {
+    return Commands.runOnce(shotTuning::decreasePower);
+  }
+
+  public Command aimLeft() {
+    return Commands.runOnce(shotTuning::aimLeft);
+  }
+
+  public Command aimRight() {
+    return Commands.runOnce(shotTuning::aimRight);
+  }
+
+  private void updateManualInputs(double turnInput, double hoodInput) {
+    boolean turning = Math.abs(turnInput) > MANUAL_DEADBAND;
+    boolean movingHood = Math.abs(hoodInput) > MANUAL_DEADBAND;
+
+    // Explicitly stop on release, including when there is no alliance/automatic target yet.
+    if (turning || manualTurnActive) {
+      turn(turning ? -turnInput * 0.3 : 0.0);
+    }
+    if (movingHood || manualHoodActive) {
+      hood(movingHood ? hoodInput * 0.3 : 0.0);
+    }
+    manualTurnActive = turning;
+    manualHoodActive = movingHood;
+  }
+
   // MARK: - AUTO AIMING
-  public Command aautoAim() {
-    return Commands.run(
+  public Command aautoAim(DoubleSupplier turnInput, DoubleSupplier hoodInput) {
+    return Commands.runEnd(
         () -> {
+          updateManualInputs(turnInput.getAsDouble(), hoodInput.getAsDouble());
           if (!override) {
             RobotZone zone = getRobotZone();
             SmartDashboard.putString("Robot Zone", zone.toString());
@@ -609,6 +657,7 @@ public class TurretSubsystem extends SubsystemBase {
             }
           }
         },
+        () -> updateManualInputs(0.0, 0.0),
         this);
   }
 
@@ -661,16 +710,12 @@ public class TurretSubsystem extends SubsystemBase {
     // for testing
     // double speed = 36.0;
 
-    if (speed > 75.0) {
-      speed = 75.0;
-    }
-    return speed;
+    return shotTuning.applyPower(speed, 75.0);
   }
 
   public double getPassingSpeed(double distance) {
     double speed = /*0.964286 */ 1 * distance * distance - 6.60714 * distance + 41.0;
     // double speed = 6.97297 * distance - 1.13514;
-    speed = Math.max(0, Math.min(speed, 160));
     // double rpsPerDistance = 4.7;
     // double speed = rpsPerDistance * distance + b;
     // if (distance > 7) {
@@ -679,7 +724,7 @@ public class TurretSubsystem extends SubsystemBase {
     // if (speed > 75.0) {
     //   speed = 75.0;
     // }
-    return speed;
+    return shotTuning.applyPower(speed, 160.0);
   }
 
   public Command shootAuto(boolean state) {
@@ -755,6 +800,10 @@ public class TurretSubsystem extends SubsystemBase {
   // MARK: - PERIODIC
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("Shot Power Trim (RPS)", shotTuning.getPowerOffsetRps());
+    SmartDashboard.putNumber("Shot Aim Trim (deg left)", shotTuning.getAimOffsetDegrees());
+    Logger.recordOutput("Turret/ShotPowerTrimRPS", shotTuning.getPowerOffsetRps());
+    Logger.recordOutput("Turret/ShotAimTrimDegrees", shotTuning.getAimOffsetDegrees());
     SmartDashboard.putBoolean("Is unwrapping?", isUnwrapping());
     SmartDashboard.putNumber(
         "Azimuth Stator Current", azimuthMotor.getStatorCurrent().getValueAsDouble());

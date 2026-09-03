@@ -79,11 +79,11 @@ public final class Constants {
     public static double g = 9.81;
   }
 
-  public static class ClimberConstants {
-    public static final int MAX_AMP_POWER = 60;
-    public static final double MAX_VOLTAGE = 12;
-    public static final double KP = 0.5;
-    public static final double MAX_MOTOR_OUTPUT = 1;
+  public static class IntakeConstants {
+    public static final int INTAKE_MOTOR = 57;
+    public static final int FOLLOWER_MOTOR =
+        20; // Former climber motor, now the second intake roller.
+    public static final int EXTEND_MOTOR = 58;
   }
 
   public static class LEDConstants {
