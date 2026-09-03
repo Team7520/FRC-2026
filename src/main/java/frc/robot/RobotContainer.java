@@ -172,6 +172,21 @@ public class RobotContainer {
     autoChooser.addOption(
         "depot bump auto", drive.getAutonomousCommand("bump depot side trench auto"));
 
+    autoChooser.addOption(
+        "2.5 outpost", drive.getAutonomousCommand("2.5 bump climb outpost double swipe"));
+
+    autoChooser.addOption(
+        "2.5 depot", drive.getAutonomousCommand("2.5 bump depot side trench auto"));
+
+    autoChooser.addOption("no one will know", drive.getAutonomousCommand("h"));
+
+    autoChooser.addOption(
+        "closer 2.5 outpost",
+        drive.getAutonomousCommand("closer 2.5 bump climb outpost double swipe"));
+
+    autoChooser.addOption(
+        "closer 2.5 depot", drive.getAutonomousCommand("closer 2.5 bump depot side trench auto"));
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -233,6 +248,8 @@ public class RobotContainer {
             () -> -driver.getLeftX() * speedCutoff,
             () -> -driver.getRightX() * turnCutoff));
 
+    intake.setDefaultCommand(intake.backDrive());
+
     // MARK: - DRIVER BUTTONS
 
     // driver
@@ -242,13 +259,7 @@ public class RobotContainer {
 
     driver
         .leftTrigger()
-        .whileTrue(
-            intake
-                .extendIntake()
-                .andThen((() -> intake.runIntake(0.6)))
-                .alongWith(
-                    Commands.repeatingSequence(
-                        new InstantCommand(() -> intake.setNeutralforCurrent()))))
+        .whileTrue(intake.extendIntake().andThen((() -> intake.runIntake(0.6))))
         .onFalse(new InstantCommand(() -> intake.stopAll()));
 
     driver
@@ -279,12 +290,7 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(intake.slowRetract())
         .onFalse(intake.extendIntake())
-        .whileFalse(
-            intake
-                .extendIntake()
-                .andThen(
-                    Commands.repeatingSequence(
-                        new InstantCommand(() -> intake.setNeutralforCurrent()))));
+        .whileFalse(intake.extendIntake());
 
     driver.y().whileTrue(new IndexSpinReverse(turret, 0.9));
 

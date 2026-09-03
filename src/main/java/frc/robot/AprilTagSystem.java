@@ -99,12 +99,12 @@ public class AprilTagSystem extends SubsystemBase {
     cameraList.add(
         new CameraInfo(
             "piCam",
-            new PhotonCamera("Arducam_OV9281_USB_Camera"),
+            new PhotonCamera("piCam"),
             false,
             new Transform3d(
-                0.122363, // X forward
-                0.275093, // Y right
-                0.161672,
+                0.1223625, // X forward
+                0.5, // 275093, // Y right
+                0.161671826,
                 new Rotation3d(
                     0.0,
                     Units.degreesToRadians(20), // pitched up
@@ -113,7 +113,8 @@ public class AprilTagSystem extends SubsystemBase {
 
     limes.add(
         new LimeInfo(
-            frontLeft,
+            // frontLeft,
+            backRight,
             false,
             new Transform3d(
                 0.300942,
@@ -139,16 +140,17 @@ public class AprilTagSystem extends SubsystemBase {
 
     limes.add(
         new LimeInfo(
-            backRight,
+            // backRight,
+            frontLeft,
             false,
             new Transform3d(
-                0.272828,
-                0.221779,
-                0.287592,
+                0.2821686,
+                0.2233103992,
+                0.2820503884,
                 new Rotation3d(
-                    Units.degreesToRadians(-15), // 14.028, 35
-                    Units.degreesToRadians(20.25), // 65, 25, 42.063 20.25                 25
-                    Units.degreesToRadians(-137))))); // -148))))); // 145, -121.321, 137.937
+                    Units.degreesToRadians(0), // 14.028, 35
+                    Units.degreesToRadians(25), // 65, 25, 42.063 20.25                 25
+                    Units.degreesToRadians(-125))))); // -148))))); // 145, -121.321, 137.937
   }
 
   public String getLimeName(int index) {
@@ -358,7 +360,7 @@ public class AprilTagSystem extends SubsystemBase {
               aprilTagFieldLayout.getTagPose(target.getFiducialId()).get(),
               robotToCamera.inverse());
       return robotPose.toPose2d();
-    } else if (cam2Use != -1) {
+    } else if (cam2Use != -1 && cam2Use != 3) {
       if (LimelightHelpers.getTV(limes.get(cam2Use - 1).name)) {
         return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limes.get(cam2Use - 1).name)
             .pose;

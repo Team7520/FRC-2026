@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.5732667617689007,
-        "y": 2.6
+        "y": 2.37
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.852425106990014,
-        "y": 1.9195292439372322
+        "x": 1.8524251069900137,
+        "y": 1.6895292439372323
       },
       "isLocked": false,
       "linkedName": "bump outpost"

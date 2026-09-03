@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "bump trench to center(outpost)"
+            "pathName": "closer bump trench to center(outpost)"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "bump center to shoot outpost"
+            "pathName": "closer bump center to shoot outpost"
           }
         },
         {
@@ -65,15 +65,15 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "bump to climb"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "feed index"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "outpost shoot while turn"
                 }
               }
             ]
@@ -82,13 +82,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "climbing"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Climb"
+            "pathName": "bump trench to center(outpost)"
           }
         }
       ]
