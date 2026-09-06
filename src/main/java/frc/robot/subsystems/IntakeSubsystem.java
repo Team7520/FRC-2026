@@ -20,7 +20,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFX extendMotor;
   private final DutyCycleOut duty = new DutyCycleOut(0);
   private final PositionDutyCycle pivotPosReq = new PositionDutyCycle(0);
-  double extendedPosition = -16;
+  double extendedPosition = -16.7;
   double retractedPosition = -5;
   private final double CURRENT_THRESHOLD = -27;
 
@@ -111,7 +111,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setNeutralforCurrent() {
-    //System.out.println("running neutral current");
+    // System.out.println("running neutral current");
     double currentDraw = extendMotor.getTorqueCurrent().getValueAsDouble();
     if (currentDraw <= CURRENT_THRESHOLD) {
       setCoast();

@@ -117,9 +117,9 @@ public class AprilTagSystem extends SubsystemBase {
             backRight,
             false,
             new Transform3d(
-                0.300942,
-                -0.275542,
-                0.196104,
+                0.296323841, // 300942
+                -0.275791226, // -275542
+                0.194680662, // 196104
                 new Rotation3d(
                     Units.degreesToRadians(180),
                     Units.degreesToRadians(30),
@@ -130,9 +130,9 @@ public class AprilTagSystem extends SubsystemBase {
             frontRight,
             false,
             new Transform3d(
-                0.300942,
-                0.275542,
-                0.196104,
+                0.296323841, // 300942
+                0.275791226, // 275542
+                0.194680662, // 196104
                 new Rotation3d(
                     Units.degreesToRadians(180),
                     Units.degreesToRadians(30),
@@ -144,9 +144,9 @@ public class AprilTagSystem extends SubsystemBase {
             frontLeft,
             false,
             new Transform3d(
-                0.2821686,
-                0.2233103992,
-                0.2820503884,
+                0.280846993, // 2821686
+                0.224229465, // 2233103992
+                0.282797575, // 2820503884
                 new Rotation3d(
                     Units.degreesToRadians(0), // 14.028, 35
                     Units.degreesToRadians(25), // 65, 25, 42.063 20.25                 25

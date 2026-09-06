@@ -319,7 +319,7 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(intake::stopAll, intake));
 
     operator.povDown().onTrue(new InstantCommand(() -> intake.resetPosition(0)));
-    operator.povUp().onTrue(new InstantCommand(() -> intake.resetPosition(-16)));
+    operator.povUp().onTrue(new InstantCommand(() -> intake.resetPosition(-16.7)));
   }
 
   /**
