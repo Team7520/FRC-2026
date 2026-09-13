@@ -703,8 +703,8 @@ public class TurretSubsystem extends SubsystemBase {
     // double b = 23.67;
     // // 3.35
     // double rpsPerDistance = 3.3;
-    double b = 22.5; // 22.5
-    double rpsPerDistance = 4; // 3.82 3.87 3.8 4.3
+    double b = 18.2; // 22.5
+    double rpsPerDistance = 4; // 3.82 3.87 3.8 4.3 4
     double speed = rpsPerDistance * distance + b;
     // double speed = SmartDashboard.getNumber("RPS", 0);
     // for testing
