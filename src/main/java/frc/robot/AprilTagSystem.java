@@ -123,7 +123,7 @@ public class AprilTagSystem extends SubsystemBase {
                 new Rotation3d(
                     Units.degreesToRadians(180),
                     Units.degreesToRadians(30),
-                    Units.degreesToRadians(42.273689)))));
+                    Units.degreesToRadians(-42.273689)))));
 
     limes.add(
         new LimeInfo(
@@ -136,7 +136,7 @@ public class AprilTagSystem extends SubsystemBase {
                 new Rotation3d(
                     Units.degreesToRadians(180),
                     Units.degreesToRadians(30),
-                    Units.degreesToRadians(-42.273689)))));
+                    Units.degreesToRadians(42.273689)))));
 
     limes.add(
         new LimeInfo(
